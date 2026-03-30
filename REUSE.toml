@@ -4,6 +4,15 @@ SPDX-PackageSupplier = "haskeletor contributors <https://github.com/ForNeVeR/has
 SPDX-PackageDownloadLocation = "https://github.com/ForNeVeR/haskeletor"
 
 [[annotations]]
+path = [
+    "gradle/wrapper/gradle-wrapper.jar",
+    "gradle/wrapper/gradle-wrapper.properties"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Gradle authors <https://gradle.org/>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
 path = "gen/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = [
@@ -13,10 +22,7 @@ SPDX-FileCopyrightText = [
 SPDX-License-Identifier = "Apache-2.0"
 
 [[annotations]]
-path = [
-    "gradle/wrapper/gradle-wrapper.jar",
-    "gradle/wrapper/gradle-wrapper.properties"
-]
+path = ".idea/**/**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "Gradle authors <https://gradle.org/>"
+SPDX-FileCopyrightText = "2026 Friedrich von Never <friedrich@fornever.me>"
 SPDX-License-Identifier = "Apache-2.0"

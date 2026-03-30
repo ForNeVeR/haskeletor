@@ -95,3 +95,13 @@ An alternative way to install the latest beta version is to download `IntelliJ-h
 8. Stack REPLs are running in the background. You can restart them by `Haskell`>`Update Settings and Restart REPLs`.
 
 If you want to contribute to this project, read [the contributing guideline](CONTRIBUTING.md).
+
+License
+-------
+The project is distributed under the terms of [the Apache 2.0 license][docs.license]
+(unless a particular file states otherwise).
+
+The license indication in the project's sources is compliant with the [REUSE specification v3.3][reuse.spec].
+
+[docs.license]: LICENSE
+[reuse.spec]: https://reuse.software/spec-3.3/
