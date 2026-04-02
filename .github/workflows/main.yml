@@ -17,6 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Cache downloaded JDK
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.local/share/gradle-jvm
+          ~/AppData/Local/gradle-jvm
+        key: ${{ runner.os }}.jvm.${{ hashFiles('gradlew*') }}
+
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Build plugin
