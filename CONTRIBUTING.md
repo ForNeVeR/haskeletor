@@ -9,6 +9,12 @@ SPDX-License-Identifier: Apache-2.0
 Contributor Guide
 =================
 
+Development Prerequisites
+-------------------------
+For opening the project in an IDE/editor, JDK 17 or later might need to be installed.
+
+For building, it is not required, as the JDK will be auto-downloaded by the Gradle wrapper.
+
 How to build project
 --------------------
 1. Clone this project;

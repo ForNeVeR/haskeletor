@@ -118,6 +118,97 @@ esac
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
 
+# GRADLE JVM WRAPPER START MARKER
+BUILD_DIR="${HOME}/.local/share/gradle-jvm"
+JVM_ARCH=$(uname -m)
+JVM_TEMP_FILE=$BUILD_DIR/gradle-jvm-temp.tar.gz
+if [ "$darwin" = "true" ]; then
+    case $JVM_ARCH in
+    x86_64)
+        JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-x64-macos-jdk.pkg
+        JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-x64-macos-jdk.pkg-6812a1
+        ;;
+    arm64)
+        JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-macos-jdk.pkg
+        JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-aarch64-macos-jdk.pkg-ff7fe8
+        ;;
+    *) 
+        die "Unknown architecture $JVM_ARCH"
+        ;;
+    esac
+elif [ "$cygwin" = "true" ] || [ "$msys" = "true" ]; then
+    JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-x64-windows-jdk.zip
+    JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-x64-windows-jdk-aca311
+else
+    JVM_ARCH=$(linux$(getconf LONG_BIT) uname -m)
+     case $JVM_ARCH in
+        x86_64)
+            JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz
+            JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-x64-linux-jdk-f9fee4
+            ;;
+        aarch64)
+            JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-linux-jdk.tar.gz
+            JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-aarch64-linux-jdk-11b11b
+            ;;
+        *) 
+            die "Unknown architecture $JVM_ARCH"
+            ;;
+        esac
+fi
+
+set -e
+
+if [ -e "$JVM_TARGET_DIR/.flag" ] && [ -n "$(ls "$JVM_TARGET_DIR")" ] && [ "x$(cat "$JVM_TARGET_DIR/.flag")" = "x${JVM_URL}" ]; then
+    # Everything is up-to-date in $JVM_TARGET_DIR, do nothing
+    true
+else
+  echo "Downloading $JVM_URL to $JVM_TEMP_FILE"
+
+  rm -f "$JVM_TEMP_FILE"
+  mkdir -p "$BUILD_DIR"
+  if command -v curl >/dev/null 2>&1; then
+      if [ -t 1 ]; then CURL_PROGRESS="--progress-bar"; else CURL_PROGRESS="--silent --show-error"; fi
+      # shellcheck disable=SC2086
+      curl $CURL_PROGRESS -L --output "${JVM_TEMP_FILE}" "$JVM_URL" 2>&1
+  elif command -v wget >/dev/null 2>&1; then
+      if [ -t 1 ]; then WGET_PROGRESS=""; else WGET_PROGRESS="-nv"; fi
+      wget $WGET_PROGRESS -O "${JVM_TEMP_FILE}" "$JVM_URL" 2>&1
+  else
+      die "ERROR: Please install wget or curl"
+  fi
+
+  echo "Extracting $JVM_TEMP_FILE to $JVM_TARGET_DIR"
+  rm -rf "$JVM_TARGET_DIR"
+  mkdir -p "$JVM_TARGET_DIR"
+
+  case "$JVM_URL" in
+    *".zip") unzip "$JVM_TEMP_FILE" -d "$JVM_TARGET_DIR" ;;
+    *) tar -x -f "$JVM_TEMP_FILE" -C "$JVM_TARGET_DIR" ;;
+  esac
+  
+  rm -f "$JVM_TEMP_FILE"
+
+  echo "$JVM_URL" >"$JVM_TARGET_DIR/.flag"
+fi
+
+JAVA_HOME=
+for d in "$JVM_TARGET_DIR" "$JVM_TARGET_DIR"/* "$JVM_TARGET_DIR"/Contents/Home "$JVM_TARGET_DIR"/*/Contents/Home; do
+  if [ -e "$d/bin/java" ]; then
+    JAVA_HOME="$d"
+  fi
+done
+
+if [ '!' -e "$JAVA_HOME/bin/java" ]; then
+  die "Unable to find bin/java under $JVM_TARGET_DIR"
+fi
+
+# Make it available for child processes
+export JAVA_HOME
+
+set +e
+
+# GRADLE JVM WRAPPER END MARKER
+
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -203,7 +294,7 @@ fi
 
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS='-Dfile.encoding=UTF-8 "-Xmx64m" "-Xms64m"'
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 
 # Collect all arguments for the java command:
 #   * DEFAULT_JVM_OPTS, JAVA_OPTS, JAVA_OPTS, and optsEnvironmentVar are not allowed to contain shell fragments,

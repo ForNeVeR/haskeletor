@@ -8,6 +8,15 @@ import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 plugins {
     id("scala")
     alias(libs.plugins.intellij.platform)
+    alias(libs.plugins.gradle.jvm.wrapper)
+}
+
+jvmWrapper {
+    linuxAarch64JvmUrl = "https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-linux-jdk.tar.gz"
+    linuxX64JvmUrl = "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz"
+    macAarch64JvmUrl = "https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-macos-jdk.pkg"
+    macX64JvmUrl = "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-macos-jdk.pkg"
+    windowsX64JvmUrl = "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-windows-jdk.zip"
 }
 
 group = "intellij.haskell"
