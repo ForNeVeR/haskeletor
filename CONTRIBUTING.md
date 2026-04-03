@@ -17,7 +17,8 @@ For building, it is not required, as the JDK will be auto-downloaded by the Grad
 
 Some of the tasks to work with the repository infrastructure will require you to install the following components:
 - the [REUSE][reuse] tool;
-- [PowerShell Core][powershell].
+- [PowerShell Core][powershell];
+- [.NET SDK 10][dotnet-sdk] or later.
 
 How to build project
 --------------------
@@ -91,5 +92,15 @@ $ pwsh -c "Install-Module VerifyEncoding -Repository PSGallery -RequiredVersion 
 
 The `-AutoFix` switch will automatically fix the encoding issues, and you'll only need to commit and push the changes.
 
+GitHub Actions
+--------------
+If you want to update the GitHub Actions used in the project, edit the file that generated them: `scripts/github-actions.fsx`.
+
+Then run the following shell command:
+```console
+$ dotnet fsi scripts/github-actions.fsx
+```
+
+[dotnet-sdk]: https://dotnet.microsoft.com/en-us/download
 [powershell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell
 [reuse]: https://reuse.software/

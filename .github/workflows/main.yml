@@ -4,50 +4,56 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# This file is auto-generated.
 name: Gradle CI
-
 on:
   push:
     branches:
-      - master
-      - renovate/**
+    - master
+    - renovate/**
   pull_request:
-    branches: [ master ]
-
+    branches:
+    - master
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-
+    - uses: actions/checkout@v6
     - name: Cache downloaded JDK
       uses: actions/cache@v5
       with:
-        path: |
+        key: ${{ runner.os }}.jvm.${{ hashFiles('gradlew*') }}
+        path: |-
           ~/.local/share/gradle-jvm
           ~/AppData/Local/gradle-jvm
-        key: ${{ runner.os }}.jvm.${{ hashFiles('gradlew*') }}
-
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Build plugin
       run: ./gradlew buildPlugin
     - name: Run tests
       run: ./gradlew test
-
   encoding:
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out the sources
-        uses: actions/checkout@v4
-      - name: Verify encoding
-        shell: pwsh
-        run: Install-Module VerifyEncoding -Repository PSGallery -RequiredVersion 2.3.0 -Force && Test-Encoding
-
+    - name: Check out the sources
+      uses: actions/checkout@v6
+    - name: Verify encoding
+      shell: pwsh
+      run: Install-Module VerifyEncoding -Repository PSGallery -RequiredVersion 2.3.0 -Force && Test-Encoding
   licenses:
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out the sources
-        uses: actions/checkout@v6
-      - name: REUSE license check
-        uses: fsfe/reuse-action@v6
+    - name: Check out the sources
+      uses: actions/checkout@v6
+    - name: REUSE license check
+      uses: fsfe/reuse-action@v6
+  verify-workflows:
+    runs-on: ubuntu-24.04
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+      NUGET_PACKAGES: ${{ github.workspace }}/.github/nuget-packages
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-dotnet@v5
+    - run: dotnet fsi ./scripts/github-actions.fsx verify

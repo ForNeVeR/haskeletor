@@ -10,7 +10,8 @@
             "description": "Update the GitHub Actions runners.",
             "customType": "regex",
             "managerFilePatterns": [
-                ".github/workflows/*.yml"
+                ".github/workflows/*.yml",
+                "scripts/github-actions.fsx"
             ],
             "matchStrings": [
                 "(?<depName>macos|ubuntu|windows)-(?<currentValue>[-\\w.\\d]+)"
@@ -22,7 +23,8 @@
             "customType": "regex",
             "managerFilePatterns": [
                 "CONTRIBUTING.md",
-                ".github/workflows/*.yml"
+                ".github/workflows/*.yml",
+                "scripts/github-actions.fsx"
             ],
             "matchStrings": [
                 "Install-Module (?<depName>\\S+?) -Repository PSGallery -RequiredVersion (?<currentValue>\\S+)"
