@@ -15,8 +15,14 @@ open Generaptor.GitHubActions
 open type Generaptor.GitHubActions.Commands
 
 let workflows = [
-    let linux = "ubuntu-24.04"
-    let runners = [linux]
+    let defaultLinux = "ubuntu-24.04"
+    let runners = [
+        "macos-15"
+        "ubuntu-24.04-arm"
+        "windows-11-arm"
+        "windows-2025"
+        defaultLinux
+    ]
 
     let workflow name body = workflow name [
         header licenseHeader
@@ -38,7 +44,11 @@ let workflows = [
         ]
 
         sourceJob "build" [
-            yield! runners |> Seq.map runsOn
+            strategy(failFast = false, matrix = [
+                "image", runners
+            ])
+            runsOn "${{ matrix.image }}"
+
             step(
                 name = "Cache downloaded JDK",
                 usesSpec = Auto "actions/cache",
@@ -64,7 +74,8 @@ let workflows = [
             )
         ]
         sourceJob "encoding" [
-            runsOn linux
+            runsOn defaultLinux
+
             step(
                 name = "Verify encoding",
                 shell = "pwsh",
@@ -72,14 +83,15 @@ let workflows = [
             )
         ]
         sourceJob "licenses" [
-            runsOn linux
+            runsOn defaultLinux
+
             step(
                 name = "REUSE license check",
                 usesSpec = Auto "fsfe/reuse-action"
             )
         ]
         sourceJob "verify-workflows" [
-            runsOn linux
+            runsOn defaultLinux
 
             setEnv "DOTNET_CLI_TELEMETRY_OPTOUT" "1"
             setEnv "DOTNET_NOLOGO" "1"

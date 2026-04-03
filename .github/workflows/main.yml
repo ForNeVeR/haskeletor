@@ -16,7 +16,16 @@ on:
     - master
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        image:
+        - macos-15
+        - ubuntu-24.04-arm
+        - windows-11-arm
+        - windows-2025
+        - ubuntu-24.04
+      fail-fast: false
+    runs-on: ${{ matrix.image }}
     steps:
     - name: Check out the sources
       uses: actions/checkout@v6
