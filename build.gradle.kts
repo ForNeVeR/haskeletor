@@ -64,13 +64,7 @@ sourceSets {
 
 intellijPlatform {
     pluginConfiguration {
-        id = "intellij.haskell"
-        name = "IntelliJ-Haskell"
         version = providers.gradleProperty("pluginVersion")
-        ideaVersion {
-            sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            untilBuild = provider { null }
-        }
     }
 }
 
