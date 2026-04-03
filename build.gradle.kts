@@ -19,7 +19,7 @@ jvmWrapper {
     windowsX64JvmUrl = "https://corretto.aws/downloads/latest/amazon-corretto-17-x64-windows-jdk.zip"
 }
 
-group = "intellij.haskell"
+group = "me.fornever.haskeletor"
 version = providers.gradleProperty("pluginVersion").get()
 
 repositories {
