@@ -19,7 +19,6 @@ let workflows = [
     let runners = [
         "macos-15"
         "ubuntu-24.04-arm"
-        "windows-11-arm"
         "windows-2025"
         defaultLinux
     ]
