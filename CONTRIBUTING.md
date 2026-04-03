@@ -15,6 +15,10 @@ For opening the project in an IDE/editor, JDK 17 or later might need to be insta
 
 For building, it is not required, as the JDK will be auto-downloaded by the Gradle wrapper.
 
+Some of the tasks to work with the repository infrastructure will require you to install the following components:
+- the [REUSE][reuse] tool;
+- [PowerShell Core][powershell].
+
 How to build project
 --------------------
 1. Clone this project;
@@ -29,17 +33,17 @@ How to prepare plugin for deployment
 ------------------------------------
 1. Right-click on top of `intellij-haskell.iml` inside `intellij-haskell` folder;
 1. Select `Import module`;
-1. Be sure `unmanaged-jars` dependency is set to `provided` inside `Project structure`>`Project settings`>`Modules`>`Dependencies` (btw, setting `provided` inside sbt file gives an error); 
-1. Right-click on top of `intellij-haskell` plugin module and select `Prepare Plugin Module 'intellij-haskell' for deployment`; 
+1. Be sure `unmanaged-jars` dependency is set to `provided` inside `Project structure`>`Project settings`>`Modules`>`Dependencies` (btw, setting `provided` inside sbt file gives an error);
+1. Right-click on top of `intellij-haskell` plugin module and select `Prepare Plugin Module 'intellij-haskell' for deployment`;
 
 
 How to run/debug plugin inside IntelliJ
 ---------------------------------------
-1. In `SDKs` create Jetbrains JDK by choosing `Add JDK...` and selecting the path to the JDK which is included in the IntelliJ application; 
-1. Create Project SDK in `Project structure`>`Project settings`>`Project` by using the `Add SDK` option and selecting `Intellij Platform Plugin SDK` and setting the path to the IntelliJ folder. 
+1. In `SDKs` create Jetbrains JDK by choosing `Add JDK...` and selecting the path to the JDK which is included in the IntelliJ application;
+1. Create Project SDK in `Project structure`>`Project settings`>`Project` by using the `Add SDK` option and selecting `Intellij Platform Plugin SDK` and setting the path to the IntelliJ folder.
  Select as JDK the just created JDK of the previous step;
 1. Set Plugin SDK settings right inside `Project structure`>`Platform settings`>`SDKs`. For example, set  SDK home path to `idea/142.5239.7` inside project root folder;
-1. Set `Module-SDK` right for `intellij-haskell` plugin module inside `Project structure`>`Project structure`>`Project settings`>`Modules`; 
+1. Set `Module-SDK` right for `intellij-haskell` plugin module inside `Project structure`>`Project structure`>`Project settings`>`Modules`;
 1. To run plugin inside IntelliJ, the first-run configuration has to be created. Navigate to `Run`>`Edit configurations` and create `plugin` configuration for `intellij-haskell`;
 
 
@@ -78,4 +82,14 @@ If the CI asks you to update the file licenses, follow one of these:
 (Feel free to attribute the changes to "haskeletor contributors <https://github.com/ForNeVeR/haskeletor>" instead of your name in a multi-author file, or if you don't want your name to be mentioned in the project's source: this doesn't mean you'll lose the copyright.)
 <!-- REUSE-IgnoreEnd -->
 
+File Encoding Changes
+---------------------
+If the automation asks you to update the file encoding (line endings or UTF-8 BOM) in certain files, run the following PowerShell script ([PowerShell Core][powershell] is recommended to run this script):
+```console
+$ pwsh -c "Install-Module VerifyEncoding -Repository PSGallery -RequiredVersion 2.3.0 -Force && Test-Encoding -AutoFix -ExcludeExtensions '.bat', '.DotSettings'"
+```
+
+The `-AutoFix` switch will automatically fix the encoding issues, and you'll only need to commit and push the changes.
+
+[powershell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell
 [reuse]: https://reuse.software/

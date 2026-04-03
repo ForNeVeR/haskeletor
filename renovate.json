@@ -1,6 +1,34 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended"
+    ],
+    "automerge": true,
+    "automergeType": "branch",
+    "customRules": [
+        {
+            "description": "Update the GitHub Actions runners.",
+            "customType": "regex",
+            "managerFilePatterns": [
+                ".github/workflows/*.yml"
+            ],
+            "matchStrings": [
+                "(?<depName>macos|ubuntu|windows)-(?<currentValue>[-\\w.\\d]+)"
+            ],
+            "datasourceTemplate": "github-runners"
+        },
+        {
+            "description": "Update the VerifyEncoding PowerShell module.",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "CONTRIBUTING.md",
+                ".github/workflows/*.yml"
+            ],
+            "matchStrings": [
+                "Install-Module (?<depName>\\S+?) -Repository PSGallery -RequiredVersion (?<currentValue>\\S+)"
+            ],
+            "datasourceTemplate": "nuget",
+            "registryUrlTemplate": "https://www.powershellgallery.com/api/v2/"
+        }
+    ]
 }
