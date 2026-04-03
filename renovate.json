@@ -7,6 +7,17 @@
     "automergeType": "branch",
     "customRules": [
         {
+            "description": "Update the F# script packages.",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "scripts/github-actions.fsx"
+            ],
+            "matchStrings": [
+                "#r \"nuget: (?<depName>.+), (?<currentValue>\\S+)\""
+            ],
+            "datasourceTemplate": "nuget"
+        },
+        {
             "description": "Update the GitHub Actions runners.",
             "customType": "regex",
             "managerFilePatterns": [
