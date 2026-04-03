@@ -27,7 +27,7 @@ object GlobalInfo {
     if (SystemInfo.isWindows) {
       System.setProperty("jdk.lang.Process.allowAmbiguousCommands", "true")
     }
-    ProjectDirectories.from("me", "fornever", "haskeletor").cacheDir
+    ProjectDirectories.from("me.fornever", "", "haskeletor").cacheDir
   }
 
   lazy val getIntelliJHaskellDirectory: File = {
