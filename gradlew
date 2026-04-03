@@ -125,12 +125,12 @@ JVM_TEMP_FILE=$BUILD_DIR/gradle-jvm-temp.tar.gz
 if [ "$darwin" = "true" ]; then
     case $JVM_ARCH in
     x86_64)
-        JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-x64-macos-jdk.pkg
-        JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-x64-macos-jdk.pkg-6812a1
+        JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-x64-macos-jdk.tar.gz
+        JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-x64-macos-jdk-ba9887
         ;;
     arm64)
-        JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-macos-jdk.pkg
-        JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-aarch64-macos-jdk.pkg-ff7fe8
+        JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-macos-jdk.tar.gz
+        JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-aarch64-macos-jdk-61fa25
         ;;
     *) 
         die "Unknown architecture $JVM_ARCH"
