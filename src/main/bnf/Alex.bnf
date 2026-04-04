@@ -9,20 +9,20 @@
 {
   generate=[java="8" names="long"]
 
-  parserClass="intellij.haskell.alex.lang.parser.AlexParser"
+  parserClass="me.fornever.haskeletor.alex.lang.parser.AlexParser"
 
-  implements="intellij.haskell.alex.lang.psi.AlexElement"
-  extends="intellij.haskell.alex.lang.psi.impl.AlexElementImpl"
+  implements="me.fornever.haskeletor.alex.lang.psi.AlexElement"
+  extends="me.fornever.haskeletor.alex.lang.psi.impl.AlexElementImpl"
 
   psiClassPrefix="Alex"
   psiImplClassSuffix="Impl"
-  psiPackage="intellij.haskell.alex.lang.psi"
-  psiImplPackage="intellij.haskell.alex.lang.psi.impl"
+  psiPackage="me.fornever.haskeletor.alex.lang.psi"
+  psiImplPackage="me.fornever.haskeletor.alex.lang.psi.impl"
 
-  elementTypeHolderClass="intellij.haskell.alex.lang.psi.AlexTypes"
+  elementTypeHolderClass="me.fornever.haskeletor.alex.lang.psi.AlexTypes"
   elementTypePrefix="ALEX_"
-  elementTypeClass="intellij.haskell.alex.lang.psi.AlexTokenType"
-  tokenTypeClass="intellij.haskell.alex.lang.psi.AlexTokenType"
+  elementTypeClass="me.fornever.haskeletor.alex.lang.psi.AlexTokenType"
+  tokenTypeClass="me.fornever.haskeletor.alex.lang.psi.AlexTokenType"
 }
 
 alex_file ::=
@@ -44,12 +44,12 @@ identifier ::= HASKELL_IDENTIFIER
 regex ::= (regex_part | token_set_id)
 
 token_set_id ::= DOLLAR_AND_IDENTIFIER {
-  mixin='intellij.haskell.alex.lang.psi.impl.AlexIdMixin'
+  mixin='me.fornever.haskeletor.alex.lang.psi.impl.AlexIdMixin'
   implements='com.intellij.psi.PsiNameIdentifierOwner'
 }
 
 rule_id ::= EMAIL_AND_IDENTIFIER {
-  mixin='intellij.haskell.alex.lang.psi.impl.AlexIdMixin'
+  mixin='me.fornever.haskeletor.alex.lang.psi.impl.AlexIdMixin'
   implements='com.intellij.psi.PsiNameIdentifierOwner'
 }
 
@@ -66,7 +66,7 @@ top_module_section ::=
  (SOMETHING_IS_HAPPENING | endOfLine)*
  SOMETHING_HAS_ALREADY_HAPPENED {
   pin=1
-  mixin='intellij.haskell.alex.lang.psi.impl.AlexHaskellCodeInjectionHost'
+  mixin='me.fornever.haskeletor.alex.lang.psi.impl.AlexHaskellCodeInjectionHost'
 }
 
 wrapper_type ::= WRAPPER_TYPE_IS_GONNA_BE_HERE STRING {
@@ -117,5 +117,5 @@ user_code_section ::=
  (SOMETHING_IS_HAPPENING | endOfLine)*
  SOMETHING_HAS_ALREADY_HAPPENED {
   pin=1
-  mixin='intellij.haskell.alex.lang.psi.impl.AlexHaskellCodeInjectionHost'
+  mixin='me.fornever.haskeletor.alex.lang.psi.impl.AlexHaskellCodeInjectionHost'
 }

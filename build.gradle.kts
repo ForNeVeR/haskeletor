@@ -6,6 +6,7 @@
 
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.GenerateLexerTask
+import org.jetbrains.intellij.platform.gradle.tasks.GenerateParserTask
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 
 plugins {
@@ -53,6 +54,7 @@ dependencies {
 }
 
 val generatedAlexLexerSourceBase = layout.buildDirectory.dir("generated/lexer/alex")
+val generatedAlexParserSourceBase = layout.buildDirectory.dir("generated/parser/alex")
 val generatedHaskellLexerSourceBase = layout.buildDirectory.dir("generated/lexer/haskell")
 val generatedHaskellParserSourceBase = layout.buildDirectory.dir("generated/parser/haskell")
 
@@ -63,6 +65,7 @@ sourceSets {
                 "gen",
                 "src/main/scala",
                 generatedAlexLexerSourceBase,
+                generatedAlexParserSourceBase,
                 generatedHaskellLexerSourceBase,
                 generatedHaskellParserSourceBase
             )
@@ -82,17 +85,24 @@ intellijPlatform {
 }
 
 tasks {
-    val alexLexer by registering(GenerateLexerTask::class) {
+    val generateAlexLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_AlexLexer.flex")
         targetOutputDir = generatedAlexLexerSourceBase.map { it.dir("me/fornever/haskeletor/alex/lang/lexer") }
         purgeOldFiles = true
     }
-    val haskellLexer by registering(GenerateLexerTask::class) {
+    val generateHaskellLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_HaskellLexer.flex")
         targetOutputDir = generatedHaskellLexerSourceBase.map { it.dir("me/fornever/haskeletor") }
         purgeOldFiles = true
     }
-    generateParser {
+    val generateAlexParser by registering(GenerateParserTask::class) {
+        sourceFile = file("src/main/bnf/Alex.bnf")
+        targetRootOutputDir = generatedAlexParserSourceBase
+        purgeOldFiles = true
+        pathToParser = "me/fornever/haskeletor/alex/lang/parser/AlexParser"
+        pathToPsiRoot = "me/fornever/haskeletor/alex/lang/parser/psi"
+    }
+    val generateHaskellParser by registering(GenerateParserTask::class) {
         sourceFile = file("src/main/bnf/haskell.bnf")
         targetRootOutputDir = generatedHaskellParserSourceBase
         purgeOldFiles = true
@@ -102,9 +112,10 @@ tasks {
 
     withType<ScalaCompile> {
         dependsOn(
-            alexLexer,
-            haskellLexer,
-            generateParser
+            generateAlexLexer,
+            generateAlexParser,
+            generateHaskellLexer,
+            generateHaskellParser
         )
         scalaCompileOptions.additionalParameters = listOf(
             "-deprecation", "-feature", "-unchecked"
