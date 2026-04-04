@@ -23,12 +23,6 @@
   elementTypeClass="me.fornever.haskeletor.psi.HaskellCompositeElementType"
   tokenTypeClass="me.fornever.haskeletor.psi.HaskellTokenType"
 
-  // NOTE: psiImplUtilClass is not supported by Grammar-Kit Gradle plugin.
-  // Methods previously generated via psiImplUtilClass are now provided by:
-  // - Default implementations in owned traits (HaskellDeclarationElement, HaskellQualifiedNameElement, etc.)
-  // - Implicit extension methods (HaskellPsiExtensions)
-  // - Base class overrides (HaskellNamedStubBasedPsiElementBase, HaskellQualifierElementImpl)
-
   elementTypePrefix="HS_"
 
   extends("varid|varsym|conid|consym|modid")="me.fornever.haskeletor.psi.impl.HaskellNamedStubBasedPsiElementBase<?>"
