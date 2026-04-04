@@ -55,6 +55,7 @@ dependencies {
 
 val generatedAlexLexerSourceBase = layout.buildDirectory.dir("generated/lexer/alex")
 val generatedAlexParserSourceBase = layout.buildDirectory.dir("generated/parser/alex")
+val generatedCabalSyntaxHighlightingSourceBase = layout.buildDirectory.dir("generated/lexer/cabal-highlighting")
 val generatedHaskellLexerSourceBase = layout.buildDirectory.dir("generated/lexer/haskell")
 val generatedHaskellParserSourceBase = layout.buildDirectory.dir("generated/parser/haskell")
 
@@ -66,6 +67,7 @@ sourceSets {
                 "src/main/scala",
                 generatedAlexLexerSourceBase,
                 generatedAlexParserSourceBase,
+                generatedCabalSyntaxHighlightingSourceBase,
                 generatedHaskellLexerSourceBase,
                 generatedHaskellParserSourceBase
             )
@@ -90,11 +92,17 @@ tasks {
         targetOutputDir = generatedAlexLexerSourceBase.map { it.dir("me/fornever/haskeletor/alex/lang/lexer") }
         purgeOldFiles = true
     }
+    val generateCabalSyntaxHighlightingLexer by registering(GenerateLexerTask::class) {
+        sourceFile = file("src/main/flex/_CabalSyntaxHighlightingLexer.flex")
+        targetOutputDir = generatedCabalSyntaxHighlightingSourceBase.map { it.dir("me/fornever/haskeletor/cabal/highlighting") }
+        purgeOldFiles = true
+    }
     val generateHaskellLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_HaskellLexer.flex")
         targetOutputDir = generatedHaskellLexerSourceBase.map { it.dir("me/fornever/haskeletor") }
         purgeOldFiles = true
     }
+
     val generateAlexParser by registering(GenerateParserTask::class) {
         sourceFile = file("src/main/bnf/Alex.bnf")
         targetRootOutputDir = generatedAlexParserSourceBase
@@ -114,6 +122,7 @@ tasks {
         dependsOn(
             generateAlexLexer,
             generateAlexParser,
+            generateCabalSyntaxHighlightingLexer,
             generateHaskellLexer,
             generateHaskellParser
         )
