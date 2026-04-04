@@ -9,7 +9,7 @@ snakeyaml = { module = "org.yaml:snakeyaml", version = "1.30" }
 scaffeine = { module = "com.github.blemale:scaffeine_2.13", version = "5.3.0" }
 directories = { module = "io.github.soc:directories", version = "12" }
 fastparse = { module = "com.lihaoyi:fastparse_2.13", version = "2.3.3" }
-scalatest = { module = "org.scalatest:scalatest_2.13", version = "3.2.12" }
+scalatest = { module = "org.scalatest:scalatest_2.13", version = "3.3.0-SNAP4" }
 scalatestplus-junit = { module = "org.scalatestplus:junit-4-13_2.13", version = "3.2.12.0" }
 
 [plugins]
