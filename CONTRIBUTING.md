@@ -47,14 +47,11 @@ How to run/debug plugin inside IntelliJ
 1. Set `Module-SDK` right for `intellij-haskell` plugin module inside `Project structure`>`Project structure`>`Project settings`>`Modules`;
 1. To run plugin inside IntelliJ, the first-run configuration has to be created. Navigate to `Run`>`Edit configurations` and create `plugin` configuration for `intellij-haskell`;
 
-
 Development remarks
 -------------------
-1. After making changes to `_HaskellLexer.flex`, run `Run Flex Generator`. This will generate `_HaskellLexer.java`;
-1. After making changes to `haskell.bnf`, run `Generate Parser Code`. This will generate parser Java files in `gen` directory;
-1. Never touch the generated code. They should be committed as-is.
-1. Add `sources.zip` "inside" `idea`>[`idea build #`] to `Project structure`>`Project settings`>`Modules`>`Dependencies`>`unmanaged-jars` to see IntelliJ sources;
+This project uses several `.flex` files for lexer definitions, and `.bnf` files for parser definitions.
 
+Read more on how to author these files in the documentation on [the Grammar-Kit project page][grammar-kit].
 
 ### After following the above steps the `Project Structure` should look like:
 * ![Project](images/Project.png)
@@ -102,5 +99,6 @@ $ dotnet fsi scripts/github-actions.fsx
 ```
 
 [dotnet-sdk]: https://dotnet.microsoft.com/en-us/download
+[grammar-kit]: https://github.com/JetBrains/Grammar-Kit
 [powershell]: https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell
 [reuse]: https://reuse.software/
