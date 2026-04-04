@@ -63,10 +63,6 @@ object HaskellPsiImplUtil {
     modid.getText
   }
 
-  def getNameIdentifier(modid: HaskellModid): HaskellNamedElement = {
-    modid
-  }
-
   def setName(modid: HaskellModid, newName: String): PsiElement = {
     val newModid = HaskellElementFactory.createModid(modid.getProject, newName)
     newModid.foreach(modid.replace)
@@ -75,10 +71,6 @@ object HaskellPsiImplUtil {
 
   def getName(varid: HaskellVarid): String = {
     varid.getText
-  }
-
-  def getNameIdentifier(varId: HaskellVarid): HaskellNamedElement = {
-    varId
   }
 
   def setName(varid: HaskellVarid, newName: String): PsiElement = {
@@ -91,10 +83,6 @@ object HaskellPsiImplUtil {
     varsym.getText
   }
 
-  def getNameIdentifier(varsym: HaskellVarsym): HaskellNamedElement = {
-    varsym
-  }
-
   def setName(varsym: HaskellVarsym, newName: String): PsiElement = {
     val newVarsym = HaskellElementFactory.createVarsym(varsym.getProject, newName)
     newVarsym.foreach(varsym.replace)
@@ -103,10 +91,6 @@ object HaskellPsiImplUtil {
 
   def getName(conid: HaskellConid): String = {
     conid.getText
-  }
-
-  def getNameIdentifier(conid: HaskellConid): HaskellNamedElement = {
-    conid
   }
 
   def setName(conid: HaskellConid, newName: String): PsiElement = {
@@ -119,10 +103,6 @@ object HaskellPsiImplUtil {
     consym.getText
   }
 
-  def getNameIdentifier(consym: HaskellConsym): HaskellNamedElement = {
-    consym
-  }
-
   def setName(consym: HaskellConsym, newName: String): PsiElement = {
     val newConsym = HaskellElementFactory.createConsym(consym.getProject, newName)
     newConsym.foreach(consym.replace)
@@ -133,10 +113,6 @@ object HaskellPsiImplUtil {
     qualifier.getText
   }
 
-  def getNameIdentifier(qualifier: HaskellQualifier): HaskellNamedElement = {
-    qualifier
-  }
-
   def setName(qualifier: HaskellQualifier, newName: String): PsiElement = {
     val newQualifier = HaskellElementFactory.createQualifier(qualifier.getProject, removeFileExtension(newName))
     newQualifier.foreach(qualifier.replace)
@@ -145,10 +121,6 @@ object HaskellPsiImplUtil {
 
   def getName(qConQualifier: HaskellQualifierElement): String = {
     qConQualifier.getText
-  }
-
-  def getNameIdentifier(qConQualifier: HaskellQualifierElement): HaskellNamedElement = {
-    qConQualifier
   }
 
   def setName(qualifier: HaskellQualifierElement, newName: String): PsiElement = {
