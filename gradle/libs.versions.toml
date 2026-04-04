@@ -13,5 +13,5 @@ scalatest = { module = "org.scalatest:scalatest_2.13", version = "3.2.12" }
 scalatestplus-junit = { module = "org.scalatestplus:junit-4-13_2.13", version = "3.2.12.0" }
 
 [plugins]
-intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.1.0" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.13.1" }
 gradle-jvm-wrapper = "me.filippov.gradle.jvm.wrapper:0.15.0"
