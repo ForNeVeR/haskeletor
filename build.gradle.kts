@@ -55,7 +55,8 @@ dependencies {
 
 val generatedAlexLexerSourceBase = layout.buildDirectory.dir("generated/lexer/alex")
 val generatedAlexParserSourceBase = layout.buildDirectory.dir("generated/parser/alex")
-val generatedCabalSyntaxHighlightingSourceBase = layout.buildDirectory.dir("generated/lexer/cabal-highlighting")
+val generatedCabalSyntaxHighlightingLexerSourceBase = layout.buildDirectory.dir("generated/lexer/cabal-highlighting")
+val generatedCabalParsingLexerSourceBase = layout.buildDirectory.dir("generated/lexer/cabal")
 val generatedHaskellLexerSourceBase = layout.buildDirectory.dir("generated/lexer/haskell")
 val generatedHaskellParserSourceBase = layout.buildDirectory.dir("generated/parser/haskell")
 
@@ -63,11 +64,11 @@ sourceSets {
     main {
         scala {
             srcDirs(
-                "gen",
                 "src/main/scala",
                 generatedAlexLexerSourceBase,
                 generatedAlexParserSourceBase,
-                generatedCabalSyntaxHighlightingSourceBase,
+                generatedCabalParsingLexerSourceBase,
+                generatedCabalSyntaxHighlightingLexerSourceBase,
                 generatedHaskellLexerSourceBase,
                 generatedHaskellParserSourceBase
             )
@@ -92,9 +93,14 @@ tasks {
         targetOutputDir = generatedAlexLexerSourceBase.map { it.dir("me/fornever/haskeletor/alex/lang/lexer") }
         purgeOldFiles = true
     }
+    val generateCabalParsingLexer by registering(GenerateLexerTask::class) {
+        sourceFile = file("src/main/flex/_CabalParsingLexer.flex")
+        targetOutputDir = generatedCabalParsingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/lang/lexer") }
+        purgeOldFiles = true
+    }
     val generateCabalSyntaxHighlightingLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_CabalSyntaxHighlightingLexer.flex")
-        targetOutputDir = generatedCabalSyntaxHighlightingSourceBase.map { it.dir("me/fornever/haskeletor/cabal/highlighting") }
+        targetOutputDir = generatedCabalSyntaxHighlightingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/highlighting") }
         purgeOldFiles = true
     }
     val generateHaskellLexer by registering(GenerateLexerTask::class) {
@@ -122,6 +128,7 @@ tasks {
         dependsOn(
             generateAlexLexer,
             generateAlexParser,
+            generateCabalParsingLexer,
             generateCabalSyntaxHighlightingLexer,
             generateHaskellLexer,
             generateHaskellParser
