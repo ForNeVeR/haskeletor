@@ -11,6 +11,8 @@ package me.fornever.haskeletor.psi
 import com.intellij.navigation.{ItemPresentation, NavigationItem}
 import me.fornever.haskeletor.psi.impl.HaskellPsiImplUtil
 
+import java.util.logging.Logger
+
 /**
  * Workaround: Grammar-Kit Gradle plugin doesn't support psiImplUtilClass,
  * so we provide default implementations that delegate to HaskellPsiImplUtil.
@@ -30,7 +32,9 @@ trait HaskellDeclarationElement extends HaskellCompositeElement with NavigationI
     case e: HaskellModuleDeclaration => HaskellPsiImplUtil.getIdentifierElements(e)
     case e: HaskellDataDeclaration => HaskellPsiImplUtil.getIdentifierElements(e)
     case e: HaskellNewtypeDeclaration => HaskellPsiImplUtil.getIdentifierElements(e)
-    case _ => Seq.empty
+    case _ =>
+        Logger.getLogger(getClass.getName).warning(s"Unknown declaration element: $this")
+        Seq.empty
   }
 
   def getModuleName: Option[String] = this match {
