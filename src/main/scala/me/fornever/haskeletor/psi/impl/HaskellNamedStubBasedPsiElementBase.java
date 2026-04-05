@@ -67,7 +67,7 @@ public abstract class HaskellNamedStubBasedPsiElementBase<T extends StubElement<
     }
 
     @Override
-    public PsiReference getReference() {
+    public @Nullable PsiReference getReference() {
         return HaskellPsiImplUtil.getReference(this);
     }
 

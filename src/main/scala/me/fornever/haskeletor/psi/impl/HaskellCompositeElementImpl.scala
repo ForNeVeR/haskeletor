@@ -13,6 +13,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.{PsiElement, PsiReference}
 import me.fornever.haskeletor.psi._
+import org.jetbrains.annotations.Nullable
 
 class HaskellCompositeElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with HaskellCompositeElement {
 
@@ -46,6 +47,7 @@ abstract class HaskellQualifierElementImpl private[impl](node: ASTNode) extends 
     this
   }
 
+  @Nullable
   override def getReference: PsiReference = HaskellPsiImplUtil.getReference(this)
 
   override def getPresentation: ItemPresentation = HaskellPsiImplUtil.getPresentation(this)
