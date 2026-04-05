@@ -16,6 +16,7 @@ import me.fornever.haskeletor.HaskellFileType
 import me.fornever.haskeletor.icons.HaskellIcons
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.util.StringUtil
+import org.jetbrains.annotations.Nullable
 
 import javax.swing._
 import scala.jdk.CollectionConverters._
@@ -129,6 +130,7 @@ object HaskellPsiImplUtil {
     qualifier
   }
 
+  @Nullable
   def getReference(element: PsiElement): PsiReference = {
     ArrayUtil.getFirstElement(ReferenceProvidersRegistry.getReferencesFromProviders(element))
   }
