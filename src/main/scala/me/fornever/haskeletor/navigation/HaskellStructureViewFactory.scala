@@ -48,15 +48,15 @@ private class HaskellStructureViewTreeElement(val element: PsiElement, val typeS
     element
   }
 
-  def navigate(requestFocus: Boolean): Unit = {
+  override def navigate(requestFocus: Boolean): Unit = {
     element.asInstanceOf[Navigatable].navigate(requestFocus)
   }
 
-  def canNavigate: Boolean = {
+  override def canNavigate: Boolean = {
     element.asInstanceOf[Navigatable].canNavigate
   }
 
-  def canNavigateToSource: Boolean = {
+  override def canNavigateToSource: Boolean = {
     element.asInstanceOf[Navigatable].canNavigateToSource
   }
 
