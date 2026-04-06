@@ -38,6 +38,7 @@
   extends("data_declaration|newtype_declaration")="me.fornever.haskeletor.psi.impl.HaskellDeclarationElementImpl"
 
   implements("q_name")="me.fornever.haskeletor.psi.HaskellQualifiedNameElement"
+  extends("q_name")="me.fornever.haskeletor.psi.impl.HaskellQualifiedNameElementImpl"
 
   implements("expression")="me.fornever.haskeletor.psi.HaskellExpressionElement"
   mixin("expression")="me.fornever.haskeletor.psi.impl.HaskellExpressionElementImpl"
