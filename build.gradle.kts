@@ -35,8 +35,6 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.scala.library)
-
     implementation(libs.spray.json)
     implementation(libs.snakeyaml)
     implementation(libs.scaffeine)
