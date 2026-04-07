@@ -23,9 +23,11 @@ object ScalaScalarIndexExtension {
 
   private class UnitDataExternalizer extends DataExternalizer[Unit] {
     def save(out: DataOutput, value: Unit): Unit = {
+      out.write(0)
     }
 
     def read(in: DataInput): Unit = {
+      in.readByte()
     }
   }
 

@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters._
   */
 object HaskellModuleNameIndex {
   private val HaskellModuleNameIndex: ID[String, Unit] = ID.create("HaskellModuleNameIndex")
-  private val IndexVersion = 1
+  private val IndexVersion = 2
   private val KeyDescriptor = new EnumeratorStringDescriptor
 
   private val HaskellFileFilter = new FileBasedIndex.InputFilter() {
