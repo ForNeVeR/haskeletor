@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import org.jetbrains.changelog.Changelog
+import org.jetbrains.changelog.exceptions.MissingVersionException
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.GenerateLexerTask
 import org.jetbrains.intellij.platform.gradle.tasks.GenerateParserTask
@@ -11,6 +13,7 @@ import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 
 plugins {
     id("scala")
+    alias(libs.plugins.changelog)
     alias(libs.plugins.gradle.jvm.wrapper)
     alias(libs.plugins.intellij.grammar.kit)
     alias(libs.plugins.intellij.platform)
@@ -82,6 +85,20 @@ sourceSets {
 intellijPlatform {
     pluginConfiguration {
         version = providers.gradleProperty("pluginVersion")
+
+        val latestChangelog = try {
+            changelog.getUnreleased()
+        } catch (_: MissingVersionException) {
+            changelog.getLatest()
+        }
+        changeNotes = provider {
+            changelog.renderItem(
+                latestChangelog
+                    .withHeader(false)
+                    .withEmptySections(false),
+                Changelog.OutputType.HTML
+            )
+        }
     }
 }
 

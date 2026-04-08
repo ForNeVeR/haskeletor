@@ -15,6 +15,7 @@ scalatest = { module = "org.scalatest:scalatest_2.13", version = "3.3.0-SNAP4" }
 scalatestplus-junit = { module = "org.scalatestplus:junit-4-13_2.13", version = "3.3.0.0-SNAP3" }
 
 [plugins]
-intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellij-gradle" }
-intellij-grammar-kit = { id = "org.jetbrains.intellij.platform.grammarkit", version.ref = "intellij-gradle" }
+changelog = "org.jetbrains.changelog:2.5.0"
 gradle-jvm-wrapper = "me.filippov.gradle.jvm.wrapper:0.15.0"
+intellij-grammar-kit = { id = "org.jetbrains.intellij.platform.grammarkit", version.ref = "intellij-gradle" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellij-gradle" }
