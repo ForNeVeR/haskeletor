@@ -184,7 +184,7 @@ object StackCommandLine {
       val compileTask = new CompileTask {
 
         def execute(compileContext: CompileContext): Boolean = {
-          val adapter = new MessageViewProcessAdapter(compileContext, handler.getProcess.pid)
+          val adapter = new MessageViewProcessAdapter(compileContext)
           handler.addProcessListener(adapter)
           handler.startNotify()
           handler.waitFor(30 * 60 + 1000) // Wait max half an hour
@@ -209,7 +209,7 @@ object StackCommandLine {
   }
 
 
-  private class MessageViewProcessAdapter(val compileContext: CompileContext, pid: Long) extends ProcessAdapter() {
+  private class MessageViewProcessAdapter(val compileContext: CompileContext) extends ProcessAdapter() {
 
     private val ansiEscapeDecoder = new AnsiEscapeDecoder()
     private val previousMessageLines = new LinkedBlockingDeque[String]
