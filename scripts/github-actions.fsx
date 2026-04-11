@@ -124,7 +124,7 @@ let workflows = [
                 id = "version",
                 name = "Get version",
                 shell = "pwsh",
-                run = "\"version=$(if ($env:GITHUB_REF.StartsWith('refs/tags/v')) { $env:GITHUB_REF -replace '^refs/tags/v', '' } else { 'next' })\" >> $env:GITHUB_OUTPUT"
+                run = "\"version=$(scripts/Get-Version.ps1 -RefName $env:GITHUB_REF)\" >> $env:GITHUB_OUTPUT"
             )
 
             step(
