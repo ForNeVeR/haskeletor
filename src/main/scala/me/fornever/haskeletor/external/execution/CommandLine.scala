@@ -12,15 +12,15 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process
 import com.intellij.execution.process._
+import com.intellij.ide.nls.NlsMessages
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.io.BaseOutputReader
-import me.fornever.haskeletor.{GlobalInfo, HaskellNotificationGroup}
-import org.jetbrains.jps.incremental.messages.BuildMessage
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import com.jetbrains.rd.util.lifetime.Lifetime
+import me.fornever.haskeletor.{GlobalInfo, HaskeletorBundle, HaskellNotificationGroup}
+import org.jetbrains.annotations.Nls
 
 import java.nio.charset.Charset
 import scala.concurrent.duration._
@@ -53,14 +53,19 @@ object CommandLine {
       logOutput, charset)
   }
 
-  def runWithProgressIndicator(project: Project, workDir: Option[String], commandPath: String, arguments: Seq[String],
-                               progressIndicator: Option[ProgressIndicator], charset: Option[Charset] = None): CapturingProcessHandler = {
+  def runWithProgressIndicator(project: Project,
+                               workDir: Option[String],
+                               commandPath: String,
+                               arguments: Seq[String],
+                               @Nls title: String,
+                               progressIndicator: Option[ProgressIndicator],
+                               charset: Option[Charset] = None): CapturingProcessHandler = {
     val commandLine = createCommandLine(workDir.getOrElse(project.getBasePath), commandPath, arguments, charset)
 
     new CapturingProcessHandler(commandLine) {
       override protected def createProcessAdapter(processOutput: ProcessOutput): CapturingProcessAdapter = {
         progressIndicator match {
-          case Some(pi) => new CapturingProcessToProgressIndicator(project, pi)
+          case Some(pi) => new CapturingProcessToProgressIndicator(title, pi)
           case None => super.createProcessAdapter(processOutput)
         }
       }
@@ -144,16 +149,14 @@ object AnsiDecoder {
   }
 }
 
-private class HaskellBuildMessage(message: String, kind: Kind) extends BuildMessage(message, kind)
-
 private class CapturingProcessToLog(val project: Option[Project], val cmd: GeneralCommandLine, val output: ProcessOutput) extends CapturingProcessAdapter(output) {
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
     super.onTextAvailable(event, outputType)
-    addToLog(event.getText, outputType)
+    addToLog(event.getText)
   }
 
-  private def addToLog(text: String, outputType: Key[_]): Unit = {
+  private def addToLog(text: String): Unit = {
     val trimmedText = text.trim
     if (trimmedText.nonEmpty) {
       HaskellNotificationGroup.logInfoEvent(project, s"${cmd.getCommandLineString}:  $trimmedText")
@@ -161,21 +164,36 @@ private class CapturingProcessToLog(val project: Option[Project], val cmd: Gener
   }
 }
 
-private class CapturingProcessToProgressIndicator(project: Project, progressIndicator: ProgressIndicator) extends CapturingProcessAdapter() {
+private class CapturingProcessToProgressIndicator(@Nls title: String, progressIndicator: ProgressIndicator) extends CapturingProcessAdapter() {
 
-  private val ansiEscapeDecoder = new AnsiEscapeDecoder()
+  private val parser = new StackOutputParser()
+  parser.event.advise(Lifetime.Companion.getEternal, event => {
+    event match {
+      case TextOutput(_) => ()
+      case PackageStatus(_, _) => ()
+      case Progress(done, total, packagesInProgress) =>
+        progressIndicator.setFraction(done.toDouble / total.toDouble)
+        progressIndicator.setText(HaskeletorBundle.message("stack.progress.text", title, done, total))
+        progressIndicator.setText2(packagesInProgress match {
+          case Seq() =>
+            //noinspection ScalaExtractStringToBundle
+            ""
+          case _ =>
+            val packagesToShow = packagesInProgress.take(3)
+            val packagesToShowText = NlsMessages.formatNarrowAndList(packagesToShow.asJava)
+            val otherPackageCount = packagesInProgress.size - packagesToShow.size
+            HaskeletorBundle.message("stack.progress.packages-in-progress", packagesToShowText, otherPackageCount)
+        })
+    }
+
+    kotlin.Unit.INSTANCE
+  })
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-    val text = AnsiDecoder.decodeAnsiCommandsToString(event.getText, outputType, ansiEscapeDecoder)
-    if (!StringUtil.isEmptyOrSpaces(text)) {
-      progressIndicator.setText2(text)
-      HaskellNotificationGroup.logInfoEvent(project, text)
+    if (ProcessOutputType.isStderr(outputType)) {
+      parser.addText(event.getText)
     }
   }
+
+  override def processTerminated(event: ProcessEvent): Unit = parser.finishProcess()
 }
-
-
-sealed trait CaptureOutput
-
-object CaptureOutputToLog extends CaptureOutput
-
