@@ -28,19 +28,23 @@ let workflows = [
         yield! body
     ]
 
-    workflow "main" [
-        name "Gradle CI"
+    let mainTriggers = [
         onPushTo "master"
         onPushTo "renovate/**"
         onPullRequestTo "master"
+    ]
 
-        let sourceJob name body = job name [
-            step(
-                name = "Check out the sources",
-                usesSpec = Auto "actions/checkout"
-            )
-            yield! body
-        ]
+    let sourceJob name body = job name [
+        step(
+            name = "Check out the sources",
+            usesSpec = Auto "actions/checkout"
+        )
+        yield! body
+    ]
+
+    workflow "main" [
+        name "Gradle CI"
+        yield! mainTriggers
 
         sourceJob "build" [
             strategy(failFast = false, matrix = [
@@ -103,6 +107,88 @@ let workflows = [
             step(
                 name = "Verify workflows",
                 run = "dotnet fsi ./scripts/github-actions.fsx verify"
+            )
+        ]
+    ]
+
+    workflow "release" [
+        name "Release"
+        yield! mainTriggers
+        onPushTags "v*"
+
+        sourceJob "release" [
+            runsOn defaultLinux
+            jobPermission(PermissionKind.Contents, AccessKind.Write)
+
+            step(
+                id = "version",
+                name = "Get version",
+                shell = "pwsh",
+                run = "\"version=$(if ($env:GITHUB_REF.StartsWith('refs/tags/v')) { $env:GITHUB_REF -replace '^refs/tags/v', '' } else { 'next' })\" >> $env:GITHUB_OUTPUT"
+            )
+
+            step(
+                name = "Read the changelog",
+                usesSpec = Auto "ForNeVeR/ChangelogAutomation.action",
+                options = Map.ofList [
+                    "input", "./CHANGELOG.md"
+                    "output", "./release-notes.md"
+                ]
+            )
+            step(
+                name = "Upload the changelog",
+                usesSpec = Auto "actions/upload-artifact",
+                options = Map.ofList [
+                    "name", "release-notes.md"
+                    "path", "./release-notes.md"
+                ]
+            )
+
+            step(
+                name = "Cache downloaded JDK",
+                usesSpec = Auto "actions/cache",
+                options = Map.ofList [
+                    "path", "~/.local/share/gradle-jvm"
+                    "key", "${{ runner.os }}-${{ hashFiles('gradlew*') }}"
+                ]
+            )
+            step(
+                name = "Set up Gradle",
+                usesSpec = Auto "gradle/actions/setup-gradle"
+            )
+            step(
+                name = "Build the plugin",
+                shell = "pwsh",
+                run = "./gradlew buildPlugin"
+            )
+            step(
+                name = "Upload the plugin",
+                usesSpec = Auto "actions/upload-artifact",
+                options = Map.ofList [
+                    "name", "haskeletor-${{ steps.version.outputs.version }}.zip"
+                    "path", "build/distributions/haskeletor-${{ steps.version.outputs.version }}.zip"
+                ]
+            )
+
+            step(
+                condition = "startsWith(github.ref, 'refs/tags/v')",
+                name = "Create a release",
+                usesSpec = Auto "softprops/action-gh-release",
+                options = Map.ofList [
+                    "body_path", "./release-notes.md"
+                    "files", "build/distributions/haskeletor-${{ steps.version.outputs.version }}.zip"
+                    "name", "Haskeletor v${{ steps.version.outputs.version }}"
+                ]
+            )
+            step(
+                condition = "startsWith(github.ref, 'refs/tags/v')",
+                name = "Publish the plugin",
+                env = Map.ofList [
+                    "PUBLISH_TOKEN", "${{ secrets.PUBLISH_TOKEN }}"
+                ],
+                shell = "pwsh",
+                workingDirectory = "intellij",
+                run = "./gradlew publishPlugin"
             )
         ]
     ]

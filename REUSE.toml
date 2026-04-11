@@ -22,7 +22,10 @@ SPDX-FileCopyrightText = [
 SPDX-License-Identifier = "Apache-2.0"
 
 [[annotations]]
-path = ".idea/**/**"
+path = [
+    "*.DotSettings",
+    ".idea/**/**"
+]
 precedence = "override"
 SPDX-FileCopyrightText = "2024-2026 Friedrich von Never <friedrich@fornever.me>"
 SPDX-License-Identifier = "Apache-2.0"
