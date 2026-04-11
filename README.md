@@ -91,6 +91,7 @@ Plugin Features
 Documentation
 -------------
 - [Contributor Guide][docs.contributing]
+- [Maintainer Guide][docs.maintaining]
 
 License
 -------
@@ -117,4 +118,5 @@ Copyright holders:
 
 [docs.contributing]: CONTRIBUTING.md
 [docs.license]: LICENSE.txt
+[docs.maintaining]: MAINTAINING.md
 [reuse.spec]: https://reuse.software/spec-3.3/
