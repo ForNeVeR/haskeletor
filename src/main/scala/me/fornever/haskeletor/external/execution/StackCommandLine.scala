@@ -14,6 +14,7 @@ import com.intellij.concurrency.JobSchedulerImpl.getCPUCoresCount
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.process._
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerMessageCategory}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -25,6 +26,8 @@ import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.concurrent.{LinkedBlockingDeque, TimeUnit}
 import scala.jdk.CollectionConverters._
 
@@ -74,14 +77,67 @@ object StackCommandLine {
 
     val cpuCoresCount = getCPUCoresCount
     val jobsCount = if (cpuCoresCount > 2) (cpuCoresCount / 2) + 1 else 1
-    val arguments = systemGhcOption ++ Seq(s"-j$jobsCount", "--stack-root", toolsStackRootPath.getPath, "--resolver", StackageLtsVersion, "--local-bin-path", toolsBinPath.getPath, "install", toolName)
+    val arguments = systemGhcOption ++ Seq(
+      "--terminal",
+      "--color", "never",
+      s"-j$jobsCount",
+      "--stack-root", toolsStackRootPath.getPath,
+      "--resolver", StackageLtsVersion,
+      "--local-bin-path", toolsBinPath.getPath,
+      "install", toolName,
+      "--progress-bar", "full",
+      "--no-interleaved-output"
+    )
 
     val result = runWithProgressIndicator(project, workDir = Some(VfsUtil.getUserHomeDir.getPath), arguments, Some(progressIndicator)).exists(handler => {
+      val pid = handler.getProcess.pid
+      handler.addProcessListener(new ProcessAdapter {
+        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+          if (logger.isDebugEnabled) {
+            val kind = outputType match {
+              case _ if ProcessOutputType.isStdout(outputType) => "out"
+              case _ if ProcessOutputType.isStderr(outputType) => "err"
+              case _ if outputType == ProcessOutputTypes.SYSTEM => "sys"
+              case _ =>
+                logger.error(s"Unknown output type: $outputType.")
+                "unknown"
+            }
+            val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve("haskeletor")
+            Files.createDirectories(tempPath)
+
+            val outPath = tempPath.resolve(s"stack.$pid.$kind.txt")
+            Files.write(
+              outPath,
+              event.getText.getBytes(StandardCharsets.UTF_8),
+              StandardOpenOption.CREATE, StandardOpenOption.APPEND
+            )
+          }
+        }
+      })
+
       val output = handler.runProcessWithProgressIndicator(progressIndicator)
 
       if (output.isCancelled) {
         handler.destroyProcess()
       }
+
+//      if (logger.isDebugEnabled) {
+//        def saveOutput(outputKind: String, output: String): Unit = {
+//          val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve("haskeletor")
+//          Files.createDirectories(tempPath)
+//
+//          val outPath = tempPath.resolve(s"stack.$pid.$outputKind.txt")
+//          Files.write(
+//            outPath,
+//            output.getBytes(StandardCharsets.UTF_8),
+//            StandardOpenOption.CREATE, StandardOpenOption.APPEND
+//          )
+//        }
+//
+//        saveOutput("out", output.getStdout)
+//        saveOutput("err", output.getStderr)
+//      }
+
 
       if (output.getExitCode != 0) {
         if (output.getStderr.nonEmpty) {
@@ -119,7 +175,7 @@ object StackCommandLine {
   }
 
   def buildInMessageView(project: Project, description: String, arguments: Seq[String]): Option[Boolean] = {
-    executeStackCommandInMessageView(project, description, Seq("build", "--fast", "--no-interleaved-output") ++ arguments ++ ghcOptions(project))
+    executeStackCommandInMessageView(project, description, Seq("build", "--fast", "--progress-bar", "full", "--no-interleaved-output") ++ arguments ++ ghcOptions(project))
   }
 
   def executeStackCommandInMessageView(project: Project, description: String, arguments: Seq[String]): Option[Boolean] = {
@@ -140,7 +196,13 @@ object StackCommandLine {
   def executeInMessageView(project: Project, description: String, commandPath: String, arguments: Seq[String]): Option[Boolean] = {
     waitForProjectIsInitialized(project)
 
-    val cmd = CommandLine.createCommandLine(project.getBasePath, commandPath, arguments ++ HaskellSettingsState.getExtraStackArguments)
+    val cmd = CommandLine.createCommandLine(
+      project.getBasePath,
+      commandPath,
+      Seq(
+        "--terminal",
+        "--color", "never"
+      ) ++ HaskellSettingsState.getExtraStackArguments ++ arguments)
     (try {
       Option(cmd.createProcess())
     } catch {
@@ -155,7 +217,7 @@ object StackCommandLine {
       val compileTask = new CompileTask {
 
         def execute(compileContext: CompileContext): Boolean = {
-          val adapter = new MessageViewProcessAdapter(compileContext)
+          val adapter = new MessageViewProcessAdapter(compileContext, handler.getProcess.pid)
           handler.addProcessListener(adapter)
           handler.startNotify()
           handler.waitFor(30 * 60 + 1000) // Wait max half an hour
@@ -180,14 +242,34 @@ object StackCommandLine {
   }
 
 
-  private class MessageViewProcessAdapter(val compileContext: CompileContext) extends ProcessAdapter() {
+  private class MessageViewProcessAdapter(val compileContext: CompileContext, pid: Long) extends ProcessAdapter() {
 
     private val ansiEscapeDecoder = new AnsiEscapeDecoder()
     private val previousMessageLines = new LinkedBlockingDeque[String]
+
     @volatile
     private var globalError = false
 
     override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      if (logger.isDebugEnabled) {
+        val kind = outputType match {
+          case _ if ProcessOutputType.isStdout(outputType) => "out"
+          case _ if ProcessOutputType.isStderr(outputType) => "err"
+          case _ if outputType == ProcessOutputTypes.SYSTEM => "sys"
+          case _ =>
+            logger.error(s"Unknown output type: $outputType.")
+            "unknown"
+        }
+        val tempPath = Path.of(System.getProperty("java.io.tmpdir")).resolve("haskeletor")
+        Files.createDirectories(tempPath)
+
+        val outPath = tempPath.resolve(s"stack.$pid.$kind.txt")
+        Files.write(
+          outPath,
+          event.getText.getBytes(StandardCharsets.UTF_8),
+          StandardOpenOption.CREATE, StandardOpenOption.APPEND
+        )
+      }
       val text = AnsiDecoder.decodeAnsiCommandsToString(event.getText, outputType, ansiEscapeDecoder)
       addToMessageView(text, outputType)
     }
@@ -245,4 +327,5 @@ object StackCommandLine {
     }
   }
 
+  private val logger = Logger.getInstance(StackCommandLine.getClass)
 }
