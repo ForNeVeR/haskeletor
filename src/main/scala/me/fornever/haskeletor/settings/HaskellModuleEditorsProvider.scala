@@ -9,10 +9,10 @@
 package me.fornever.haskeletor.settings
 
 import com.intellij.openapi.module.{ModuleConfigurationEditor, ModuleType}
-import com.intellij.openapi.roots.ui.configuration.{ClasspathEditor, ContentEntriesEditor, DefaultModuleEditorsProvider, ModuleConfigurationState}
+import com.intellij.openapi.roots.ui.configuration.{ClasspathEditor, ContentEntriesEditor, ModuleConfigurationEditorProvider, ModuleConfigurationState}
 import me.fornever.haskeletor.module.HaskellModuleType
 
-class HaskellModuleEditorsProvider extends DefaultModuleEditorsProvider {
+class HaskellModuleEditorsProvider extends ModuleConfigurationEditorProvider {
 
   override def createEditors(state: ModuleConfigurationState): Array[ModuleConfigurationEditor] = {
     val module = state.getRootModel.getModule

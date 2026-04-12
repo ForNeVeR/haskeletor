@@ -21,7 +21,7 @@ import java.util
 class HaskellMoveFileHandler extends MoveFileHandler {
   override def prepareMovedFile(file: PsiFile, moveDestination: PsiDirectory, oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {}
 
-  override def retargetUsages(usageInfos: util.List[UsageInfo], oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {}
+  override def retargetUsages(usageInfos: util.List[_ <: UsageInfo], oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {}
 
   override def canProcessElement(psiFile: PsiFile): Boolean = {
     psiFile.isInstanceOf[HaskellFile]

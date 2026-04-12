@@ -28,6 +28,7 @@ import com.intellij.refactoring.rename.RenameUtil
 import me.fornever.haskeletor.editor.{HaskellImportOptimizer, HaskellProblemsView}
 import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.external.execution._
+import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleView
 import me.fornever.haskeletor.ui.EnterNameDialog
@@ -37,8 +38,6 @@ import me.fornever.haskeletor.{HaskellFile, HaskellFileType, HaskellNotification
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
-
-import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 
 class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
 
@@ -179,7 +178,7 @@ object HaskellAnnotator {
       () => {
         if (!psiFile.getProject.isDisposed) {
           HaskellNotificationGroup.logInfoEvent(psiFile.getProject, s"Restart daemon code analyzer for file: ${psiFile.getName}")
-          getDaemonCodeAnalyzer(psiFile.getProject).restart(psiFile)
+          getDaemonCodeAnalyzer(psiFile.getProject).restart(psiFile, this)
         }
       }
     }
