@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor
 
-import com.intellij.application.options.PathMacrosImpl
+import com.intellij.openapi.application.PathMacros
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
@@ -60,22 +60,6 @@ object GlobalInfo {
     new File(toolsBinPath, name)
   }
 
-  lazy val defaultHlintPath: File = {
-    toolPath(HTool.Hlint)
-  }
-
-  lazy val defaultHooglePath: File = {
-    toolPath(HTool.Hoogle)
-  }
-
-  lazy val defaultStylishHaskellPath: File = {
-    toolPath(HTool.StylishHaskell)
-  }
-
-  lazy val defaultOrmoluPath: File = {
-    toolPath(HTool.Ormolu)
-  }
-
   def getIntelliJProjectDirectory(project: Project): File = {
     val intelliJProjectDirectory = new File(GlobalInfo.getHaskeletorDirectory, project.getName)
     synchronized {
@@ -87,6 +71,6 @@ object GlobalInfo {
   }
 
   def pathVariables: java.util.Map[String, String] = {
-    PathMacrosImpl.getInstanceEx.getUserMacros
+    PathMacros.getInstance.getUserMacros
   }
 }
