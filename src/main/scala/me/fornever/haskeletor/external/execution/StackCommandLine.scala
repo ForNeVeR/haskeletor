@@ -8,13 +8,16 @@
 
 package me.fornever.haskeletor.external.execution
 
+import com.intellij.build.BuildViewEvent.BuildStarted
+import com.intellij.build.events.StartBuildEvent
+import com.intellij.build.{BuildView, BuildViewManager, DefaultBuildDescriptor}
 import com.intellij.compiler.impl._
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.concurrency.JobSchedulerImpl.getCPUCoresCount
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.process._
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerMessageCategory}
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VfsUtil
@@ -28,6 +31,7 @@ import org.jetbrains.annotations.Nls
 
 import java.nio.charset.Charset
 import java.util.concurrent.{LinkedBlockingDeque, TimeUnit}
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
 object StackCommandLine {
@@ -161,11 +165,12 @@ object StackCommandLine {
     }
   }
 
-  def executeInMessageView(project: Project, description: String, commandPath: String, arguments: Seq[String]): Option[Boolean] = {
+  def executeInMessageView(project: Project, description: String, commandPath: String, arguments: Seq[String]): Future[Option[Boolean]] = {
     waitForProjectIsInitialized(project)
 
+    val workingDirectory = project.getBasePath
     val cmd = CommandLine.createCommandLine(
-      project.getBasePath,
+      workingDirectory,
       commandPath,
       Seq(
         "--terminal",
@@ -181,16 +186,29 @@ object StackCommandLine {
 
       val handler = new BaseOSProcessHandler(process, cmd.getCommandLineString, Charset.defaultCharset())
 
-      val compilerTask = new CompilerTask(project, description, false, false, true, true)
+      val buildId = cmd.getCommandLineString // TODO: Let's find a better id.
+      val buildDescriptor = new DefaultBuildDescriptor(
+        cmd.getCommandLineString,
+        description,
+        workingDirectory,
+        System.currentTimeMillis
+      )
+      val buildView = new BuildView(project, buildDescriptor, null, project.getService(classOf[BuildViewManager]))
+      val adapter = new MessageViewProcessAdapter(buildView)
+      handler.addProcessListener(adapter)
+      handler.startNotify()
+      buildView.onEvent(buildId, StartBuildEvent.builder("Build started", buildDescriptor).build())
+
+      adapter.addLastMessage()
+      handler.getProcess.onExit()
+      handler.getExitCode == 0 || handler.getExitCode == null
+
+      handler.getExitCode == 0 || handler.getExitCode == null
+
       val compileTask = new CompileTask {
 
         def execute(compileContext: CompileContext): Boolean = {
-          val adapter = new MessageViewProcessAdapter(compileContext)
-          handler.addProcessListener(adapter)
-          handler.startNotify()
-          handler.waitFor(30 * 60 + 1000) // Wait max half an hour
-          adapter.addLastMessage()
-          handler.getExitCode == 0 || handler.getExitCode == null
+
         }
       }
 

@@ -51,7 +51,6 @@ dependencies {
 
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
-        bundledPlugin("com.intellij.java")
         testFramework(TestFrameworkType.Bundled)
         testFramework(TestFrameworkType.Platform)
     }
