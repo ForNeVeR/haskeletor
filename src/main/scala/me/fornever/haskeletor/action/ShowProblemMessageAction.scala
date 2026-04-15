@@ -8,11 +8,13 @@
 
 package me.fornever.haskeletor.action
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
 class ShowProblemMessageAction extends AnAction {
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(actionEvent: AnActionEvent): Unit = {
     HaskellEditorUtil.enableAction(onlyForSourceFile = true, actionEvent)

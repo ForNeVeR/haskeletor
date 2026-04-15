@@ -9,7 +9,7 @@
 package me.fornever.haskeletor.action
 
 import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.util.text.StringUtil
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.navigation.HaskellReference
@@ -17,6 +17,8 @@ import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
 class GotoInstanceDeclarationAction extends AnAction {
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(actionEvent: AnActionEvent): Unit = {
     HaskellEditorUtil.enableAction(onlyForSourceFile = false, actionEvent)

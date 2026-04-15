@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.action
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
@@ -18,6 +18,8 @@ import me.fornever.haskeletor.util.{HaskellEditorUtil, StringUtil}
 import scala.annotation.tailrec
 
 class ShowTypeStickyAction extends AnAction {
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(actionEvent: AnActionEvent): Unit = {
     HaskellEditorUtil.enableAction(onlyForSourceFile = true, actionEvent)
