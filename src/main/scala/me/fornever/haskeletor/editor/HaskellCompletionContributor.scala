@@ -234,9 +234,8 @@ class HaskellCompletionContributor extends CompletionContributor {
           case Some(position) if HaskellPsiUtil.findExpression(position).isDefined & position.getText.startsWith("_") =>
             val offset = position.getTextOffset
             val editor = parameters.getEditor
-            HaskellAnnotator.findHighlightInfo(project, offset, editor) match {
-              case Some(highlightInfo) =>
-                val message = highlightInfo.getToolTip
+            HaskellAnnotator.getHighlightingTooltipHtml(project, offset, editor) match {
+              case Some(message) =>
                 val typedHoleLines = message.split("\n").
                   map(_.replaceAll(s"$LayoutSpaceChar{2,}", "").
                     replaceAll(s"$LayoutSpaceChar", " "))
@@ -252,9 +251,9 @@ class HaskellCompletionContributor extends CompletionContributor {
           case Some(position) if HaskellPsiUtil.findTypeSignatureDeclaration(position).isDefined & position.getText.startsWith("_") =>
             val offset = position.getTextOffset
             val editor = parameters.getEditor
-            HaskellAnnotator.findHighlightInfo(project, offset, editor) match {
-              case Some(highlightInfo) =>
-                val messageLines = highlightInfo.getDescription.split("\n")
+            HaskellAnnotator.getHighlightingDescription(project, offset, editor) match {
+              case Some(description) =>
+                val messageLines = description.split("\n")
                 val suggestions = messageLines.collect {
                   case TypeWildcard(name) => name
                 }

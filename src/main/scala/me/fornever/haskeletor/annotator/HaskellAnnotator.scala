@@ -25,6 +25,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenameUtil
+import com.intellij.util.CommonProcessors
+import com.intellij.xml.util.XmlStringUtil
 import me.fornever.haskeletor.editor.{HaskellImportOptimizer, HaskellProblemsView}
 import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.external.execution._
@@ -35,6 +37,7 @@ import me.fornever.haskeletor.ui.EnterNameDialog
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.{HaskellFile, HaskellFileType, HaskellNotificationGroup}
 
+import java.util
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
@@ -169,23 +172,70 @@ object HaskellAnnotator {
     }.asJavaBiFunction)
   }
 
-  def getDaemonCodeAnalyzer(project: Project): DaemonCodeAnalyzerImpl = {
-    DaemonCodeAnalyzer.getInstance(project).asInstanceOf[DaemonCodeAnalyzerImpl]
-  }
-
   def restartDaemonCodeAnalyzerForFile(psiFile: PsiFile): Unit = {
     ApplicationManager.getApplication.invokeLater {
       () => {
         if (!psiFile.getProject.isDisposed) {
           HaskellNotificationGroup.logInfoEvent(psiFile.getProject, s"Restart daemon code analyzer for file: ${psiFile.getName}")
-          getDaemonCodeAnalyzer(psiFile.getProject).restart(psiFile, this)
+          DaemonCodeAnalyzer.getInstance(psiFile.getProject).restart(psiFile, this)
         }
       }
     }
   }
 
-  def findHighlightInfo(project: Project, offset: Int, editor: Editor): Option[HighlightInfo] = {
-    Option(getDaemonCodeAnalyzer(project).findHighlightByOffset(editor.getDocument, offset, false))
+  private def collectHighlightingInfo(project: Project, offset: Int, editor: Editor): util.Collection[HighlightInfo] = {
+    val processor = new CommonProcessors.CollectProcessor[HighlightInfo]
+    DaemonCodeAnalyzerEx.processHighlights(
+      editor.getDocument,
+      project,
+      HighlightSeverity.INFORMATION,
+      offset,
+      offset,
+      processor
+    )
+
+    processor.getResults
+  }
+
+  def getHighlightingTooltipHtml(project: Project, offset: Int, editor: Editor): Option[String] = {
+    val highlightings = collectHighlightingInfo(project, offset, editor)
+    val nonEmptyTooltips = highlightings.asScala.toSeq
+      .map(_.getToolTip)
+      .filter(x => x != null && x.nonEmpty)
+      .toIndexedSeq
+    nonEmptyTooltips.size match {
+      case 0 => None
+      case 1 => Some(nonEmptyTooltips.head)
+
+      // Replicates logic from com.intellij.codeInsight.daemon.impl.HighlightInfoComposite#createCompositeTooltip:
+      case _ => Some(
+        XmlStringUtil.wrapInHtml(
+          nonEmptyTooltips
+            .map(XmlStringUtil.stripHtml)
+            .mkString("<hr size=1 noshade>")
+        )
+      )
+    }
+  }
+
+  def getHighlightingDescription(project: Project, offset: Int, editor: Editor): Option[String] = {
+    val highlightings = collectHighlightingInfo(project, offset, editor)
+    val nonEmptyDescriptions = highlightings.asScala.toSeq
+      .map(_.getDescription)
+      .filter(x => x != null && x.nonEmpty)
+      .toIndexedSeq
+    nonEmptyDescriptions.size match {
+      case 0 => None
+      case 1 => Some(nonEmptyDescriptions.head)
+
+      // Replicates logic from com.intellij.codeInsight.daemon.impl.HighlightInfoComposite#createCompositeDescription:
+      case _ => Some(
+        nonEmptyDescriptions
+          .map(_.trim)
+          .map(x => if (x.endsWith(".")) x else x + ".")
+          .mkString(" ")
+      )
+    }
   }
 
   private def createAnnotations(project: Project, psiFile: PsiFile, problems: Iterable[CompilationProblem]): Iterable[Annotation] = {

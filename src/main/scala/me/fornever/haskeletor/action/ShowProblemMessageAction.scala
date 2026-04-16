@@ -25,9 +25,8 @@ class ShowProblemMessageAction extends AnAction {
       val project = actionContext.project
       val editor = actionContext.editor
       val offset = editor.getCaretModel.getOffset
-      HaskellAnnotator.findHighlightInfo(project, offset, editor).foreach(info => {
-        val message = info.getToolTip
-        HaskellEditorUtil.showHint(editor, message)
+      HaskellAnnotator.getHighlightingTooltipHtml(project, offset, editor).foreach(info => {
+        HaskellEditorUtil.showHint(editor, info)
       })
     })
   }
