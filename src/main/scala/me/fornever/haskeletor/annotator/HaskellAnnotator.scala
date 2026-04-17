@@ -25,11 +25,11 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenameUtil
-import com.intellij.util.CommonProcessors
 import com.intellij.xml.util.XmlStringUtil
 import me.fornever.haskeletor.editor.{HaskellImportOptimizer, HaskellProblemsView}
 import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.external.execution._
+import me.fornever.haskeletor.highlighter.DaemonUtil
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleView
@@ -37,9 +37,9 @@ import me.fornever.haskeletor.ui.EnterNameDialog
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.{HaskellFile, HaskellFileType, HaskellNotificationGroup}
 
-import java.util
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
@@ -183,23 +183,25 @@ object HaskellAnnotator {
     }
   }
 
-  private def collectHighlightingInfo(project: Project, offset: Int, editor: Editor): util.Collection[HighlightInfo] = {
-    val processor = new CommonProcessors.CollectProcessor[HighlightInfo]
-    DaemonCodeAnalyzerEx.processHighlights(
-      editor.getDocument,
+  private def collectHighlightingInfo(project: Project, offset: Int, editor: Editor): mutable.Buffer[HighlightInfo] =
+    DaemonUtil.getHighlights(
       project,
+      editor.getDocument,
       HighlightSeverity.INFORMATION,
       offset,
-      offset,
-      processor
+      offset
     )
 
-    processor.getResults
-  }
 
   def getHighlightingTooltipHtml(project: Project, offset: Int, editor: Editor): Option[String] = {
-    val highlightings = collectHighlightingInfo(project, offset, editor)
-    val nonEmptyTooltips = highlightings.asScala.toSeq
+    val highlightings = DaemonUtil.getHighlights(
+      project,
+      editor.getDocument,
+      HighlightSeverity.INFORMATION,
+      offset,
+      offset
+    )
+    val nonEmptyTooltips = highlightings.toSeq
       .map(_.getToolTip)
       .filter(x => x != null && x.nonEmpty)
       .toIndexedSeq
@@ -219,8 +221,14 @@ object HaskellAnnotator {
   }
 
   def getHighlightingDescription(project: Project, offset: Int, editor: Editor): Option[String] = {
-    val highlightings = collectHighlightingInfo(project, offset, editor)
-    val nonEmptyDescriptions = highlightings.asScala.toSeq
+    val highlightings = DaemonUtil.getHighlights(
+      project,
+      editor.getDocument,
+      HighlightSeverity.INFORMATION,
+      offset,
+      offset
+    )
+    val nonEmptyDescriptions = highlightings.toSeq
       .map(_.getDescription)
       .filter(x => x != null && x.nonEmpty)
       .toIndexedSeq

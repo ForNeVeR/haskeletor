@@ -8,7 +8,6 @@
 
 package me.fornever.haskeletor.editor
 
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
 import com.intellij.lang.ImportOptimizer
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.command.WriteCommandAction
@@ -16,14 +15,14 @@ import com.intellij.psi.TokenType.WHITE_SPACE
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.HaskellFile
+import me.fornever.haskeletor.highlighter.DaemonUtil
+import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.HaskellTypes._
 import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil, LineColumnPosition, ScalaUtil}
 
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
-
-import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 
 class HaskellImportOptimizer extends ImportOptimizer {
 
@@ -40,7 +39,9 @@ object HaskellImportOptimizer {
 
   def removeRedundantImports(psiFile: PsiFile): Boolean = {
     val document = HaskellFileUtil.findDocument(psiFile)
-    val warnings = document.map(d => DaemonCodeAnalyzerImpl.getHighlights(d, HighlightSeverity.WARNING, psiFile.getProject)).map(_.asScala).getOrElse(Seq())
+    val warnings = document
+      .map(d => DaemonUtil.getHighlights(psiFile.getProject, d, HighlightSeverity.WARNING).toSeq)
+      .getOrElse(Seq.empty)
 
     warnings.foreach(w => w.getDescription match {
       case HaskellImportOptimizer.WarningRedundantImport(mn) => removeRedundantImport(psiFile, mn, getLineNr(psiFile, w.getStartOffset))
