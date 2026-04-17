@@ -8,12 +8,14 @@
 
 package me.fornever.haskeletor.module
 
+import com.intellij.ide.impl.OpenProjectTaskBuilder
 import com.intellij.ide.util.projectWizard._
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
 import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.projectRoots.SdkTypeId
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar, LibraryUtil}
@@ -22,7 +24,6 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.templates.TemplateModuleBuilder
-import me.fornever.haskeletor.{GlobalInfo, HaskellNotificationGroup}
 import me.fornever.haskeletor.cabal.PackageInfo
 import me.fornever.haskeletor.external.component.{HaskellComponentsManager, LibraryPackageInfo}
 import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
@@ -31,8 +32,10 @@ import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util.{FutureUtil, HaskellFileUtil, HaskellProjectUtil, ScalaUtil}
+import me.fornever.haskeletor.{GlobalInfo, HaskellNotificationGroup}
 
 import java.io.File
+import java.nio.file.Path
 import javax.swing.Icon
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -116,7 +119,13 @@ class HaskellModuleBuilder extends TemplateModuleBuilder(null, HaskellModuleType
   }
 
   override def createProject(name: String, path: String): Project = {
-    ProjectManager.getInstance.createProject(name, path)
+    val builder = new OpenProjectTaskBuilder
+    builder.setProjectName(name)
+    builder.setUseDefaultProjectAsTemplate(true)
+    ProjectManagerEx.getInstanceEx.newProject(
+      Path.of(path),
+      builder.build(_ => kotlin.Unit.INSTANCE)
+    )
   }
 
 
