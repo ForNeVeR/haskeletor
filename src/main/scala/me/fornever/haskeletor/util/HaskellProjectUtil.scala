@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.util
 
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.io.FileUtil
@@ -103,7 +103,7 @@ object HaskellProjectUtil {
     findStackFile(new File(project.getBasePath))
   }
 
-  def findPackageFile(directory: File): Option[File] = {
+  private def findPackageFile(directory: File): Option[File] = {
     directory.listFiles.find(_.getName == "package.yaml")
   }
 
@@ -137,12 +137,8 @@ object HaskellProjectUtil {
     Option(ModuleUtilCore.findModuleForFile(psiFile))
   }
 
-  def findModuleForVirtualFile(project: Project, virtualFile: VirtualFile): Option[Module] = {
-    Option(ModuleUtilCore.findModuleForFile(virtualFile, project))
-  }
-
   def findProjectHaskellModules(project: Project): Iterable[Module] = {
-    ModuleManager.getInstance(project).getModules.filter(_.getModuleTypeName == HaskellModuleType.Id)
+    ModuleManager.getInstance(project).getModules.filter(ModuleType.get(_).isInstanceOf[HaskellModuleType])
   }
 
   def findProjectPackageNames(project: Project): Seq[String] = {
