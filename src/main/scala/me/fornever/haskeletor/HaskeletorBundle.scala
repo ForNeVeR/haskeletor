@@ -9,9 +9,14 @@ package me.fornever.haskeletor
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.{Nls, PropertyKey}
 
-object HaskeletorBundle extends DynamicBundle(HaskeletorBundle.BUNDLE) {
+object HaskeletorBundle {
   private final val BUNDLE = "messages.HaskeletorBundle"
+  private val instance = new HaskeletorBundle
 
   @Nls
-  def message(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): String = getMessage(key, params: _*)
+  def message(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): String =
+    //noinspection ReferencePassedToNls
+    instance.getMessage(key, params: _*)
 }
+
+class HaskeletorBundle extends DynamicBundle(HaskeletorBundle.BUNDLE)
