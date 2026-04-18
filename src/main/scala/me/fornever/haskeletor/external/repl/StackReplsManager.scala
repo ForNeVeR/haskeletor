@@ -11,10 +11,7 @@ package me.fornever.haskeletor.external.repl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.HaskellNotificationGroup
 import me.fornever.haskeletor.cabal._
-import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
-import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.external.repl.StackRepl._
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
 import me.fornever.haskeletor.settings.HaskellSettingsState

@@ -35,7 +35,7 @@ import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
-import me.fornever.haskeletor.{GlobalInfo, HTool, HaskellNotificationGroup}
+import me.fornever.haskeletor.{GlobalInfo, HTool}
 
 import java.io.File
 

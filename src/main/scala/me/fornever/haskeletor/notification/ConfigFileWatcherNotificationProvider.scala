@@ -15,8 +15,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.{VFileContentChangeEvent, VFileEvent}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
-import me.fornever.haskeletor.external.component.StackProjectManager
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
 import java.util
 import java.util.concurrent.ConcurrentHashMap

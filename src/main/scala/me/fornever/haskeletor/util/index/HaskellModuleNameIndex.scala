@@ -15,7 +15,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.util.indexing._
 import com.intellij.util.io.{EnumeratorStringDescriptor, KeyDescriptor}
 import me.fornever.haskeletor.HaskellFileType
-import me.fornever.haskeletor.external.component._
+import me.fornever.haskeletor.external.component.{IndexNotReady, NoInfo, ReadActionTimeout}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil, HaskellProjectUtil}
 

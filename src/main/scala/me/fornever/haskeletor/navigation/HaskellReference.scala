@@ -16,11 +16,10 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.external.component.NameInfoComponentResult.{LibraryNameInfo, NameInfo, ProjectNameInfo}
 import me.fornever.haskeletor.external.component._
+import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
-
-import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 
 class HaskellReference(element: HaskellNamedElement, textRange: TextRange) extends PsiPolyVariantReferenceBase[HaskellNamedElement](element, textRange) {
 

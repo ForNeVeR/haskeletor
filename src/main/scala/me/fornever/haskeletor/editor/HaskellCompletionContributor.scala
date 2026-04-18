@@ -18,8 +18,6 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
 import com.intellij.util.ProcessingContext
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
-import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.icons.HaskellIcons
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellTypes._
@@ -221,8 +219,6 @@ class HaskellCompletionContributor extends CompletionContributor {
 
   private val smartProvider: CompletionProvider[CompletionParameters] = new CompletionProvider[CompletionParameters] {
 
-    import me.fornever.haskeletor.external.execution.HaskellCompilationResultHelper.LayoutSpaceChar
-
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, originalResultSet: CompletionResultSet): Unit = {
       ProgressManager.checkCanceled()
 
@@ -352,7 +348,6 @@ class HaskellCompletionContributor extends CompletionContributor {
   }
 
   private def findAvailableIdsForImportModuleSpec(psiFile: PsiFile, element: PsiElement): Iterable[LookupElementBuilder] = {
-    import scala.concurrent.ExecutionContext.Implicits.global
 
     HaskellPsiUtil.findImportDeclaration(element).flatMap(_.getModuleName) match {
       case Some(moduleName) =>

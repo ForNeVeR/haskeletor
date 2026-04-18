@@ -13,7 +13,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.psi.{HaskellPsiUtil, HaskellQualifiedNameElement}
-import me.fornever.haskeletor.util.{HaskellEditorUtil, StringUtil}
+import me.fornever.haskeletor.util.HaskellEditorUtil
 
 import scala.annotation.tailrec
 

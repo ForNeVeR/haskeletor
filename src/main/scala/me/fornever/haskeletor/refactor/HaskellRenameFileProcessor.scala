@@ -12,10 +12,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.psi.impl.HaskellPsiImplUtil
 import me.fornever.haskeletor.psi.{HaskellModid, HaskellPsiUtil}
-import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}
+import me.fornever.haskeletor.util.ScalaUtil
 import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
 
 import java.util

@@ -9,7 +9,6 @@
 package me.fornever.haskeletor.stackyaml
 
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.HaskellNotificationGroup
 import org.yaml.snakeyaml.Yaml
 
 import java.io.{File, FileInputStream, FileNotFoundException}

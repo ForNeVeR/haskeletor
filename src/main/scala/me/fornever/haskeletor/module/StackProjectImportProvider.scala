@@ -11,8 +11,6 @@ package me.fornever.haskeletor.module
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.projectImport.ProjectImportProvider
-import me.fornever.haskeletor.util.HaskellFileUtil
 
 import java.io.File
 

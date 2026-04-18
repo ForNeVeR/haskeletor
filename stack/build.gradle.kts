@@ -20,4 +20,6 @@ dependencies {
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
     }
+
+    implementation(project(":core"))
 }

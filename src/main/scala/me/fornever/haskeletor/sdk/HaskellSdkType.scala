@@ -15,10 +15,8 @@ import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
-import me.fornever.haskeletor.HaskellNotificationGroup
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.icons.HaskellIcons
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 import org.jdom.Element
 
 import java.io.File

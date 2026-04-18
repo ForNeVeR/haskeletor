@@ -230,10 +230,6 @@
         <checkinHandlerFactory implementation="me.fornever.haskeletor.action.HaskellReformatCheckinHandlerFactory"/>
         <checkinHandlerFactory implementation="me.fornever.haskeletor.action.HaskellOptimizeImportsCheckinHandlerFactory"/>
 
-        <projectService serviceInterface="com.intellij.compiler.ProblemsView"
-                        serviceImplementation="me.fornever.haskeletor.editor.HaskellProblemsView"
-                        overrides="true"/>
-
         <applicationService serviceInterface="com.intellij.codeInsight.TargetElementUtil"
                             serviceImplementation="me.fornever.haskeletor.navigation.HaskellTargetElementUtil"
                             overrides="true"/>

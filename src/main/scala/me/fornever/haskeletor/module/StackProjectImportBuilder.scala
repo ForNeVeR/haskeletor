@@ -16,16 +16,13 @@ import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.packaging.artifacts.ModifiableArtifactModel
-import com.intellij.projectImport.ProjectImportBuilder
 import me.fornever.haskeletor.icons.HaskellIcons
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
-import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil, HaskellProjectUtil, ScalaUtil}
+import me.fornever.haskeletor.util.{ApplicationUtil, ScalaUtil}
 
 import java.io.File
 import java.util
 import javax.swing.Icon
-import scala.jdk.CollectionConverters._
 
 class StackProjectImportBuilder extends ProjectImportBuilder[AnyRef] {
   override def getName: String = "Haskell Stack"

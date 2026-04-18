@@ -19,7 +19,7 @@ import me.fornever.haskeletor.highlighter.DaemonUtil
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.HaskellTypes._
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil, LineColumnPosition, ScalaUtil}
+import me.fornever.haskeletor.util.{LineColumnPosition, ScalaUtil}
 
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex

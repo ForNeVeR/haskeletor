@@ -12,7 +12,6 @@ import com.intellij.execution.Executor
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.runconfig.{HaskellStackConfigurationBase, HaskellStackStateBase}
 
 import java.lang

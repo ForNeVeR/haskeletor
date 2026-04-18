@@ -17,7 +17,6 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.FileContentUtilCore
-import me.fornever.haskeletor.external.component.{HaskellComponentsManager, StackProjectManager}
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.util.ScalaUtil
 

@@ -13,7 +13,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope, GlobalSearchScopesCore}
 import me.fornever.haskeletor.HaskellFileType
-import me.fornever.haskeletor.util.HaskellFileUtil
 
 import scala.jdk.CollectionConverters._
 

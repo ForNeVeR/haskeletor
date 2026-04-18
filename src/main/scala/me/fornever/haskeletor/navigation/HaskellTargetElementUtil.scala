@@ -10,7 +10,6 @@ package me.fornever.haskeletor.navigation
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.psi.{PsiElement, PsiReference}
-import me.fornever.haskeletor.external.component.NoInfoAvailable
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
 import java.util

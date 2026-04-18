@@ -16,7 +16,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.inspection.HLintQuickfix.{invokeReplace, noteText}
-import me.fornever.haskeletor.util.HaskellFileUtil
 
 abstract class HLintQuickfix(startElement: PsiElement, endElement: PsiElement) extends LocalQuickFixOnPsiElement(startElement, endElement) {
 

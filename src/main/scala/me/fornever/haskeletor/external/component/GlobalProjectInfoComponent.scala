@@ -11,7 +11,7 @@ package me.fornever.haskeletor.external.component
 import com.github.blemale.scaffeine.{LoadingCache, Scaffeine}
 import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
-import me.fornever.haskeletor.util.{GhcVersion, ScalaUtil}
+import me.fornever.haskeletor.util.ScalaUtil
 
 import java.io.File
 import scala.jdk.CollectionConverters._

@@ -17,7 +17,6 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.external.component.HLintInfo
 import me.fornever.haskeletor.psi.HaskellTypes._
 import me.fornever.haskeletor.psi.{HaskellElementFactory, HaskellTypes}
 import me.fornever.haskeletor.util._

@@ -9,7 +9,6 @@
 package me.fornever.haskeletor.util
 
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.HaskellNotificationGroup
 
 import java.util.concurrent.{Future, TimeUnit, TimeoutException}
 

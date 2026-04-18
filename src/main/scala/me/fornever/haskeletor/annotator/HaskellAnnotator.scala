@@ -23,15 +23,14 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.xml.util.XmlStringUtil
 import me.fornever.haskeletor.editor.HaskellImportOptimizer
-import me.fornever.haskeletor.external.component._
-import me.fornever.haskeletor.external.execution._
+import me.fornever.haskeletor.external.component.{HaskellComponentsManager, StackProjectManager}
 import me.fornever.haskeletor.highlighter.DaemonUtil
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleView
 import me.fornever.haskeletor.ui.EnterNameDialog
 import me.fornever.haskeletor.util._
-import me.fornever.haskeletor.{HaskellFile, HaskellFileType, HaskellNotificationGroup}
+import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec

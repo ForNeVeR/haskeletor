@@ -17,10 +17,7 @@ import com.intellij.util.ProcessingContext
 import me.fornever.haskeletor.cabal.CabalLanguage
 import me.fornever.haskeletor.cabal.lang.psi.impl.ExtensionsImpl
 import me.fornever.haskeletor.cabal.lang.psi.{BuildDepends, CabalPsiUtil, ExposedModules}
-import me.fornever.haskeletor.external.component.HaskellComponentsManager
-import me.fornever.haskeletor.external.component.HaskellComponentsManager.{getAvailableStackagePackages, getSupportedLanguageExtension}
 import me.fornever.haskeletor.icons.HaskellIcons
-import me.fornever.haskeletor.util.HaskellProjectUtil
 
 import scala.jdk.CollectionConverters._
 

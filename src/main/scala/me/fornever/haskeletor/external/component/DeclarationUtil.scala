@@ -8,8 +8,6 @@
 
 package me.fornever.haskeletor.external.component
 
-import me.fornever.haskeletor.util.StringUtil
-
 object DeclarationUtil {
 
   def getDeclarationInfo(declarationLine: String, containsQualifiedIds: Boolean): Option[DeclarationInfo] = {

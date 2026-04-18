@@ -13,7 +13,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.{HTool, HaskellNotificationGroup}
+import me.fornever.haskeletor.HTool
 import me.fornever.haskeletor.external.component.StackProjectManager
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.util._

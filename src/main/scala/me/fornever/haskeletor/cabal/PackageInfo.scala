@@ -11,12 +11,11 @@ package me.fornever.haskeletor.cabal
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiFileFactory}
-import me.fornever.haskeletor.HaskellNotificationGroup
 import me.fornever.haskeletor.cabal.lang.psi
 import me.fornever.haskeletor.cabal.lang.psi._
 import me.fornever.haskeletor.cabal.lang.psi.impl.{ExtensionsImpl, MainIsImpl, SourceDirsImpl}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
-import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil}
+import me.fornever.haskeletor.util.ApplicationUtil
 
 import java.io.{File, IOException}
 import java.nio.charset.StandardCharsets

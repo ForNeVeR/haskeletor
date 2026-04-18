@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import me.fornever.haskeletor.psi.HaskellTypes._
 import me.fornever.haskeletor.psi.{HaskellElementFactory, HaskellPsiUtil}
-import me.fornever.haskeletor.util.HaskellProjectUtil
 
 class AddParensIntention extends PsiElementBaseIntentionAction {
 

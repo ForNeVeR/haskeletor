@@ -6,11 +6,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.util
+package me.fornever.haskeletor.core.util
 
 import com.intellij.openapi.project.Project
 import com.intellij.xml.util.XmlStringUtil
-import me.fornever.haskeletor.HaskellNotificationGroup
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 
 import scala.collection.mutable.ListBuffer
 

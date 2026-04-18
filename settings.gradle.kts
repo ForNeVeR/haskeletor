@@ -6,4 +6,7 @@
 
 rootProject.name = "haskeletor"
 
-include("stack")
+include(
+    "core",
+    "stack"
+)

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.external.component
+package external
 
 import fastparse.Parsed.{Failure, Success}
 import fastparse.SingleLineWhitespace._

@@ -12,11 +12,9 @@ import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.runconfig.HaskellStackConfigurationBase
 
 import java.lang
-import scala.jdk.CollectionConverters._
 
 class HaskellConsoleConfiguration(name: String, project: Project, configurationFactory: ConfigurationFactory)
   extends HaskellStackConfigurationBase(name, project, configurationFactory) {

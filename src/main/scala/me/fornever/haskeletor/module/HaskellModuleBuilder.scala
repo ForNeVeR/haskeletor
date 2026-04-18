@@ -24,15 +24,14 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.templates.TemplateModuleBuilder
+import me.fornever.haskeletor.GlobalInfo
 import me.fornever.haskeletor.cabal.PackageInfo
-import me.fornever.haskeletor.external.component.{HaskellComponentsManager, LibraryPackageInfo}
 import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
 import me.fornever.haskeletor.icons.HaskellIcons
 import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
-import me.fornever.haskeletor.util.{FutureUtil, HaskellFileUtil, HaskellProjectUtil, ScalaUtil}
-import me.fornever.haskeletor.{GlobalInfo, HaskellNotificationGroup}
+import me.fornever.haskeletor.util.{FutureUtil, ScalaUtil}
 
 import java.io.File
 import java.nio.file.Path

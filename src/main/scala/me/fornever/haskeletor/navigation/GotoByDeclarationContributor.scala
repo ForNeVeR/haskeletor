@@ -18,7 +18,6 @@ import com.intellij.util.{ArrayUtil, Processor}
 import me.fornever.haskeletor.HaskellLanguage
 import me.fornever.haskeletor.psi.stubs.index.HaskellAllNameIndex
 import me.fornever.haskeletor.psi.{HaskellNamedElement, HaskellPsiUtil}
-import me.fornever.haskeletor.util.HaskellProjectUtil
 
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._

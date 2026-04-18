@@ -19,7 +19,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.rd.util.lifetime.Lifetime
-import me.fornever.haskeletor.{GlobalInfo, HaskeletorBundle, HaskellNotificationGroup}
+import me.fornever.haskeletor.{GlobalInfo, HaskeletorBundle}
 import org.jetbrains.annotations.Nls
 
 import java.nio.charset.Charset
@@ -138,14 +138,6 @@ object CommandLine {
 
   private def createLogMessage(cmd: GeneralCommandLine, processOutput: ProcessOutput): String = {
     s"${cmd.getCommandLineString}:  ${processOutput.getStdoutLines.asScala.mkString("\n")} \n ${processOutput.getStderrLines.asScala.mkString("\n")}"
-  }
-}
-
-object AnsiDecoder {
-  def decodeAnsiCommandsToString(ansi: String, outputType: Key[_], decoder: AnsiEscapeDecoder): String = {
-    val buffer = new StringBuilder()
-    decoder.escapeText(ansi, outputType, (text, _) => buffer.append(text))
-    buffer.result()
   }
 }
 

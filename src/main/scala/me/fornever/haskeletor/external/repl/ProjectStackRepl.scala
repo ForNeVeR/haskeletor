@@ -10,12 +10,11 @@ package me.fornever.haskeletor.external.repl
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.HaskellNotificationGroup
 import me.fornever.haskeletor.external.repl.StackRepl.StackReplOutput
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.settings.HaskellSettingsState
-import me.fornever.haskeletor.util.{HaskellFileUtil, ScalaFutureUtil}
+import me.fornever.haskeletor.util.ScalaFutureUtil
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.{Future, blocking}

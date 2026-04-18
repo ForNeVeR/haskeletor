@@ -11,14 +11,12 @@ package me.fornever.haskeletor.external.component
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.HaskellNotificationGroup
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
 import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._

@@ -12,7 +12,6 @@ import com.intellij.codeInsight.documentation.DocumentationManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.external.execution.{CompilationResult, HaskellCompilationResultHelper}
 import me.fornever.haskeletor.external.repl.ProjectStackRepl.Loaded
 import me.fornever.haskeletor.external.repl._
 import me.fornever.haskeletor.psi.HaskellPsiUtil

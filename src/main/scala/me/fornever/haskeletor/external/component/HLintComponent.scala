@@ -10,7 +10,7 @@ package me.fornever.haskeletor.external.component
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.{HTool, HaskellNotificationGroup}
+import me.fornever.haskeletor.HTool
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.util.HaskellFileUtil
@@ -57,8 +57,6 @@ object HLintComponent {
   private object HlintJsonProtocol extends DefaultJsonProtocol {
     implicit val hlintInfoFormat: RootJsonFormat[HLintInfo] = jsonFormat13(HLintInfo)
   }
-
-  import me.fornever.haskeletor.external.component.HLintComponent.HlintJsonProtocol._
 
   private[external] def parseHLintOutput(project: Project, hlintOutput: String) = {
     if (hlintOutput.trim.isEmpty || hlintOutput == "[]") {

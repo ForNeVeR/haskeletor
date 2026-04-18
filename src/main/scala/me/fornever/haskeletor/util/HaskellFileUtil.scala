@@ -14,20 +14,18 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
-import me.fornever.haskeletor.HaskellFileType
-import me.fornever.haskeletor.external.component.{NoInfo, NoInfoAvailable}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
 import java.io.{File, FileOutputStream, InputStream}
 import java.nio.charset.Charset
 import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 
 object HaskellFileUtil {
 
@@ -82,6 +80,10 @@ object HaskellFileUtil {
     (virtualFile, psiFile)
   }
 
+  def findVirtualFile(project: Project, filePath: Path): Option[VirtualFile] = {
+    Option(LocalFileSystem.getInstance().findFileByNioFile(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
+  }
+
   def findVirtualFile(project: Project, filePath: String): Option[VirtualFile] = {
     Option(LocalFileSystem.getInstance().findFileByPath(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
   }
@@ -123,6 +125,13 @@ object HaskellFileUtil {
 
   def makeFilePathAbsolute(filePath: String, module: Module): String = {
     makeFilePathAbsolute(filePath, HaskellProjectUtil.getModuleDir(module).getAbsolutePath)
+  }
+
+  def makeFilePathAbsolute(filePath: Path, project: Project): Path = {
+    if (filePath.isAbsolute)
+      filePath
+    else
+      Path.of(ProjectUtil.guessProjectDir(project).getPath, filePath.toString)
   }
 
   def makeFilePathAbsolute(filePath: String, parentFilePath: String): String = {

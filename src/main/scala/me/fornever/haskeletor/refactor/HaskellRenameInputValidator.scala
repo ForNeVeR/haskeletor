@@ -13,7 +13,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.refactoring.rename.RenameInputValidator
 import com.intellij.util.ProcessingContext
 import me.fornever.haskeletor.psi._
-import me.fornever.haskeletor.util.HaskellFileUtil
 import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
 
 class HaskellRenameInputValidator extends RenameInputValidator {

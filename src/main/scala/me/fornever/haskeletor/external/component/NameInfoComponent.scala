@@ -15,8 +15,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.external.repl.StackRepl.StackReplOutput
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.psi._
-import me.fornever.haskeletor.util.StringUtil.escapeString
-import me.fornever.haskeletor.util.{HaskellProjectUtil, StringUtil}
+import me.fornever.haskeletor.util.HaskellProjectUtil
 
 private[component] object NameInfoComponent {
 

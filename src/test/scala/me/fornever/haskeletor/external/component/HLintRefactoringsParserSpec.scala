@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.external.component
+package core.external
 
-import me.fornever.haskeletor.external.component.HLintRefactoringsParser._
+import external.HLintRefactoringsParser._
 import org.junit.runner.RunWith
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

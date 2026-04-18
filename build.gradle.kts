@@ -39,12 +39,18 @@ repositories {
     }
 }
 
+scala {
+    scalaVersion = libs.versions.scala
+}
+
 dependencies {
     implementation(libs.spray.json)
     implementation(libs.snakeyaml)
     implementation(libs.scaffeine)
     implementation(libs.directories)
     implementation(libs.fastparse)
+
+    implementation(project(":core"))
 
     testImplementation(libs.scalatest)
     testImplementation(libs.scalatestplus.junit)

@@ -10,7 +10,6 @@ package me.fornever.haskeletor.refactor
 
 import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.psi._
-import me.fornever.haskeletor.util.HaskellProjectUtil
 
 class HaskellRefactoringSupportProvider extends RefactoringSupportProvider {
 

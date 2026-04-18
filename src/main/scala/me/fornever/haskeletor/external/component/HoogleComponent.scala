@@ -15,7 +15,7 @@ import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
 import me.fornever.haskeletor.psi.{HaskellPsiUtil, HaskellQualifiedNameElement}
 import me.fornever.haskeletor.util.{HtmlElement, ScalaFutureUtil}
-import me.fornever.haskeletor.{GlobalInfo, HTool, HaskellNotificationGroup}
+import me.fornever.haskeletor.{GlobalInfo, HTool}
 
 import java.io.File
 import scala.collection.mutable
@@ -114,7 +114,7 @@ object HoogleComponent {
       case Some(hooglePath) =>
         val buildHaddockOutput = try {
           StackProjectManager.setHaddockBuilding(project, state = true)
-          StackCommandLine.executeStackCommandInMessageView(project, "Build haddock", Seq("haddock", "--test", "--no-run-tests", "--no-haddock-hyperlink-source"))
+          StackCommandLine.executeStackCommandInBuildView(project, "Build haddock", Seq("haddock", "--test", "--no-run-tests", "--no-haddock-hyperlink-source"))
         } finally {
           StackProjectManager.setHaddockBuilding(project, state = false)
         }
