@@ -23,7 +23,6 @@ import com.intellij.ui.EditorNotifications
 import me.fornever.haskeletor.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
 import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.editor.HaskellProblemsView
 import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
@@ -208,8 +207,6 @@ object StackProjectManager {
                 ApplicationManager.getApplication.runReadAction(ScalaUtil.runnable {
                   getStackProjectManager(project).foreach(_.initStackReplsManager())
                 })
-
-                HaskellProblemsView.getInstance(project).clear()
 
                 progressIndicator.setText("Busy updating project and module settings")
                 val projectPath = project.getBasePath
