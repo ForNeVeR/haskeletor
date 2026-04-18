@@ -11,21 +11,18 @@ package me.fornever.haskeletor.annotator
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
-import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.lang.annotation.{AnnotationHolder, ExternalAnnotator, HighlightSeverity}
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
-import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.xml.util.XmlStringUtil
-import me.fornever.haskeletor.editor.{HaskellImportOptimizer, HaskellProblemsView}
+import me.fornever.haskeletor.editor.HaskellImportOptimizer
 import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.external.execution._
 import me.fornever.haskeletor.highlighter.DaemonUtil
@@ -72,35 +69,7 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
 
   override def apply(psiFile: PsiFile, loadResult: CompilationResult, holder: AnnotationHolder): Unit = {
     val project = psiFile.getProject
-    val haskellProblemsView = HaskellProblemsView.getInstance(project)
-
     val currentFile = HaskellFileUtil.findVirtualFile(psiFile)
-    val currentFileMessages = currentFile.map { cf =>
-      loadResult.currentFileProblems.map(p => createCompilerMessage(cf, project, p))
-    }
-
-    val otherFileMessages = loadResult.otherFileProblems.flatMap { problem =>
-      HaskellFileUtil.findVirtualFile(project, problem.filePath).map { file =>
-        createCompilerMessage(file, project, problem)
-      }
-    }
-
-    ApplicationManager.getApplication.invokeLater { () =>
-      if (!project.isDisposed) {
-        haskellProblemsView.clearProgress()
-        currentFile.foreach(cf => {
-          haskellProblemsView.clearOldMessages(cf)
-        })
-        currentFileMessages.foreach(_.foreach(haskellProblemsView.addMessage))
-
-        val messagesPerFile = otherFileMessages.groupBy(_.getVirtualFile)
-        messagesPerFile.foreach { case (file, messages) =>
-          haskellProblemsView.clearOldMessages(file)
-          messages.foreach(haskellProblemsView.addMessage(_))
-        }
-      }
-    }
-
     for (annotation <- HaskellAnnotator.createAnnotations(project, psiFile, loadResult.currentFileProblems)) {
       annotation match {
         case ErrorAnnotation(textRange, message, htmlMessage) =>
@@ -113,12 +82,6 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
           HaskellAnnotator.annotation(holder, HighlightSeverity.WARNING, textRange, message, htmlMessage, intentionActions)
       }
     }
-  }
-
-  private def createCompilerMessage(file: VirtualFile, project: Project, problem: CompilationProblem) = {
-    val category = if (problem.isWarning && !(problem.message.contains("-Wdeferred-type-error") || problem.message.contains("not in scope") || problem.message.contains("Not in scope"))) CompilerMessageCategory.WARNING
-    else CompilerMessageCategory.ERROR
-    new CompilerMessageImpl(project, category, problem.message, file, problem.lineNr, problem.columnNr, null)
   }
 }
 
