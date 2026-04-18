@@ -6,15 +6,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package external
+package me.fornever.haskeletor.external.component
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import me.fornever.haskeletor.core.util.StringUtil
 import me.fornever.haskeletor.navigation.HaskellReference
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.impl.HaskellPsiImplUtil
-import me.fornever.haskeletor.util.{HaskellEditorUtil, HtmlElement}
+import me.fornever.haskeletor.util.{HaskellEditorUtil, HaskellProjectUtil, HtmlElement}
 
 class HaskellDocumentationProvider extends AbstractDocumentationProvider {
 

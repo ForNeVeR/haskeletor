@@ -15,7 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.external.repl.{ProjectStackRepl, StackReplsManager}
 import me.fornever.haskeletor.psi._
-import me.fornever.haskeletor.util.{ApplicationUtil, LineColumnPosition}
+import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil, LineColumnPosition}
 
 import scala.concurrent.TimeoutException
 

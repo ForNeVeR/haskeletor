@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.fastparse)
 
     implementation(project(":core"))
+    implementation(project(":stack"))
 
     testImplementation(libs.scalatest)
     testImplementation(libs.scalatestplus.junit)

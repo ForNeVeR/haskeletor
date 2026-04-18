@@ -12,6 +12,8 @@ import com.github.blemale.scaffeine.{LoadingCache, Scaffeine}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import me.fornever.haskeletor.core.util.StringUtil
+import me.fornever.haskeletor.core.util.StringUtil.escapeString
 import me.fornever.haskeletor.external.repl.StackRepl.StackReplOutput
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.psi._

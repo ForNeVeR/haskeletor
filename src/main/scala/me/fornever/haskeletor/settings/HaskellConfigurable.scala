@@ -11,7 +11,7 @@ package me.fornever.haskeletor.settings
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.ui.DocumentAdapter
-import me.fornever.haskeletor.HaskeletorBundle
+import me.fornever.haskeletor.core.HaskeletorBundle
 
 import java.awt.{GridBagConstraints, GridBagLayout, Insets}
 import javax.swing._

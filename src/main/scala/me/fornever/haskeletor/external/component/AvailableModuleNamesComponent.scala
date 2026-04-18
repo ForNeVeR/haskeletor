@@ -13,6 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import me.fornever.haskeletor.HaskellFileType
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
 import me.fornever.haskeletor.external.repl.StackRepl.{BenchmarkType, TestSuiteType}
 import me.fornever.haskeletor.psi.HaskellPsiUtil

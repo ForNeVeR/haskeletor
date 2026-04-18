@@ -12,7 +12,8 @@ import com.intellij.execution.process.ProcessOutput
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.psi.{HaskellPsiUtil, HaskellQualifiedNameElement}
 import me.fornever.haskeletor.util.{HtmlElement, ScalaFutureUtil}
 import me.fornever.haskeletor.{GlobalInfo, HTool}
@@ -109,28 +110,6 @@ object HoogleComponent {
     }
   }
 
-  def rebuildHoogle(project: Project): Unit = {
-    StackProjectManager.isHoogleAvailable(project) match {
-      case Some(hooglePath) =>
-        val buildHaddockOutput = try {
-          StackProjectManager.setHaddockBuilding(project, state = true)
-          StackCommandLine.executeStackCommandInBuildView(project, "Build haddock", Seq("haddock", "--test", "--no-run-tests", "--no-haddock-hyperlink-source"))
-        } finally {
-          StackProjectManager.setHaddockBuilding(project, state = false)
-        }
-
-        if (buildHaddockOutput.contains(true)) {
-          GlobalProjectInfoComponent.findGlobalProjectInfo(project).map(info => (info.localDocRoot, info.snapshotDocRoot)) match {
-            case Some((localDocRoot, snapshotDocRoot)) => StackCommandLine.executeInMessageView(project, "Generating Hoogle database", hooglePath, Seq("generate", s"--local=$localDocRoot", s"--local=$snapshotDocRoot", s"--database=${
-              hoogleDbPath(project)
-            }"))
-            case None => HaskellNotificationGroup.logErrorBalloonEvent(project, "Couldn't generate Hoogle DB because path to local doc root is unknown")
-          }
-        }
-      case None => ()
-    }
-  }
-
   def doesHoogleDatabaseExist(project: Project): Boolean = {
     hoogleDbPath(project).exists()
   }
@@ -164,7 +143,7 @@ object HoogleComponent {
     }
   }
 
-  private def hoogleDbPath(project: Project) = {
+  def hoogleDbPath(project: Project) = {
     new File(GlobalInfo.getIntelliJProjectDirectory(project), HoogleDbName)
   }
 }

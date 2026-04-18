@@ -23,6 +23,7 @@ import com.intellij.ui.EditorNotifications
 import me.fornever.haskeletor.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
 import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager

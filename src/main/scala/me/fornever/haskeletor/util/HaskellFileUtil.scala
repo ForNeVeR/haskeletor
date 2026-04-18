@@ -20,6 +20,8 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
+import me.fornever.haskeletor.HaskellFileType
+import me.fornever.haskeletor.external.component.{NoInfo, NoInfoAvailable}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
 import java.io.{File, FileOutputStream, InputStream}

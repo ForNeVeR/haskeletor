@@ -16,8 +16,8 @@ import com.intellij.psi.{PsiDirectory, PsiElement, PsiFileFactory, PsiReference}
 import me.fornever.haskeletor.cabal.lang.psi._
 import me.fornever.haskeletor.cabal.{CabalFile, CabalLanguage}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
-import me.fornever.haskeletor.util.ScalaUtil
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
+import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}
 
 import java.util.regex.Pattern
 

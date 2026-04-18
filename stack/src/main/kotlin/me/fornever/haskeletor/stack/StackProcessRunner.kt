@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.pathString
 
 @Service(Service.Level.PROJECT)
-class StackProcessRunner(private val project: Project) {
+internal class StackProcessRunner(private val project: Project) {
 
     companion object {
         @JvmStatic

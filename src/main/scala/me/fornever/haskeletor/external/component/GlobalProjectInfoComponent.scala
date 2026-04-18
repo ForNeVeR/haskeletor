@@ -10,13 +10,14 @@ package me.fornever.haskeletor.external.component
 
 import com.github.blemale.scaffeine.{LoadingCache, Scaffeine}
 import com.intellij.openapi.project.Project
+import me.fornever.haskeletor.core.project.{GhcVersion, GlobalProjectInfo, PackageDbPaths, ProjectBinPaths}
 import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
 import me.fornever.haskeletor.util.ScalaUtil
 
 import java.io.File
 import scala.jdk.CollectionConverters._
 
-private[component] object GlobalProjectInfoComponent {
+object GlobalProjectInfoComponent {
 
   private case class Key(project: Project)
 
@@ -91,10 +92,3 @@ private[component] object GlobalProjectInfoComponent {
     } yield PackageDbPaths(globalPackageDbPath, snapshotPackageDbPath, localPackageDbPath)
   }
 }
-
-
-case class GlobalProjectInfo(ghcVersion: GhcVersion, ghcPath: String, ghcPkgPath: String, localDocRoot: String, snapshotDocRoot: String, packageDbPaths: PackageDbPaths, projectBinPaths: ProjectBinPaths, supportedLanguageExtensions: Iterable[String], availableStackagePackageNames: Iterable[String])
-
-case class PackageDbPaths(globalPackageDbPath: String, snapshotPackageDbPath: String, localPackageDbPath: String)
-
-case class ProjectBinPaths(compilerBinPath: String, localBinPath: String)

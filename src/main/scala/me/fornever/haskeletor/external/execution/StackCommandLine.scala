@@ -11,17 +11,17 @@ package me.fornever.haskeletor.external.execution
 import com.intellij.concurrency.JobSchedulerImpl.getCPUCoresCount
 import com.intellij.execution.process._
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.WaitFor
-import me.fornever.haskeletor.HaskeletorBundle
+import me.fornever.haskeletor.core.HaskeletorBundle
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util.HaskellProjectUtil
 import org.jetbrains.annotations.Nls
 
-import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 object StackCommandLine {
@@ -138,19 +138,6 @@ object StackCommandLine {
 
   def buildInMessageView(project: Project, description: String, arguments: Seq[String]): Option[Boolean] = {
     executeStackCommandInBuildView(project, description, Seq("build", "--fast", "--progress-bar", "full", "--no-interleaved-output") ++ arguments ++ ghcOptions(project))
-  }
-
-  def executeStackCommandInBuildView(project: Project,
-                                     @Nls(capitalization = Nls.Capitalization.Title) title: String,
-                                     arguments: Seq[String]
-                                    ): Option[Boolean] = {
-    HaskellSdkType.getStackPath(project).foreach(stackPath =>
-      StackProcessRunner.getInstance(project).executeInBuildView(
-        title,
-        stackPath,
-        Path.of(ProjectUtil.guessProjectDir(project))
-      )
-    )
   }
 
   // To prevent message window is not yet available

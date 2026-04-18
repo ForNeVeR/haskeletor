@@ -13,6 +13,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.cabal.PackageInfo
+import me.fornever.haskeletor.core.compiler.CompilationResult
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.core.project.{GhcVersion, GlobalProjectInfo}
 import me.fornever.haskeletor.external.component.DefinitionLocationComponent.DefinitionLocationResult
 import me.fornever.haskeletor.external.component.NameInfoComponentResult.NameInfoResult
 import me.fornever.haskeletor.external.component.TypeInfoComponentResult.TypeInfoResult
@@ -21,7 +24,7 @@ import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.{HaskellPsiUtil, HaskellQualifiedNameElement}
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
-import me.fornever.haskeletor.util.{ApplicationUtil, GhcVersion, ScalaFutureUtil}
+import me.fornever.haskeletor.util.{ApplicationUtil, HaskellProjectUtil, ScalaFutureUtil}
 
 import scala.concurrent._
 

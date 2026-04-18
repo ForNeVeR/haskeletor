@@ -15,6 +15,7 @@ import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.tree.IElementType
 import me.fornever.haskeletor.cabal.lang.psi.CabalTypes._
 import me.fornever.haskeletor.cabal.lang.psi._
+import me.fornever.haskeletor.util.HaskellFileUtil
 
 final class CabalParser extends PsiParser {
 

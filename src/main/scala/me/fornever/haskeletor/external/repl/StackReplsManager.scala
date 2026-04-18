@@ -12,6 +12,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.cabal._
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
+import me.fornever.haskeletor.external.component.{HaskellComponentsManager, StackProjectManager}
 import me.fornever.haskeletor.external.repl.StackRepl._
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
 import me.fornever.haskeletor.settings.HaskellSettingsState

@@ -19,7 +19,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.rd.util.lifetime.Lifetime
-import me.fornever.haskeletor.{GlobalInfo, HaskeletorBundle}
+import me.fornever.haskeletor.GlobalInfo
+import me.fornever.haskeletor.core.HaskeletorBundle
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import org.jetbrains.annotations.Nls
 
 import java.nio.charset.Charset

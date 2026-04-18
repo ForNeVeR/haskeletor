@@ -11,6 +11,7 @@ package me.fornever.haskeletor.external.component
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.URLUtil
 import me.fornever.haskeletor.GlobalInfo
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util.HaskellFileUtil
 

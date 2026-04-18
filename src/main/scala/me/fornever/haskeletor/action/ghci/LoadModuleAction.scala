@@ -10,6 +10,7 @@ package me.fornever.haskeletor.action.ghci
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import me.fornever.haskeletor.action.ActionUtil
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleViewMap
 import me.fornever.haskeletor.util.HaskellFileUtil
 
