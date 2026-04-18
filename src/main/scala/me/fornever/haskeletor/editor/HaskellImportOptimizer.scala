@@ -40,7 +40,7 @@ object HaskellImportOptimizer {
   def removeRedundantImports(psiFile: PsiFile): Boolean = {
     val document = HaskellFileUtil.findDocument(psiFile)
     val warnings = document
-      .map(d => DaemonUtil.getHighlights(psiFile.getProject, d, HighlightSeverity.WARNING).toSeq)
+      .map(d => DaemonUtil.getDocumentHighlights(psiFile.getProject, d, HighlightSeverity.WARNING).toSeq)
       .getOrElse(Seq.empty)
 
     warnings.foreach(w => w.getDescription match {

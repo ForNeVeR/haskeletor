@@ -17,21 +17,34 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 object DaemonUtil {
-  def getHighlights(project: Project,
-                    document: Document,
-                    minSeverity: HighlightSeverity,
-                    startOffset: Int,
-                    endOffset: Int
-                   ): mutable.Buffer[HighlightInfo] = {
+  private def getHighlights(project: Project,
+                            document: Document,
+                            minSeverity: HighlightSeverity,
+                            filter: Option[HighlightInfo => Boolean]
+                           ): mutable.Buffer[HighlightInfo] = {
     val collection = new util.ArrayList[HighlightInfo]
     val collector = Processors.cancelableCollectProcessor(collection)
-    DaemonCodeAnalyzerEx.processHighlights(document, project, minSeverity, startOffset, endOffset, collector)
+    val filteredCollector = filter match {
+      case None => collector
+      case Some(filter) => Processors.filter(collector, { info => filter(info) })
+    }
+    DaemonCodeAnalyzerEx.processHighlights(document, project, minSeverity, 0, document.getTextLength, filteredCollector)
     collection.asScala
   }
 
-  def getHighlights(project: Project,
-                    document: Document,
-                    minSeverity: HighlightSeverity
-                   ): mutable.Buffer[HighlightInfo] =
-    getHighlights(project, document, minSeverity, 0, document.getTextLength)
+  def getDocumentHighlights(project: Project,
+                            document: Document,
+                            minSeverity: HighlightSeverity
+                           ): mutable.Buffer[HighlightInfo] =
+    getHighlights(project, document, minSeverity, None)
+
+  def getHighlightsAtOffset(project: Project,
+                            document: Document,
+                            minSeverity: HighlightSeverity,
+                            offset: Int
+                           ): mutable.Buffer[HighlightInfo] = {
+    // To get data about a particular offset, collect every highlighting and filter by "contains": replicates the
+    // approach used in com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl.processHighlightsNearOffset.
+    getHighlights(project, document, minSeverity, Some(info => info.contains(offset)))
+  }
 }

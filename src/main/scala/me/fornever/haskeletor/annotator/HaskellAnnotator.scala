@@ -9,7 +9,6 @@
 package me.fornever.haskeletor.annotator
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
 import com.intellij.compiler.CompilerMessageImpl
@@ -39,7 +38,6 @@ import me.fornever.haskeletor.{HaskellFile, HaskellFileType, HaskellNotification
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
@@ -183,22 +181,11 @@ object HaskellAnnotator {
     }
   }
 
-  private def collectHighlightingInfo(project: Project, offset: Int, editor: Editor): mutable.Buffer[HighlightInfo] =
-    DaemonUtil.getHighlights(
-      project,
-      editor.getDocument,
-      HighlightSeverity.INFORMATION,
-      offset,
-      offset
-    )
-
-
   def getHighlightingTooltipHtml(project: Project, offset: Int, editor: Editor): Option[String] = {
-    val highlightings = DaemonUtil.getHighlights(
+    val highlightings = DaemonUtil.getHighlightsAtOffset(
       project,
       editor.getDocument,
       HighlightSeverity.INFORMATION,
-      offset,
       offset
     )
     val nonEmptyTooltips = highlightings.toSeq
@@ -221,11 +208,10 @@ object HaskellAnnotator {
   }
 
   def getHighlightingDescription(project: Project, offset: Int, editor: Editor): Option[String] = {
-    val highlightings = DaemonUtil.getHighlights(
+    val highlightings = DaemonUtil.getHighlightsAtOffset(
       project,
       editor.getDocument,
       HighlightSeverity.INFORMATION,
-      offset,
       offset
     )
     val nonEmptyDescriptions = highlightings.toSeq
