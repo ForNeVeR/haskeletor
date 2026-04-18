@@ -9,6 +9,12 @@ Changelog
 
 The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the README file][docs.readme] for more details on how the project is versioned.
 
+## [1.0.1] - 2026-04-18
+### Fixed
+- **Show Error** action (and some otheres that relied on PSI access) has been [fixed](https://github.com/ForNeVeR/haskeletor/pull/40).
+- Fix the action icons.
+- Migrate away from internal IntelliJ API (no longer allowed to be used for the plugins uploaded to the Marketplace).
+
 ## [1.0.0] - 2026-04-12
 This is the initial plugin release under the current name.
 
@@ -31,4 +37,5 @@ Haskeletor is a fork of [intellij-haskell][] (by @rikvdkleij and contributors), 
 [keep-a-changelog]: https://keepachangelog.com/en/1.1.0/
 
 [1.0.0]: https://github.com/ForNeVeR/haskeletor/commits/v1.0.0
-[Unreleased]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.0...HEAD
+[1.0.1]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.0...v1.0.1
+[Unreleased]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.1...HEAD
