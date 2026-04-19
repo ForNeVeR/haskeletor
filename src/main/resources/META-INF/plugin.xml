@@ -181,7 +181,6 @@
 
         <!-- Stack -->
         <sdkType implementation="me.fornever.haskeletor.sdk.HaskellSdkType"/>
-        <projectOpenProcessor implementation="me.fornever.haskeletor.module.StackProjectOpenProcessor"/>
 
         <!-- Index -->
         <fileBasedIndex implementation="me.fornever.haskeletor.util.index.HaskellModuleNameIndex"/>
@@ -203,7 +202,6 @@
                                  bundle="messages.HaskeletorBundle"
                                  key="configurable.haskell.title"/>
         <applicationService serviceImplementation="me.fornever.haskeletor.settings.HaskellSettingsPersistentStateComponent"/>
-        <framework.type implementation="me.fornever.haskeletor.framework.HaskellFrameworkType"/>
         <lang.importOptimizer language="Haskell" implementationClass="me.fornever.haskeletor.editor.HaskellImportOptimizer"/>
 
         <!-- Module -->
@@ -211,8 +209,6 @@
         <internalFileTemplate name="Alex Source"/>
         <internalFileTemplate name="Haskell Test Module"/>
         <moduleType id="HASKELL_MODULE" implementationClass="me.fornever.haskeletor.module.HaskellModuleType"/>
-        <moduleConfigurationEditorProvider implementation="me.fornever.haskeletor.settings.HaskellModuleEditorsProvider"
-                                           order="first"/>
 
         <!-- Runner -->
         <actionPromoter implementation="me.fornever.haskeletor.runconfig.console.HaskellConsoleActionPromoter"/>
@@ -392,5 +388,4 @@
             </action>
         </group>
     </actions>
-    <depends>com.intellij.modules.platform</depends>
 </idea-plugin>
