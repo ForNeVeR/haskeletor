@@ -20,7 +20,6 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
-import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.project.Project
 import kotlinx.coroutines.*
 import org.jetbrains.annotations.Nls
@@ -33,7 +32,7 @@ internal class StackProcessRunner(private val project: Project) {
 
     companion object {
         @JvmStatic
-        suspend fun getInstance(project: Project): StackProcessRunner = project.serviceAsync()
+        fun getInstance(project: Project): StackProcessRunner = project.service()
     }
 
     private val buildIdStorage = AtomicInteger()
