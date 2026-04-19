@@ -16,7 +16,6 @@ import com.intellij.build.events.impl.SuccessResultImpl
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -57,21 +56,31 @@ internal class StackProcessRunner(private val project: Project) {
                 .withExePath(stackExecutable.pathString)
                 .withWorkDirectory(workingDirectory.pathString)
                 .withParameters(arguments.toList())
-            val handler = withContext(Dispatchers.IO) {
-                OSProcessHandler(commandLine).apply {
-                    buildView.attachToProcess(this)
-                    addProcessListener(BuildViewProcessAdapter(buildView, buildId))
-                    coroutineContext.job.invokeOnCompletion {
-                        destroyProcess()
-                    }
+            val exitCode = withContext(Dispatchers.IO) {
+                suspendCancellableCoroutine { continuation ->
+                    OSProcessHandler(commandLine).apply {
+                        buildView.attachToProcess(this)
+                        addProcessListener(BuildViewProcessAdapter(buildView, buildId))
+                        addProcessListener(object : ProcessListener {
+                            override fun processNotStarted() {
+                                continuation.resumeWith(Result.failure(RuntimeException("Process not started")))
+                            }
 
-                    startNotify()
+                            override fun processTerminated(event: ProcessEvent) {
+                                continuation.resumeWith(Result.success(event.exitCode))
+                            }
+                        })
+                        coroutineContext.job.invokeOnCompletion {
+                            destroyProcess()
+                        }
+
+                        startNotify()
+                    }
                 }
             }
 
             onBuildStarted(buildView, buildId, buildDescriptor)
 
-            val exitCode = handler.waitForTerminationSuspending()
             if (exitCode == 0) {
                 onBuildSucceeded(buildView, buildId)
                 return true
@@ -85,15 +94,6 @@ internal class StackProcessRunner(private val project: Project) {
         }
     }
 }
-
-private suspend fun ProcessHandler.waitForTerminationSuspending(): Int =
-    suspendCancellableCoroutine { continuation ->
-        addProcessListener(object : ProcessListener {
-            override fun processTerminated(event: ProcessEvent) {
-                continuation.resumeWith(Result.success(event.exitCode))
-            }
-        })
-    }
 
 private fun onBuildStarted(buildView: BuildView, buildId: Int, buildDescriptor: DefaultBuildDescriptor) {
     buildView.onEvent(
