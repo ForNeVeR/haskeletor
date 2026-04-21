@@ -8,11 +8,14 @@
 
 package me.fornever.haskeletor.annotator
 
+import com.intellij.build.{BuildViewManager, FilePosition}
+import com.intellij.build.events.{FileMessageEvent, MessageEvent}
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
 import com.intellij.lang.annotation.{AnnotationHolder, ExternalAnnotator, HighlightSeverity}
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
@@ -31,6 +34,7 @@ import me.fornever.haskeletor.highlighter.DaemonUtil
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleView
+import me.fornever.haskeletor.stack.AnnotationBuildManager
 import me.fornever.haskeletor.ui.EnterNameDialog
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
@@ -72,6 +76,42 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
   override def apply(psiFile: PsiFile, loadResult: CompilationResult, holder: AnnotationHolder): Unit = {
     val project = psiFile.getProject
     val currentFile = HaskellFileUtil.findVirtualFile(psiFile)
+
+    // Start an annotation build session to clear old problems from the build view
+    val buildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
+    val buildSession = AnnotationBuildManager.getInstance(project).startAnnotationBuild(psiFile.getName)
+    val buildId = buildSession.getBuildId
+
+    // Inject problems from this file into the build view
+    for (problem <- loadResult.currentFileProblems) {
+      currentFile.foreach { cf =>
+        val file = new java.io.File(cf.getPath)
+        val fileMessageEvent = FileMessageEvent.builder(
+          problem.plainMessage,
+          if (problem.isWarning) MessageEvent.Kind.WARNING else MessageEvent.Kind.ERROR,
+          new FilePosition(file, problem.columnNr - 1, problem.lineNr - 1)
+        ).withParentId(buildId).build()
+        buildViewManager.onEvent(buildId, fileMessageEvent)
+      }
+    }
+
+    // Inject problems from other files into the build view
+    for (problem <- loadResult.otherFileProblems) {
+      HaskellFileUtil.findVirtualFile(project, problem.filePath).foreach { cf =>
+        val file = new java.io.File(cf.getPath)
+        val fileMessageEvent = FileMessageEvent.builder(
+          problem.plainMessage,
+          if (problem.isWarning) MessageEvent.Kind.WARNING else MessageEvent.Kind.ERROR,
+          new FilePosition(file, problem.columnNr - 1, problem.lineNr - 1)
+        ).withParentId(buildId).build()
+        buildViewManager.onEvent(buildId, fileMessageEvent)
+      }
+    }
+
+    // Finish the build session to clear old problems
+    buildSession.finish()
+
+    // Create inline annotations for the current file
     for (annotation <- HaskellAnnotator.createAnnotations(project, psiFile, loadResult.currentFileProblems)) {
       annotation match {
         case ErrorAnnotation(textRange, message, htmlMessage) =>
