@@ -15,6 +15,7 @@ import com.intellij.build.events.impl.SuccessResultImpl
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.intellij.util.ThreeState
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -48,6 +49,7 @@ internal class AnnotationBuildManager(private val project: Project) {
             project.basePath ?: "",
             System.currentTimeMillis()
         )
+        buildDescriptor.isNavigateToError = ThreeState.NO
 
         buildViewManager.onEvent(
             buildId,
