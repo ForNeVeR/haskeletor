@@ -12,6 +12,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
+import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.containers.orNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -36,10 +37,12 @@ class HoogleBuilder(private val project: Project, private val coroutineScope: Co
         projectInfoManager: ProjectInfoManager
     ) {
         coroutineScope.launch {
-            val haddockBuilt = buildHaddock(stackExecutable, manager)
-            if (haddockBuilt) {
-                manager.findHooglePath().orNull()?.let { hoogle ->
-                    buildHoogleDatabase(stackExecutable, hoogle, manager, projectInfoManager)
+            withBackgroundProgress(project, HaskeletorBundle.message("build.hoogle-database.title")) {
+                val haddockBuilt = buildHaddock(stackExecutable, manager)
+                if (haddockBuilt) {
+                    manager.findHooglePath().orNull()?.let { hoogle ->
+                        buildHoogleDatabase(stackExecutable, hoogle, manager, projectInfoManager)
+                    }
                 }
             }
         }

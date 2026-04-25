@@ -19,8 +19,13 @@ import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
 import com.intellij.openapi.project.Project
+import com.intellij.platform.util.progress.RawProgressReporter
+import com.intellij.platform.util.progress.reportRawProgress
 import kotlinx.coroutines.*
+import me.fornever.haskeletor.core.stack.OutputToProgressIndicator
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
@@ -59,23 +64,27 @@ internal class StackProcessRunner(private val project: Project) {
                 .withWorkDirectory(workingDirectory.pathString)
                 .withParameters(arguments.toList())
             val exitCode = withContext(Dispatchers.IO) {
-                suspendCancellableCoroutine { continuation ->
-                    OSProcessHandler(commandLine).apply {
-                        addProcessListener(BuildViewProcessAdapter(buildViewManager, buildId))
-                        addProcessListener(object : ProcessListener {
-                            override fun processNotStarted() {
-                                continuation.resumeWith(Result.failure(RuntimeException("Process not started")))
+                @Suppress("UnstableApiUsage")
+                reportRawProgress { reporter ->
+                    suspendCancellableCoroutine { continuation ->
+                        OSProcessHandler(commandLine).apply {
+                            addProcessListener(BuildViewProcessAdapter(buildViewManager, buildId))
+                            addProcessListener(OutputToProgressIndicator(title, getProgressIndicator(reporter)))
+                            addProcessListener(object : ProcessListener {
+                                override fun processNotStarted() {
+                                    continuation.resumeWith(Result.failure(RuntimeException("Process not started")))
+                                }
+
+                                override fun processTerminated(event: ProcessEvent) {
+                                    continuation.resumeWith(Result.success(event.exitCode))
+                                }
+                            })
+                            coroutineContext.job.invokeOnCompletion {
+                                destroyProcess()
                             }
 
-                            override fun processTerminated(event: ProcessEvent) {
-                                continuation.resumeWith(Result.success(event.exitCode))
-                            }
-                        })
-                        coroutineContext.job.invokeOnCompletion {
-                            destroyProcess()
+                            startNotify()
                         }
-
-                        startNotify()
                     }
                 }
             }
@@ -135,4 +144,21 @@ private fun onBuildFailed(listener: BuildProgressListener, buildId: Int, exitCod
             FailureResultImpl()
         ).build()
     )
+}
+
+@Suppress("UnstableApiUsage")
+private fun getProgressIndicator(reporter: RawProgressReporter): ProgressIndicator {
+    return object : AbstractProgressIndicatorBase() {
+        override fun setText(text: String?) {
+            reporter.text(text)
+        }
+
+        override fun setText2(text: String?) {
+            reporter.details(text)
+        }
+
+        override fun setFraction(fraction: Double) {
+            reporter.fraction(fraction)
+        }
+    }
 }

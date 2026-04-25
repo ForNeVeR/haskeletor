@@ -15,6 +15,7 @@ import com.intellij.openapi.progress.coroutineToIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.platform.ide.progress.withBackgroundProgress
+import com.intellij.platform.util.progress.reportRawProgress
 import com.intellij.platform.util.progress.withProgressText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,22 +43,16 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
                 val stack = StackProcessRunner.getInstance(project)
                 val ghcOptions = ghcOptions().asSequence()
 
-                val dependencyBuildStatus = withProgressText(
-                    HaskeletorBundle.message("workflow-step.build-project-dependencies.text")
-                ) {
-                    stack.buildDependenciesInBuildView(stackExecutable, ghcOptions)
-                }
+                val dependencyBuildStatus = stack.buildDependenciesInBuildView(stackExecutable, ghcOptions)
 
                 if (dependencyBuildStatus) {
-                    withProgressText(HaskeletorBundle.message("workflow-step.build-project.text")) {
-                        val projectLibTargets = libraryTargets()
-                        stack.build(
-                            HaskeletorBundle.message("build.project-libraries.title"),
-                            stackExecutable,
-                            projectLibTargets.asSequence(),
-                            ghcOptions
-                        )
-                    }
+                    val projectLibTargets = libraryTargets()
+                    stack.build(
+                        HaskeletorBundle.message("build.project-libraries.title"),
+                        stackExecutable,
+                        projectLibTargets.asSequence(),
+                        ghcOptions
+                    )
                 } else {
                     HaskellNotificationGroup.logErrorBalloonEvent(project, HaskeletorBundle.message("notification.dependencies-failed.text"))
                 }
@@ -82,7 +77,10 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
                 + ghcOptions
         )
 
-    private suspend fun StackProcessRunner.buildDependenciesInBuildView(stackExecutable: Path, ghcOptions: Sequence<String>) =
+    private suspend fun StackProcessRunner.buildDependenciesInBuildView(
+        stackExecutable: Path,
+        ghcOptions: Sequence<String>
+    ) =
         build(
             HaskeletorBundle.message("build.project-dependencies.title"),
             stackExecutable,

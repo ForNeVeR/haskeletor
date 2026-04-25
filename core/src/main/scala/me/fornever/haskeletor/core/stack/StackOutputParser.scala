@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.external.execution
+package me.fornever.haskeletor.core.stack
 
 import com.jetbrains.rd.util.reactive.{ISource, Signal}
 

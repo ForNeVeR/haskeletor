@@ -12,16 +12,14 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process
 import com.intellij.execution.process._
-import com.intellij.ide.nls.NlsMessages
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.io.BaseOutputReader
-import com.jetbrains.rd.util.lifetime.Lifetime
 import me.fornever.haskeletor.GlobalInfo
-import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.core.stack.OutputToProgressIndicator
 import org.jetbrains.annotations.Nls
 
 import java.nio.charset.Charset
@@ -67,7 +65,7 @@ object CommandLine {
     new CapturingProcessHandler(commandLine) {
       override protected def createProcessAdapter(processOutput: ProcessOutput): CapturingProcessAdapter = {
         progressIndicator match {
-          case Some(pi) => new CapturingProcessToProgressIndicator(title, pi)
+          case Some(pi) => new OutputToProgressIndicator(title, pi)
           case None => super.createProcessAdapter(processOutput)
         }
       }
@@ -156,38 +154,4 @@ private class CapturingProcessToLog(val project: Option[Project], val cmd: Gener
       HaskellNotificationGroup.logInfoEvent(project, s"${cmd.getCommandLineString}:  $trimmedText")
     }
   }
-}
-
-private class CapturingProcessToProgressIndicator(@Nls title: String, progressIndicator: ProgressIndicator) extends CapturingProcessAdapter() {
-
-  private val parser = new StackOutputParser()
-  parser.event.advise(Lifetime.Companion.getEternal, event => {
-    event match {
-      case TextOutput(_) => ()
-      case PackageStatus(_, _) => ()
-      case Progress(done, total, packagesInProgress) =>
-        progressIndicator.setFraction(done.toDouble / total.toDouble)
-        progressIndicator.setText(HaskeletorBundle.message("progress.installing-tool.text", title, done, total))
-        progressIndicator.setText2(packagesInProgress match {
-          case Seq() =>
-            //noinspection ScalaExtractStringToBundle
-            ""
-          case _ =>
-            val packagesToShow = packagesInProgress.take(3)
-            val packagesToShowText = NlsMessages.formatNarrowAndList(packagesToShow.asJava)
-            val otherPackageCount = packagesInProgress.size - packagesToShow.size
-            HaskeletorBundle.message("progress.installing-tool.in-progress", packagesToShowText, otherPackageCount)
-        })
-    }
-
-    kotlin.Unit.INSTANCE
-  })
-
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-    if (ProcessOutputType.isStderr(outputType)) {
-      parser.addText(event.getText)
-    }
-  }
-
-  override def processTerminated(event: ProcessEvent): Unit = parser.finishProcess()
 }
