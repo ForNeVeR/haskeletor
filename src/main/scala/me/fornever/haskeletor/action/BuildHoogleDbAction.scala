@@ -50,7 +50,7 @@ class BuildHoogleDbAction extends AnAction {
 }
 
 @Service(Array(Service.Level.PROJECT))
-private class HoogleInstallationManagerImpl(project: Project) extends HoogleInstallationManager {
+private final class HoogleInstallationManagerImpl(project: Project) extends HoogleInstallationManager {
 
   override def findHooglePath(): Optional[Path] =
     Optional.ofNullable(StackProjectManager.isHoogleAvailable(project).map(Path.of(_)).orNull)
@@ -61,7 +61,7 @@ private class HoogleInstallationManagerImpl(project: Project) extends HoogleInst
 }
 
 @Service(Array(Service.Level.PROJECT))
-private class ProjectInfoManagerImpl(project: Project) extends ProjectInfoManager {
+private final class ProjectInfoManagerImpl(project: Project) extends ProjectInfoManager {
 
   override def findGlobalProjectInfo(): Optional[GlobalProjectInfo] =
     Optional.ofNullable(GlobalProjectInfoComponent.findGlobalProjectInfo(project).orNull)
