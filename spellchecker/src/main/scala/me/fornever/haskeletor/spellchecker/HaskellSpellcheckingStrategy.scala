@@ -10,7 +10,7 @@ package me.fornever.haskeletor.spellchecker
 
 import com.intellij.psi.PsiElement
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 
 /**
  * Provide spellchecker support for Haskell sources.

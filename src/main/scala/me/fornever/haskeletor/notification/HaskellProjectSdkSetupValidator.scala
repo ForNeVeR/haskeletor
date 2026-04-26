@@ -17,7 +17,7 @@ import com.intellij.openapi.roots.ui.configuration.{SdkPopupBuilder, SdkPopupFac
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorNotificationPanel
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.util.HaskellProjectUtil
 

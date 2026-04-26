@@ -10,7 +10,7 @@ package me.fornever.haskeletor.alex.lang.psi
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{InjectedLanguagePlaces, LanguageInjector, PsiLanguageInjectionHost}
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 
 /**
   * @author ice1000

@@ -11,7 +11,7 @@ package me.fornever.haskeletor.psi.impl
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{AbstractElementManipulator, PsiFileFactory}
 import com.intellij.util.IncorrectOperationException
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.Nullable
 
 /**

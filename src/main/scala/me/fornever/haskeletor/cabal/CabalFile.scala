@@ -11,6 +11,7 @@ package me.fornever.haskeletor.cabal
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.FileViewProvider
+import me.fornever.haskeletor.core.cabal.CabalLanguage
 import org.jetbrains.annotations.NotNull
 
 import javax.swing._

@@ -9,7 +9,7 @@
 package me.fornever.haskeletor.cabal.lang.psi
 
 import com.intellij.psi.tree.IElementType
-import me.fornever.haskeletor.cabal.CabalLanguage
+import me.fornever.haskeletor.core.cabal.CabalLanguage
 
 class CabalTokenType(debugName: String)
   extends IElementType(debugName, CabalLanguage.Instance)

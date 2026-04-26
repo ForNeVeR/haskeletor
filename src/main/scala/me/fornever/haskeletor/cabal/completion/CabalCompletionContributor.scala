@@ -14,9 +14,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
-import me.fornever.haskeletor.cabal.CabalLanguage
 import me.fornever.haskeletor.cabal.lang.psi.impl.ExtensionsImpl
 import me.fornever.haskeletor.cabal.lang.psi.{BuildDepends, CabalPsiUtil, ExposedModules}
+import me.fornever.haskeletor.core.cabal.CabalLanguage
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.{getAvailableStackagePackages, getSupportedLanguageExtension}
 import me.fornever.haskeletor.icons.HaskellIcons

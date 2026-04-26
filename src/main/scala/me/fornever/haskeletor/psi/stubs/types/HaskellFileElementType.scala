@@ -11,8 +11,9 @@ package me.fornever.haskeletor.psi.stubs.types
 import com.intellij.psi.stubs._
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, PsiFile, StubBuilder}
+import me.fornever.haskeletor.HaskellFile
+import me.fornever.haskeletor.core.HaskellLanguage
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType.HaskellFileStub
-import me.fornever.haskeletor.{HaskellFile, HaskellLanguage}
 
 class HaskellFileElementType(language: HaskellLanguage) extends IStubFileElementType[HaskellFileStub](language) {
   override def indexStub(stub: HaskellFileStub, sink: IndexSink): Unit = {}

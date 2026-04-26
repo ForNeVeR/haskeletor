@@ -1,0 +1,18 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2014-2022 Rik van der Kleij
+  ~ SPDX-FileCopyrightText: 2014-2022 intellij-haskell contributors <https://github.com/rikvdkleij/intellij-haskell>
+  ~ SPDX-FileCopyrightText: 2026 haskeletor contributors <https://github.com/ForNeVeR/haskeletor>
+  ~
+  ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <spellchecker.support language="Haskell"
+                              implementationClass="me.fornever.haskeletor.spellchecker.HaskellSpellcheckingStrategy"/>
+        <spellchecker.support language="Cabal"
+                              implementationClass="me.fornever.haskeletor.spellchecker.CabalSpellcheckingStrategy"/>
+        <spellchecker.bundledDictionaryProvider
+            implementation="me.fornever.haskeletor.spellchecker.HaskellBundledDictionaryProvider"/>
+    </extensions>
+</idea-plugin>

@@ -10,7 +10,7 @@ package me.fornever.haskeletor.spellchecker
 
 import com.intellij.psi.PsiElement
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy
-import me.fornever.haskeletor.cabal.CabalLanguage
+import me.fornever.haskeletor.core.cabal.CabalLanguage
 
 /**
   * Provide spellchecker support for Cabal sources.

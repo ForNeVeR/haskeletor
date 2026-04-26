@@ -9,7 +9,7 @@
 package me.fornever.haskeletor.psi.stubs.types
 
 import com.intellij.psi.stubs.{IStubElementType, IndexSink, StubElement}
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import me.fornever.haskeletor.psi.HaskellCompositeElement
 
 abstract class HaskellStubElementType[S <: StubElement[T], T <: HaskellCompositeElement](debugName: String) extends IStubElementType[S, T](debugName, HaskellLanguage.Instance) {

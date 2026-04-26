@@ -9,7 +9,7 @@
 package me.fornever.haskeletor.psi
 
 import com.intellij.psi.tree.IElementType
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.{NonNls, NotNull}
 
 class HaskellCompositeElementType(@NotNull @NonNls debugName: String) extends IElementType(debugName, HaskellLanguage.Instance)

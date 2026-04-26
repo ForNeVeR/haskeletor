@@ -11,7 +11,7 @@ package me.fornever.haskeletor.editor.formatter.settings
 import com.intellij.lang.Language
 import com.intellij.openapi.options.Configurable
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CodeStyleSettingsProvider, CustomCodeStyleSettings}
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
 class HaskellCodeStyleSettingsProvider extends CodeStyleSettingsProvider {

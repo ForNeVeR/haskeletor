@@ -14,6 +14,7 @@ import com.intellij.psi.{PsiElement, PsiFileFactory}
 import me.fornever.haskeletor.cabal.lang.psi
 import me.fornever.haskeletor.cabal.lang.psi._
 import me.fornever.haskeletor.cabal.lang.psi.impl.{ExtensionsImpl, MainIsImpl, SourceDirsImpl}
+import me.fornever.haskeletor.core.cabal.CabalLanguage
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil}

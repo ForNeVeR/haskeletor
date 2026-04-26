@@ -15,7 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.{ArrayUtil, Processor}
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import me.fornever.haskeletor.psi.stubs.index.HaskellAllNameIndex
 import me.fornever.haskeletor.psi.{HaskellNamedElement, HaskellPsiUtil}
 import me.fornever.haskeletor.util.HaskellProjectUtil

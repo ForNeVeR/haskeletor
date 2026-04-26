@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.cabal;
+package me.fornever.haskeletor.core.cabal;
 
 import com.intellij.lang.Language;
 import org.jetbrains.annotations.NotNull;

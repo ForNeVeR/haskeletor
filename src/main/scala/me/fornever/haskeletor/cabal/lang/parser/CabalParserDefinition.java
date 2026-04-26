@@ -20,10 +20,10 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import me.fornever.haskeletor.cabal.CabalFile;
-import me.fornever.haskeletor.cabal.CabalLanguage;
 import me.fornever.haskeletor.cabal.lang.lexer.CabalParsingLexer;
 import me.fornever.haskeletor.cabal.lang.psi.CabalElementFactory;
 import me.fornever.haskeletor.cabal.lang.psi.CabalTypes;
+import me.fornever.haskeletor.core.cabal.CabalLanguage;
 import org.jetbrains.annotations.NotNull;
 
 public class CabalParserDefinition implements ParserDefinition {

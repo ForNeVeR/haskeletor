@@ -10,6 +10,7 @@ package me.fornever.haskeletor;
 
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.LanguageFileType;
+import me.fornever.haskeletor.core.HaskellLanguage;
 import me.fornever.haskeletor.icons.HaskellIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

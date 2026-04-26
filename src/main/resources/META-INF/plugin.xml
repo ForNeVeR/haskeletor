@@ -21,6 +21,9 @@
         <p>This plugin is based on <a href="https://github.com/rikvdkleij/intellij-haskell">the work of Rik van der Kleij and intellij-haskell contributors</a>.</p>
     ]]></description>
 
+    <depends optional="true"
+             config-file="me.fornever.haskeletor.spellchecker.xml">com.intellij.modules.spellchecker</depends>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- File types -->
         <fileType name="Alex"
@@ -186,14 +189,6 @@
         <fileBasedIndex implementation="me.fornever.haskeletor.util.index.HaskellModuleNameIndex"/>
         <stubIndex implementation="me.fornever.haskeletor.psi.stubs.index.HaskellAllNameIndex"/>
         <stubElementTypeHolder class="me.fornever.haskeletor.psi.HaskellTypes"/>
-
-        <!-- Spell Checker -->
-        <spellchecker.support language="Haskell"
-                              implementationClass="me.fornever.haskeletor.spellchecker.HaskellSpellcheckingStrategy"/>
-        <spellchecker.support language="Cabal"
-                              implementationClass="me.fornever.haskeletor.spellchecker.CabalSpellcheckingStrategy"/>
-        <spellchecker.bundledDictionaryProvider
-                implementation="me.fornever.haskeletor.spellchecker.HaskellBundledDictionaryProvider"/>
 
         <!-- Configuration -->
         <applicationConfigurable groupId="language"

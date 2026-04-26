@@ -10,7 +10,7 @@ package me.fornever.haskeletor.editor.formatter.settings
 
 import com.intellij.application.options.{CodeStyleAbstractConfigurable, CodeStyleAbstractPanel, TabbedLanguageCodeStylePanel}
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
 class HaskellCodeStyleConfigurable(@NotNull settings: CodeStyleSettings, originalSettings: CodeStyleSettings) extends CodeStyleAbstractConfigurable(settings, originalSettings, "Haskell") {

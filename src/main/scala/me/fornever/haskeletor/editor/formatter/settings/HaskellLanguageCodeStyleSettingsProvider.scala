@@ -12,7 +12,7 @@ import com.intellij.application.options.SmartIndentOptionsEditor
 import com.intellij.lang.Language
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, LanguageCodeStyleSettingsProvider}
-import me.fornever.haskeletor.HaskellLanguage
+import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
 class HaskellLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {

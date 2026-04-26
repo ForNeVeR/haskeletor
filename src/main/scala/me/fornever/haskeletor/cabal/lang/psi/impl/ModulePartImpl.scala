@@ -13,8 +13,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiFileFactory, PsiReference}
+import me.fornever.haskeletor.cabal.CabalFile
 import me.fornever.haskeletor.cabal.lang.psi._
-import me.fornever.haskeletor.cabal.{CabalFile, CabalLanguage}
+import me.fornever.haskeletor.core.cabal.CabalLanguage
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
 import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}

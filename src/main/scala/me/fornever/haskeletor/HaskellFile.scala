@@ -11,6 +11,7 @@ package me.fornever.haskeletor
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes._
 import com.intellij.psi.FileViewProvider
+import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
 import javax.swing._

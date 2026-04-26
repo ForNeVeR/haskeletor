@@ -55,9 +55,9 @@ dependencies {
 
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
-        bundledModule("intellij.spellchecker")
 
         pluginComposedModule(implementation(project(":core")))
+        pluginComposedModule(implementation(project(":spellchecker")))
         pluginComposedModule(implementation(project(":stack")))
 
         testFramework(TestFrameworkType.Bundled)

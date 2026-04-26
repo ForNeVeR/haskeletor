@@ -12,8 +12,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFileFactory, PsiWhiteSpace}
+import me.fornever.haskeletor.HaskellFile
+import me.fornever.haskeletor.core.HaskellLanguage
 import me.fornever.haskeletor.psi.HaskellTypes._
-import me.fornever.haskeletor.{HaskellFile, HaskellLanguage}
 
 import java.util
 import scala.jdk.CollectionConverters._
