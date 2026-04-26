@@ -22,6 +22,7 @@ import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 import org.jdom.Element
 
 import java.io.File
+import java.nio.file.Path
 import javax.swing.Icon
 
 class HaskellSdkType extends SdkType("Haskell Tool Stack SDK") {
@@ -32,7 +33,7 @@ class HaskellSdkType extends SdkType("Haskell Tool Stack SDK") {
     else if (SystemInfo.isMac)
       "/usr/local/bin/stack"
     else if (SystemInfo.isWindows)
-      s"${sys.env.get("APPDATA")}\\local\\bin\\stack.exe"
+      sys.env.get("LOCALAPPDATA").map(Path.of(_).resolve("bin/stack.exe").toString).orNull
     else null
   }
 
