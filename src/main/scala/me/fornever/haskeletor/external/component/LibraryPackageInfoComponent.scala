@@ -11,9 +11,9 @@ package me.fornever.haskeletor.external.component
 import com.github.blemale.scaffeine.{Cache, LoadingCache, Scaffeine}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import me.fornever.haskeletor.HaskellNotificationGroup
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.core.util.StringUtil.removePackageQualifier
 import me.fornever.haskeletor.external.execution.CommandLine
-import me.fornever.haskeletor.util.StringUtil.removePackageQualifier
 import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}
 
 import scala.jdk.CollectionConverters._

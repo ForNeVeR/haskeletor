@@ -12,7 +12,7 @@ import com.intellij.codeInsight.documentation.DocumentationManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.external.execution.{CompilationResult, HaskellCompilationResultHelper}
+import me.fornever.haskeletor.core.compiler.{CompilationResult, HaskellCompilationResultHelper}
 import me.fornever.haskeletor.external.repl.ProjectStackRepl.Loaded
 import me.fornever.haskeletor.external.repl._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
@@ -74,7 +74,7 @@ private[component] object LoadComponent {
               DocumentationManager.getInstance(project).updateToolwindowContext()
             }
           })
-          Some(HaskellCompilationResultHelper.createCompilationResult(psiFile, loadOutput.stderrLines, loadFailed))
+          Some(HaskellCompilationResultHelper.createCompilationResult(psiFile.getVirtualFile.toNioPath, loadOutput.stderrLines, loadFailed))
         case _ => None
       }
     })

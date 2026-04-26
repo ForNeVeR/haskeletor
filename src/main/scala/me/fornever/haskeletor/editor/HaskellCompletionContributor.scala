@@ -18,6 +18,7 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
 import com.intellij.util.ProcessingContext
 import me.fornever.haskeletor.annotator.HaskellAnnotator
+import me.fornever.haskeletor.core.compiler.HaskellCompilationResultHelper.LayoutSpaceChar
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
 import me.fornever.haskeletor.external.component._
 import me.fornever.haskeletor.icons.HaskellIcons
@@ -220,8 +221,6 @@ class HaskellCompletionContributor extends CompletionContributor {
   }
 
   private val smartProvider: CompletionProvider[CompletionParameters] = new CompletionProvider[CompletionParameters] {
-
-    import me.fornever.haskeletor.external.execution.HaskellCompilationResultHelper.LayoutSpaceChar
 
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, originalResultSet: CompletionResultSet): Unit = {
       ProgressManager.checkCanceled()

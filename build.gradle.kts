@@ -39,6 +39,10 @@ repositories {
     }
 }
 
+scala {
+    scalaVersion = libs.versions.scala
+}
+
 dependencies {
     implementation(libs.spray.json)
     implementation(libs.snakeyaml)
@@ -51,7 +55,11 @@ dependencies {
 
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
-        bundledPlugin("com.intellij.java")
+        bundledModule("intellij.spellchecker")
+
+        pluginComposedModule(implementation(project(":core")))
+        pluginComposedModule(implementation(project(":stack")))
+
         testFramework(TestFrameworkType.Bundled)
         testFramework(TestFrameworkType.Platform)
     }

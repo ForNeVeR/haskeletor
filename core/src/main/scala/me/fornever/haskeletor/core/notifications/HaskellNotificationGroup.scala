@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor
+package me.fornever.haskeletor.core.notifications
 
 import com.intellij.notification._
 import com.intellij.openapi.fileEditor.OpenFileDescriptor

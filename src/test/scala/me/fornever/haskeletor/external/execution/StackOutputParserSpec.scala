@@ -7,6 +7,7 @@
 package me.fornever.haskeletor.external.execution
 
 import com.jetbrains.rd.util.lifetime.Lifetime
+import me.fornever.haskeletor.core.stack._
 import org.junit.runner.RunWith
 import org.scalatest.GivenWhenThen
 import org.scalatest.funspec.AnyFunSpec

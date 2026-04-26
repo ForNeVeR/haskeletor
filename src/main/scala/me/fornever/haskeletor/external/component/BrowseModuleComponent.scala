@@ -12,9 +12,10 @@ import com.github.blemale.scaffeine.{AsyncLoadingCache, Scaffeine}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import me.fornever.haskeletor.core.util.StringUtil
 import me.fornever.haskeletor.external.repl._
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil, StringUtil}
+import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
 import scala.concurrent.{ExecutionContext, Future}
 

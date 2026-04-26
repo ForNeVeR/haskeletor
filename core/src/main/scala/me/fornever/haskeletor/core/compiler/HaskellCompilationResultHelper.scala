@@ -6,20 +6,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.external.execution
+package me.fornever.haskeletor.core.compiler
 
-import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.util.{HaskellFileUtil, StringUtil}
+import com.intellij.openapi.util.NlsSafe
+import me.fornever.haskeletor.core.compiler.HaskellCompilationResultHelper.LayoutSpaceChar
+import me.fornever.haskeletor.core.util.StringUtil
+
+import java.nio.file.Path
 
 object HaskellCompilationResultHelper {
 
   private final val ProblemPattern = """((?:[A-Z]:\\)?[^:]+):([\d]+):([\d]+):(.+)""".r
+  // Stack status lines like "StateVar > build with ghc-9.0.2" or "Progress 0/67 StateVar > configure"
+  private final val StackStatusPattern = """.*\s>\s.*""".r
 
   final val LayoutSpaceChar = '\u00A0'
 
-  def createCompilationResult(currentPsiFile: PsiFile, errorLines: Seq[String], failed: Boolean): CompilationResult = {
-    val currentFilePath = HaskellFileUtil.getAbsolutePath(currentPsiFile).getOrElse(throw new IllegalStateException(s"File `${currentPsiFile.getName}` exists only in memory"))
-
+  def createCompilationResult(currentFilePath: Path, errorLines: Seq[String], failed: Boolean): CompilationResult = {
     val compilationProblems = errorLines.flatMap(parseErrorLine)
 
     val (currentFileProblems, otherFileProblems) = compilationProblems.partition(_.filePath == currentFilePath)
@@ -28,10 +31,19 @@ object HaskellCompilationResultHelper {
   }
 
   def parseErrorLine(errorLine: String): Option[CompilationProblem] = {
+    // Skip stack status lines (e.g., "StateVar > build with ghc-9.0.2")
+    if (StackStatusPattern.matches(errorLine)) {
+      return None
+    }
+
     errorLine match {
       case ProblemPattern(filePath, lineNr, columnNr, message) =>
-        val displayMessage = message.trim.replaceAll("""(\s\s\s\s+)""", "\n" + "$1")
-        Some(CompilationProblem(filePath, lineNr.toInt, columnNr.toInt, displayMessage))
+        try {
+          val displayMessage = message.trim.replaceAll("""(\s\s\s\s+)""", "\n" + "$1")
+          Some(CompilationProblem(Path.of(filePath), lineNr.toInt, columnNr.toInt, displayMessage))
+        } catch {
+          case _: java.nio.file.InvalidPathException => None
+        }
       case _ => None
     }
   }
@@ -39,10 +51,9 @@ object HaskellCompilationResultHelper {
 
 case class CompilationResult(currentFileProblems: Iterable[CompilationProblem], otherFileProblems: Iterable[CompilationProblem], failed: Boolean)
 
-case class CompilationProblem(filePath: String, lineNr: Int, columnNr: Int, message: String) {
+case class CompilationProblem(filePath: Path, lineNr: Int, columnNr: Int, message: String) {
 
-  import me.fornever.haskeletor.external.execution.HaskellCompilationResultHelper.LayoutSpaceChar
-
+  @NlsSafe
   def plainMessage: String = {
     message.split("\n").mkString.replaceAll("\\s+", " ")
   }

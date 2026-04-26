@@ -5,18 +5,22 @@
 [versions]
 intellij-gradle = "2.14.0"
 intellij-platform = "2026.1"
+kotlin = "2.3.20"
+scala = "2.13.14"
 
 [libraries]
-spray-json = { module = "io.spray:spray-json_2.13", version = "1.3.6" }
-snakeyaml = { module = "org.yaml:snakeyaml", version = "2.6" }
-scaffeine = { module = "com.github.blemale:scaffeine_2.13", version = "5.3.0" }
 directories = { module = "io.github.soc:directories", version = "12" }
 fastparse = { module = "com.lihaoyi:fastparse_2.13", version = "3.1.1" }
+scaffeine = { module = "com.github.blemale:scaffeine_2.13", version = "5.3.0" }
+scala-library = { module = "org.scala-lang:scala-library", version.ref = "scala" }
 scalatest = { module = "org.scalatest:scalatest_2.13", version = "3.3.0-SNAP4" }
 scalatestplus-junit = { module = "org.scalatestplus:junit-4-13_2.13", version = "3.3.0.0-SNAP3" }
+snakeyaml = { module = "org.yaml:snakeyaml", version = "2.6" }
+spray-json = { module = "io.spray:spray-json_2.13", version = "1.3.6" }
 
 [plugins]
 changelog = "org.jetbrains.changelog:2.5.0"
 gradle-jvm-wrapper = "me.filippov.gradle.jvm.wrapper:0.16.0"
 intellij-grammar-kit = { id = "org.jetbrains.intellij.platform.grammarkit", version.ref = "intellij-gradle" }
 intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellij-gradle" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

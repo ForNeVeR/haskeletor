@@ -10,7 +10,7 @@ package me.fornever.haskeletor.external.repl
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.HaskellNotificationGroup
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.repl.StackRepl.StackReplOutput
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
 import me.fornever.haskeletor.psi.HaskellPsiUtil

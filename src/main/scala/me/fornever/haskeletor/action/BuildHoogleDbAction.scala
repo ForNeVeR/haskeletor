@@ -9,11 +9,18 @@
 package me.fornever.haskeletor.action
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.HaskellNotificationGroup
-import me.fornever.haskeletor.external.component.{HoogleComponent, ProjectLibraryBuilder, StackProjectManager}
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.core.project.GlobalProjectInfo
+import me.fornever.haskeletor.external.component.{GlobalProjectInfoComponent, HoogleComponent, ProjectLibraryBuilder, StackProjectManager}
+import me.fornever.haskeletor.sdk.HaskellSdkType
+import me.fornever.haskeletor.stack.ProjectInfoManager
+import me.fornever.haskeletor.stack.hoogle.{HoogleBuilder, HoogleInstallationManager}
 import me.fornever.haskeletor.util.HaskellEditorUtil
+
+import java.nio.file.Path
+import java.util.Optional
 
 class BuildHoogleDbAction extends AnAction {
 
@@ -28,14 +35,34 @@ class BuildHoogleDbAction extends AnAction {
   def actionPerformed(actionEvent: AnActionEvent): Unit = {
     val message = "Building or rebuilding Hoogle database"
     Option(actionEvent.getProject).foreach(project => {
-      ProgressManager.getInstance().run(new Task.Backgroundable(project, message, false) {
+      ProjectLibraryBuilder.resetBuildStatus(project)
+      HaskellNotificationGroup.logInfoEvent(project, message)
 
-        def run(progressIndicator: ProgressIndicator): Unit = {
-          HaskellNotificationGroup.logInfoEvent(project, message)
-          ProjectLibraryBuilder.resetBuildStatus(project)
-          HoogleComponent.rebuildHoogle(project)
-        }
+      HaskellSdkType.getStackPath(project).foreach(stack => {
+        HoogleBuilder.getInstance(project).launchRebuildHoogle(
+          Path.of(stack),
+          project.getService(classOf[HoogleInstallationManagerImpl]),
+          project.getService(classOf[ProjectInfoManagerImpl])
+        )
       })
     })
   }
+}
+
+@Service(Array(Service.Level.PROJECT))
+private final class HoogleInstallationManagerImpl(project: Project) extends HoogleInstallationManager {
+
+  override def findHooglePath(): Optional[Path] =
+    Optional.ofNullable(StackProjectManager.isHoogleAvailable(project).map(Path.of(_)).orNull)
+  override def getHoogleDatabasePath(project: Project): Path =
+    HoogleComponent.hoogleDbPath(project).toPath
+  override def setHaddockBuilding(building: Boolean): Unit =
+    StackProjectManager.setHaddockBuilding(project, building)
+}
+
+@Service(Array(Service.Level.PROJECT))
+private final class ProjectInfoManagerImpl(project: Project) extends ProjectInfoManager {
+
+  override def findGlobalProjectInfo(): Optional[GlobalProjectInfo] =
+    Optional.ofNullable(GlobalProjectInfoComponent.findGlobalProjectInfo(project).orNull)
 }

@@ -16,7 +16,7 @@ import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.runconfig.HaskellStackConfigurationBase
 
 import java.lang
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.IterableHasAsJava
 
 class HaskellConsoleConfiguration(name: String, project: Project, configurationFactory: ConfigurationFactory)
   extends HaskellStackConfigurationBase(name, project, configurationFactory) {

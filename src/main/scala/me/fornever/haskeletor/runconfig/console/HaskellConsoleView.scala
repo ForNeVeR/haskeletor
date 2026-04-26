@@ -18,9 +18,10 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiFile
 import com.intellij.util.DocumentUtil
+import me.fornever.haskeletor.HaskellFileType
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleHighlightingUtil.LambdaArrow
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
-import me.fornever.haskeletor.{HaskellFileType, HaskellNotificationGroup}
 
 import java.io.{IOException, OutputStreamWriter}
 

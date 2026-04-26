@@ -41,22 +41,28 @@ Read [the contributor guide][docs.contributing]. Short version:
 
 Usage
 -----
+
+### Prerequisites
 - Install the latest version of [Stack](https://github.com/commercialhaskell/stack); use `stack upgrade` to confirm you are on the latest version.
-- Set up the project:
-    - Make sure your Stack project builds without errors. Preferably by using: `stack build --test --haddock --no-haddock-hyperlink-source`;
-    - After your project is built successfully, import an existing project by:
-        - Inside IntelliJ use `File`>`New`>`Project from Existing Sources...` from the IntelliJ menu;
-        - In the `Welcome to IntelliJ IDEA` dialog use `Open or Import Project`;
-    - In the `New Project` wizard select `Import project from external model` and check `Haskell Stack`;
-    - On the next page of wizard configure `Project SDK` by configuring `Haskell Tool Stack` by selecting a path to `stack` binary, e.g. `/usr/local/bin/stack` (you can use `which stack` on Linux or macOS or `where stack` on windows to find the path);
-    - Finish wizard and project will be opened;
-    - Wizard will automatically configure which folders are sources, test and which to exclude;
-    - Plugin will automatically build Haskell Tools (HLint, Hoogle, Ormolu, and Stylish Haskell) to prevent incompatibility issues
-    - Check `Project structure`>`Project settings`>`Modules` which folders to exclude (like `.stack-work` and `dist`) and which folders are `Source` and `Test` (normally `src` and `test`);
-    - Plugin will automatically download library sources. They will be added as source libraries to module(s).
-    - After changing the Cabal file and/or `stack.yaml` use `Haskell`>`Haskell`>`Update Settings and Restart REPLs` to download missing library sources and update the project settings;
-    - The `Event Log` will display what's going on in the background. Useful when something fails. It's disabled by default.
-      It can be enabled by checking the `Haskell Log` checkbox in the `Event Log`>`Settings` or `Settings`>`Appearance & Behavior`>`Notifications`;
+
+### Importing An Existing Project
+1. Open your project folder in an IntelliJ-based IDE. It will import all the source files under a default module kind.
+2. Go to the **Project Structure** dialog.
+3. Make sure you have set up a Haskell SDK on **Platform Settings** → **SDKs** page.
+
+   If there's no Haskell SDK set yet, press the **+** button, choose **Add Stack executable from disk** and enter a path to your `stack` or `stack.exe` file.
+
+   ![Haskell SDK setup][images.haskell-sdk]
+4. Choose this SDK as the default for the project on the **Project Settings** → **Project** page.
+
+   ![Default Haskell SDK][images.project-sdk]
+5. Go to the **Modules** page.
+6. Delete the root module of default kind (the one with the name of the project) and create a new **Haskell** module for the project.
+   1. Press the **+** button.
+   2. Choose **New Module**.
+   3. In the dialog that appears, choose **Haskell module**. Set up the content root as the project folder. The module name is not important, choose anything (e.g. the project folder name).
+7. After all set, you might need to reopen the project in the IDE.
+8. Haskeletor will compile the project and set up the required tools on startup.
 
 ### Remarks
 1. IntelliJ's Build action is not (yet) implemented. Project is built when the project is opened and when needed, e.g. when library code is changed and the user navigates to test code;
@@ -65,7 +71,7 @@ Usage
 4. Haskell tools depend on `libgmp3-dev zlib1g-dev`. On Ubuntu you can install them with `sudo apt-get install libgmp3-dev zlib1g-dev`;
 5. Cabal's internal libraries are not (yet) supported;
 6. Cabal's common stanzas are not (yet) supported;
-7. The Haskell tools are built in an IntelliJ sandbox with LTS-16. So they have no dependency on Stackage resolvers in your projects. After Stackage LTS-13 minor updates one can use `Haskell`>`Update Haskell tools`;
+7. The Haskell tools are built in an IntelliJ sandbox with LTS-19. So they have no dependency on Stackage resolvers in your projects. After Stackage LTS-13 minor updates one can use `Haskell`>`Update Haskell tools`;
 8. Stack REPLs are running in the background. You can restart them by `Haskell`>`Update Settings and Restart REPLs`.
 
 Plugin Features
@@ -131,6 +137,8 @@ Copyright holders:
 [docs.license]: LICENSE.txt
 [docs.maintaining]: MAINTAINING.md
 [image.logo]: logo/icon_intellij_haskell_32.png
+[images.haskell-sdk]: docs/haskell-sdk.png
+[images.project-sdk]: docs/project-sdk.png
 [marketplace.plugin]: https://plugins.jetbrains.com/plugin/31233-haskeletor
 [releases]: https://github.com/ForNeVeR/haskeletor/releases
 [reuse.spec]: https://reuse.software/spec-3.3/

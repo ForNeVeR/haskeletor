@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.external.component
 
-import me.fornever.haskeletor.util.StringUtil
+import me.fornever.haskeletor.core.util.StringUtil
 
 object DeclarationUtil {
 

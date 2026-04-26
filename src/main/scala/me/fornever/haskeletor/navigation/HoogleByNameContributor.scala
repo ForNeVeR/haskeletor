@@ -11,7 +11,7 @@ package me.fornever.haskeletor.navigation
 import com.intellij.navigation.{ChooseByNameContributor, ItemPresentation, NavigationItem}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.external.component._
+import me.fornever.haskeletor.external.component.{DeclarationUtil, HaskellComponentsManager, HoogleComponent}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
 

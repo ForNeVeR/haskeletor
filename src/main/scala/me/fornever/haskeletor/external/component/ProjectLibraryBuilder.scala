@@ -11,9 +11,8 @@ package me.fornever.haskeletor.external.component
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.HaskellNotificationGroup
 import me.fornever.haskeletor.annotator.HaskellAnnotator
-import me.fornever.haskeletor.editor.HaskellProblemsView
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
 import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
@@ -105,8 +104,6 @@ object ProjectLibraryBuilder {
           openNonLibFiles.map(_._2).foreach { vf =>
             HaskellFileUtil.convertToHaskellFileInReadAction(project, vf).toOption match {
               case Some(psiFile) =>
-                val haskellProblemsView = HaskellProblemsView.getInstance(project)
-                HaskellFileUtil.findVirtualFile(psiFile).foreach(haskellProblemsView.clearOldMessages)
                 HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
               case None => HaskellNotificationGroup.logInfoEvent(project, s"Could not invalidate cache and restart daemon analyzer for file ${vf.getName}")
             }

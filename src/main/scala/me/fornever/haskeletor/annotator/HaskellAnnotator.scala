@@ -8,13 +8,14 @@
 
 package me.fornever.haskeletor.annotator
 
+import com.intellij.build.events.{FileMessageEvent, MessageEvent}
+import com.intellij.build.{BuildViewManager, FilePosition}
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
-import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.lang.annotation.{AnnotationHolder, ExternalAnnotator, HighlightSeverity}
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
-import com.intellij.openapi.compiler.CompilerMessageCategory
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
@@ -25,17 +26,21 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.xml.util.XmlStringUtil
-import me.fornever.haskeletor.editor.{HaskellImportOptimizer, HaskellProblemsView}
-import me.fornever.haskeletor.external.component._
-import me.fornever.haskeletor.external.execution._
+import me.fornever.haskeletor.core.compiler.{CompilationProblem, CompilationResult}
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.core.util.StringUtil
+import me.fornever.haskeletor.editor.HaskellImportOptimizer
+import me.fornever.haskeletor.external.component.{HaskellComponentsManager, StackProjectManager}
 import me.fornever.haskeletor.highlighter.DaemonUtil
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleView
+import me.fornever.haskeletor.stack.AnnotationBuildManager
 import me.fornever.haskeletor.ui.EnterNameDialog
 import me.fornever.haskeletor.util._
-import me.fornever.haskeletor.{HaskellFile, HaskellFileType, HaskellNotificationGroup}
+import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
 
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
@@ -72,35 +77,37 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
 
   override def apply(psiFile: PsiFile, loadResult: CompilationResult, holder: AnnotationHolder): Unit = {
     val project = psiFile.getProject
-    val haskellProblemsView = HaskellProblemsView.getInstance(project)
-
     val currentFile = HaskellFileUtil.findVirtualFile(psiFile)
-    val currentFileMessages = currentFile.map { cf =>
-      loadResult.currentFileProblems.map(p => createCompilerMessage(cf, project, p))
+
+    // Start an annotation build session to clear old problems from the build view
+    val buildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
+    val buildSession = AnnotationBuildManager.getInstance(project).startAnnotationBuild(psiFile.getName)
+    val buildId = buildSession.getBuildId
+
+    def injectProblem(problem: CompilationProblem, file: VirtualFile): Unit = {
+      val ioFile = new File(file.getPath)
+      val fileMessageEvent = FileMessageEvent.builder(
+        problem.plainMessage,
+        if (problem.isWarning) MessageEvent.Kind.WARNING else MessageEvent.Kind.ERROR,
+        new FilePosition(ioFile, problem.lineNr - 1, problem.columnNr - 1)
+      ).withParentId(buildId).build()
+      buildViewManager.onEvent(buildId, fileMessageEvent)
     }
 
-    val otherFileMessages = loadResult.otherFileProblems.flatMap { problem =>
-      HaskellFileUtil.findVirtualFile(project, problem.filePath).map { file =>
-        createCompilerMessage(file, project, problem)
-      }
+    // Inject problems from this file into the build view
+    for (problem <- loadResult.currentFileProblems) {
+      currentFile.foreach(injectProblem(problem, _))
     }
 
-    ApplicationManager.getApplication.invokeLater { () =>
-      if (!project.isDisposed) {
-        haskellProblemsView.clearProgress()
-        currentFile.foreach(cf => {
-          haskellProblemsView.clearOldMessages(cf)
-        })
-        currentFileMessages.foreach(_.foreach(haskellProblemsView.addMessage))
-
-        val messagesPerFile = otherFileMessages.groupBy(_.getVirtualFile)
-        messagesPerFile.foreach { case (file, messages) =>
-          haskellProblemsView.clearOldMessages(file)
-          messages.foreach(haskellProblemsView.addMessage(_))
-        }
-      }
+    // Inject problems from other files into the build view
+    for (problem <- loadResult.otherFileProblems) {
+      HaskellFileUtil.findVirtualFile(project, problem.filePath).foreach(injectProblem(problem, _))
     }
 
+    // Finish the build session to clear old problems
+    buildSession.finish()
+
+    // Create inline annotations for the current file
     for (annotation <- HaskellAnnotator.createAnnotations(project, psiFile, loadResult.currentFileProblems)) {
       annotation match {
         case ErrorAnnotation(textRange, message, htmlMessage) =>
@@ -113,12 +120,6 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
           HaskellAnnotator.annotation(holder, HighlightSeverity.WARNING, textRange, message, htmlMessage, intentionActions)
       }
     }
-  }
-
-  private def createCompilerMessage(file: VirtualFile, project: Project, problem: CompilationProblem) = {
-    val category = if (problem.isWarning && !(problem.message.contains("-Wdeferred-type-error") || problem.message.contains("not in scope") || problem.message.contains("Not in scope"))) CompilerMessageCategory.WARNING
-    else CompilerMessageCategory.ERROR
-    new CompilerMessageImpl(project, category, problem.message, file, problem.lineNr, problem.columnNr, null)
   }
 }
 

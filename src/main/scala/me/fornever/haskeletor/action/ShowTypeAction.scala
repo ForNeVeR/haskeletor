@@ -12,10 +12,11 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
+import me.fornever.haskeletor.core.util.StringUtil
 import me.fornever.haskeletor.external.component.{FileModuleIdentifiers, HaskellComponentsManager, StackProjectManager}
 import me.fornever.haskeletor.psi.HaskellTypes.HS_NEWLINE
 import me.fornever.haskeletor.psi._
-import me.fornever.haskeletor.util.{HaskellEditorUtil, StringUtil}
+import me.fornever.haskeletor.util.HaskellEditorUtil
 
 class ShowTypeAction extends AnAction {
 

@@ -11,8 +11,9 @@ package me.fornever.haskeletor.external.component
 import com.github.blemale.scaffeine.{AsyncLoadingCache, Scaffeine}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.HaskellNotificationGroup
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
+import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil.findImportDeclarations
 import me.fornever.haskeletor.psi.{HaskellImportDeclaration, HaskellImportId, HaskellPsiUtil}
 import me.fornever.haskeletor.util.{ApplicationUtil, HaskellProjectUtil, ScalaFutureUtil}
@@ -22,8 +23,6 @@ import java.util.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.jdk.CollectionConverters._
-
-import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 
 object FileModuleIdentifiers {
 

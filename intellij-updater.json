@@ -1,14 +1,23 @@
 {
-    "updates": [{
-        "file": "gradle/libs.versions.toml",
-        "field": "intellij-platform",
-        "kind": "intellij-idea",
-        "versionFlavor": "release"
-    }, {
-        "file": "gradle.properties",
-        "field": "untilBuildForVerification",
-        "kind": "intellij-idea",
-        "versionFlavor": "release",
-        "augmentation": "nextMajor"
-    }]
+    "updates": [
+        {
+            "file": "gradle/libs.versions.toml",
+            "field": "intellij-platform",
+            "kind": "intellij-idea",
+            "versionFlavor": "release"
+        },
+        {
+            "file": "gradle/libs.versions.toml",
+            "field": "kotlin",
+            "kind": "kotlin",
+            "versionFlavor": "release"
+        },
+        {
+            "file": "gradle.properties",
+            "field": "untilBuildForVerification",
+            "kind": "intellij-idea",
+            "versionFlavor": "release",
+            "augmentation": "nextMajor"
+        }
+    ]
 }

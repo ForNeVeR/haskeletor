@@ -15,9 +15,10 @@ import com.intellij.execution.process.{ProcessHandler, ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import me.fornever.haskeletor.GlobalInfo
+import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.sdk.HaskellSdkType
-import me.fornever.haskeletor.util.{GhcVersion, HaskellFileUtil}
+import me.fornever.haskeletor.util.HaskellFileUtil
 
 import java.io.File
 

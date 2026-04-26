@@ -17,7 +17,7 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, TokenType}
-import me.fornever.haskeletor.HaskellNotificationGroup
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.psi.HaskellElementCondition._
 import me.fornever.haskeletor.psi.HaskellTypes._
 import me.fornever.haskeletor.psi.impl.{HaskellDeclarationElementImpl, HaskellModuleDeclarationImpl}

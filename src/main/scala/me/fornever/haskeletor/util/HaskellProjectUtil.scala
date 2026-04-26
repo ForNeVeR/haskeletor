@@ -17,6 +17,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.PathUtilRt
 import me.fornever.haskeletor.GlobalInfo
+import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.module.HaskellModuleType
 import me.fornever.haskeletor.sdk.HaskellSdkType
@@ -146,19 +147,3 @@ object HaskellProjectUtil {
   }
 }
 
-case class GhcVersion(major: Int, minor: Int, patch: Int) extends Ordered[GhcVersion] {
-  def compare(that: GhcVersion): Int = GhcVersion.asc.compare(this, that)
-
-  def prettyString: String = {
-    s"$major.$minor.$patch"
-  }
-}
-
-object GhcVersion {
-  val asc: Ordering[GhcVersion] = Ordering.by(unapply)
-
-  def parse(version: String): GhcVersion = {
-    val parts = version.split('.')
-    GhcVersion(parts(0).toInt, parts(1).toInt, parts(2).toInt)
-  }
-}

@@ -9,12 +9,14 @@
 package me.fornever.haskeletor.external.repl
 
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.{GlobalInfo, HaskellNotificationGroup}
+import me.fornever.haskeletor.GlobalInfo
+import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
+import me.fornever.haskeletor.core.util.StringUtil
 import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.{BenchmarkType, ExeType, StackReplOutput, TestSuiteType}
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
 import me.fornever.haskeletor.sdk.HaskellSdkType
-import me.fornever.haskeletor.util.{HaskellEditorUtil, HaskellFileUtil, HaskellProjectUtil, StringUtil}
+import me.fornever.haskeletor.util.{HaskellEditorUtil, HaskellFileUtil, HaskellProjectUtil}
 
 import java.io._
 import java.util.concurrent.LinkedBlockingQueue
