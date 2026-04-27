@@ -8,6 +8,7 @@
 
 package me.fornever.haskeletor.external.execution
 
+import com.intellij.openapi.util.SystemInfo
 import me.fornever.haskeletor.core.compiler.HaskellCompilationResultHelper
 import org.junit.runner.RunWith
 import org.scalatest.funspec.AnyFunSpec
@@ -58,14 +59,16 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
       }
 
       it("should handle invalid path characters gracefully") {
-        Given("a line with illegal Windows path characters")
-        val output = "file<with>chars:1:1:some error"
+        if (SystemInfo.isWindows) {
+          Given("a line with illegal Windows path characters")
+          val output = "file<with>chars:1:1:some error"
 
-        When("parsed")
-        val problem = HaskellCompilationResultHelper.parseErrorLine(output)
+          When("parsed")
+          val problem = HaskellCompilationResultHelper.parseErrorLine(output)
 
-        Then("it should return None instead of throwing exception")
-        problem should equal(None)
+          Then("it should return None instead of throwing exception")
+          problem should equal(None)
+        }
       }
 
       it("should parse Windows paths correctly") {
