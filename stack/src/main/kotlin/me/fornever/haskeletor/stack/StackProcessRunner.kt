@@ -22,7 +22,11 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.coroutineToIndicator
 import com.intellij.openapi.progress.runBlockingCancellable
 import com.intellij.openapi.project.Project
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.stack.OutputToProgressIndicator
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
@@ -62,7 +66,7 @@ internal class StackProcessRunner(private val project: Project) {
                 .withWorkDirectory(workingDirectory.pathString)
                 .withParameters(arguments.toList())
             val exitCode = withContext(Dispatchers.IO) {
-                // TODO: We really want to call reportRawProgress here, but we cannot due to IJPL-243681.
+                // TODO[#45]: We really want to call reportRawProgress here, but we cannot due to IJPL-243681.
                 coroutineToIndicator { indicator ->
                     runBlockingCancellable {
                         suspendCancellableCoroutine { continuation ->
@@ -108,7 +112,7 @@ private fun onBuildStarted(listener: BuildProgressListener, buildId: Int, buildD
     listener.onEvent(
         buildId,
         StartBuildEvent.builder(
-            "Build started", // TODO: Localize this
+            HaskeletorBundle.message("build.messages.build-started"),
             buildDescriptor
         ).build()
     )
@@ -119,7 +123,7 @@ private fun onBuildCancelled(listener: BuildProgressListener, buildId: Int) {
         buildId,
         FinishBuildEvent.builder(
             buildId,
-            "Build cancelled", // TODO: Localize this
+            HaskeletorBundle.message("build.messages.build-canceled"),
             FailureResultImpl()
         ).build()
     )
@@ -130,7 +134,7 @@ private fun onBuildSucceeded(listener: BuildProgressListener, buildId: Int) {
         buildId,
         FinishBuildEvent.builder(
             buildId,
-            "Build succeeded", // TODO: Localize this
+            HaskeletorBundle.message("build.messages.build-succeeded"),
             SuccessResultImpl()
         ).build()
     )
@@ -141,7 +145,7 @@ private fun onBuildFailed(listener: BuildProgressListener, buildId: Int, exitCod
         buildId,
         FinishBuildEvent.builder(
             buildId,
-            "Build failed with exit code $exitCode.", // TODO: Localize this
+            HaskeletorBundle.message("build.messages.build-failed", exitCode),
             FailureResultImpl()
         ).build()
     )

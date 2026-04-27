@@ -19,6 +19,11 @@ object HaskeletorBundle {
     instance.getMessage(key)
 
   @Nls
+  def message(@PropertyKey(resourceBundle = BUNDLE) key: String, param: Any): String =
+    //noinspection ReferencePassedToNls
+    instance.getMessage(key, param)
+
+  @Nls
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): String =
     //noinspection ReferencePassedToNls
     instance.getMessage(key, params: _*)

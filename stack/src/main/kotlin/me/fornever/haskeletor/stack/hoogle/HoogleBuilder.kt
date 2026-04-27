@@ -62,7 +62,7 @@ class HoogleBuilder(private val project: Project, private val coroutineScope: Co
                     sequenceOf("haddock", "--test", "--no-run-tests", "--no-haddock-hyperlink-source")
                 )
         } finally {
-            manager.setHaddockBuilding(false) // TODO: Technically a race condition: concurrent Haddock builds will wreak havoc.
+            manager.setHaddockBuilding(false) // TODO[#44]: Technically a race condition: concurrent Haddock builds will wreak havoc.
         }
     }
 
