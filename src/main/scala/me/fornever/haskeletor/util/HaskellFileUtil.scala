@@ -10,6 +10,7 @@ package me.fornever.haskeletor.util
 
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
 import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
@@ -132,8 +133,15 @@ object HaskellFileUtil {
   def makeFilePathAbsolute(filePath: Path, project: Project): Path = {
     if (filePath.isAbsolute)
       filePath
-    else
-      Path.of(ProjectUtil.guessProjectDir(project).getPath, filePath.toString)
+    else {
+      val projectDir = Option(ProjectUtil.guessProjectDir(project))
+      projectDir
+        .map(p => Path.of(p.getPath, filePath.toString))
+        .getOrElse({
+          logger.error(s"Could not find project directory for project ${project.getName}.")
+          filePath
+        })
+    }
   }
 
   def makeFilePathAbsolute(filePath: String, parentFilePath: String): String = {
@@ -266,4 +274,6 @@ object HaskellFileUtil {
       }
     }
   }
+
+  private val logger = Logger.getInstance(getClass)
 }
