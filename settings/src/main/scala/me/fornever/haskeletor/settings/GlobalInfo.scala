@@ -6,15 +6,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor
+package me.fornever.haskeletor.settings
 
 import com.intellij.openapi.application.PathMacros
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import io.github.soc.directories.ProjectDirectories
-import me.fornever.haskeletor.settings.HaskellSettingsState
-import me.fornever.haskeletor.util.HaskellFileUtil
+import me.fornever.haskeletor.core.util.FileSystemUtil
 
 import java.io.File
 
@@ -34,11 +33,11 @@ object GlobalInfo {
   }
 
   lazy val getHaskeletorDirectory: File = {
-    val directory = new File(HaskellSettingsState.getCachePath)
+    val directory = new File(DefaultCachePath)
     if (directory.exists()) {
-      HaskellFileUtil.removeGroupWritePermission(directory)
+      FileSystemUtil.removeGroupWritePermission(directory)
     } else {
-      HaskellFileUtil.createDirectoryIfNotExists(directory, onlyWriteableByOwner = true)
+      FileSystemUtil.createDirectoryIfNotExists(directory, onlyWriteableByOwner = true)
     }
     directory
   }

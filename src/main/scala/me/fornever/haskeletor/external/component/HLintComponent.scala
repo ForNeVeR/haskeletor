@@ -10,10 +10,9 @@ package me.fornever.haskeletor.external.component
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.HTool
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.execution.CommandLine
-import me.fornever.haskeletor.settings.HaskellSettingsState
+import me.fornever.haskeletor.settings.{HTool, HaskellSettingsState}
 import me.fornever.haskeletor.util.HaskellFileUtil
 import spray.json.JsonParser.ParsingException
 import spray.json._

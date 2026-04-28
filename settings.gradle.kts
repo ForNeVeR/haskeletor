@@ -8,6 +8,7 @@ rootProject.name = "haskeletor"
 
 include(
     "core",
+    "settings",
     "spellchecker",
     "stack"
 )

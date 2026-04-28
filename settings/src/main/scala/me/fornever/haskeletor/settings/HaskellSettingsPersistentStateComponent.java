@@ -12,7 +12,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import me.fornever.haskeletor.GlobalInfo;
 import org.jetbrains.annotations.NotNull;
 
 @State(

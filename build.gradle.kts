@@ -47,7 +47,6 @@ dependencies {
     implementation(libs.spray.json)
     implementation(libs.snakeyaml)
     implementation(libs.scaffeine)
-    implementation(libs.directories)
     implementation(libs.fastparse)
 
     testImplementation(libs.scalatest)
@@ -57,6 +56,7 @@ dependencies {
         intellijIdea(libs.versions.intellij.platform)
 
         pluginComposedModule(implementation(project(":core")))
+        pluginComposedModule(implementation(project(":settings")))
         pluginComposedModule(implementation(project(":spellchecker")))
         pluginComposedModule(implementation(project(":stack")))
 

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor
+package me.fornever.haskeletor.settings
 
 sealed abstract class HTool extends Product with Serializable {
   def name: String

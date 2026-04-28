@@ -12,8 +12,8 @@ import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.{CommandLineState, GeneralCommandLine}
 import com.intellij.execution.process.{KillableColoredProcessHandler, ProcessHandler, ProcessTerminatedListener}
 import com.intellij.execution.runners.ExecutionEnvironment
-import me.fornever.haskeletor.GlobalInfo
 import me.fornever.haskeletor.sdk.HaskellSdkType
+import me.fornever.haskeletor.settings.GlobalInfo
 
 import scala.jdk.CollectionConverters._
 

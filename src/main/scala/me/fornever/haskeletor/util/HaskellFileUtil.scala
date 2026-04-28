@@ -16,7 +16,6 @@ import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.impl.PsiManagerEx
@@ -27,8 +26,7 @@ import me.fornever.haskeletor.psi.HaskellPsiUtil
 
 import java.io.{File, FileOutputStream, InputStream}
 import java.nio.charset.Charset
-import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Path
 
 object HaskellFileUtil {
 
@@ -248,31 +246,6 @@ object HaskellFileUtil {
 
   def getUrlByPath(absolutePath: String): String = {
     VirtualFileManager.constructUrl(LocalFileSystem.getInstance.getProtocol, absolutePath)
-  }
-
-  def createDirectoryIfNotExists(directory: File, onlyWriteableByOwner: Boolean): Unit = {
-    if (!directory.exists()) {
-      val result = FileUtil.createDirectory(directory)
-      if (!result && !directory.exists()) {
-        throw new RuntimeException(s"Could not create directory `${directory.getAbsolutePath}`")
-      }
-      if (onlyWriteableByOwner) {
-        directory.setWritable(true, true)
-        removeGroupWritePermission(directory)
-      }
-    }
-  }
-
-  // On Linux setting `directory.setWritable(true, true)` does not guarantee that group has NO write permissions
-  def removeGroupWritePermission(path: File): Unit = {
-    if (!SystemInfo.isWindows) {
-      val directoryPath = Paths.get(path.getAbsolutePath)
-      val permissions = Files.getPosixFilePermissions(directoryPath)
-      if (permissions.contains(PosixFilePermission.GROUP_WRITE)) {
-        permissions.remove(PosixFilePermission.GROUP_WRITE)
-        Files.setPosixFilePermissions(directoryPath, permissions)
-      }
-    }
   }
 
   private val logger = Logger.getInstance(getClass)

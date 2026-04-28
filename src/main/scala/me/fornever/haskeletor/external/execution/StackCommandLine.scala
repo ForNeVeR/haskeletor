@@ -64,7 +64,7 @@ object StackCommandLine {
   }
 
   def installTool(project: Project, progressIndicator: ProgressIndicator, toolName: String): Boolean = {
-    import me.fornever.haskeletor.GlobalInfo._
+    import me.fornever.haskeletor.settings.GlobalInfo._
     val systemGhcOption = if (StackYamlComponent.isNixEnabled(project) || !HaskellSettingsState.useSystemGhc) {
       Seq()
     } else {

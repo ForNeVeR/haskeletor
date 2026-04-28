@@ -15,8 +15,8 @@ import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.psi.{HaskellPsiUtil, HaskellQualifiedNameElement}
+import me.fornever.haskeletor.settings.{GlobalInfo, HTool}
 import me.fornever.haskeletor.util.{HtmlElement, ScalaFutureUtil}
-import me.fornever.haskeletor.{GlobalInfo, HTool}
 
 import java.io.File
 import scala.collection.mutable

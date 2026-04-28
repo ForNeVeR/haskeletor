@@ -20,7 +20,6 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.ui.EditorNotifications
-import me.fornever.haskeletor.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
 import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
@@ -34,11 +33,11 @@ import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
 import me.fornever.haskeletor.sdk.HaskellSdkType
-import me.fornever.haskeletor.settings.HaskellSettingsState
+import me.fornever.haskeletor.settings.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
+import me.fornever.haskeletor.settings.{GlobalInfo, HTool, HaskellSettingsState}
 import me.fornever.haskeletor.stack.StackBuilder
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
-import me.fornever.haskeletor.{GlobalInfo, HTool}
 
 import java.io.File
 import java.nio.file.Path
