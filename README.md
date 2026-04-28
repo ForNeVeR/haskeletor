@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ![Plugin Logo][image.logo] Haskeletor [![Download][badge.plugin]][marketplace.plugin]
 =====================================================================================
-Haskeletor is a Haskell plugin for IntelliJ IDEA.
+Haskeletor is a Haskell plugin for IntelliJ-based IDEs.
 
 It supports code highlighting, code completion, compilation error highlighting — everything you need from an IDE for Haskell.
 
