@@ -6,10 +6,13 @@
 
 package me.fornever.haskeletor.stack
 
+import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.runWithModalProgressBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.fornever.haskeletor.core.HaskeletorBundle
 import java.nio.file.Path
 
@@ -21,9 +24,15 @@ class StackLocator(private val project: Project) {
     }
 
     suspend fun locateStack(): Path? {
-        TODO("Load from settings if overridden")
-        TODO("Seek in PATH")
-        TODO("Cache")
+        fun loadFromCache(): Path? = TODO("Cache")
+        fun loadFromSettings(): Path? = TODO("Load from settings if overridden")
+        suspend fun loadFromPath(): Path? = withContext(Dispatchers.IO) {
+            PathEnvironmentVariableUtil.findExecutableInPathOnAnyOS("stack")?.toPath()
+        }
+
+        return loadFromCache()
+            ?: loadFromSettings()
+            ?: loadFromPath()
     }
 
     fun locateStackBlocking(): Path? =
