@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.stack.ProjectInfoManager
+import me.fornever.haskeletor.stack.StackLocator
 import me.fornever.haskeletor.stack.StackProcessRunner
 import java.nio.file.Path
 import kotlin.io.path.pathString
@@ -32,16 +33,16 @@ class HoogleBuilder(private val project: Project, private val coroutineScope: Co
     }
 
     fun launchRebuildHoogle(
-        stackExecutable: Path,
         manager: HoogleInstallationManager,
         projectInfoManager: ProjectInfoManager
     ) {
         coroutineScope.launch {
+            val stack = StackLocator.getInstance(project).locateStack() ?: return@launch
             withBackgroundProgress(project, HaskeletorBundle.message("build.hoogle-database.title")) {
-                val haddockBuilt = buildHaddock(stackExecutable, manager)
+                val haddockBuilt = buildHaddock(stack, manager)
                 if (haddockBuilt) {
                     manager.findHooglePath().orNull()?.let { hoogle ->
-                        buildHoogleDatabase(stackExecutable, hoogle, manager, projectInfoManager)
+                        buildHoogleDatabase(stack, hoogle, manager, projectInfoManager)
                     }
                 }
             }

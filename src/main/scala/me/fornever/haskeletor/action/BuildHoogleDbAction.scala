@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.core.project.GlobalProjectInfo
 import me.fornever.haskeletor.external.component.{GlobalProjectInfoComponent, HoogleComponent, ProjectLibraryBuilder, StackProjectManager}
-import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.stack.ProjectInfoManager
 import me.fornever.haskeletor.stack.hoogle.{HoogleBuilder, HoogleInstallationManager}
 import me.fornever.haskeletor.util.HaskellEditorUtil
@@ -38,13 +37,10 @@ class BuildHoogleDbAction extends AnAction {
       ProjectLibraryBuilder.resetBuildStatus(project)
       HaskellNotificationGroup.logInfoEvent(project, message)
 
-      HaskellSdkType.getStackPath(project).foreach(stack => {
-        HoogleBuilder.getInstance(project).launchRebuildHoogle(
-          Path.of(stack),
-          project.getService(classOf[HoogleInstallationManagerImpl]),
-          project.getService(classOf[ProjectInfoManagerImpl])
-        )
-      })
+      HoogleBuilder.getInstance(project).launchRebuildHoogle(
+        project.getService(classOf[HoogleInstallationManagerImpl]),
+        project.getService(classOf[ProjectInfoManagerImpl])
+      )
     })
   }
 }

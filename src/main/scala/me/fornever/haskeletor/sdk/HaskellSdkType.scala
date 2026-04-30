@@ -9,16 +9,14 @@
 package me.fornever.haskeletor.sdk
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
-import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.icons.HaskellIcons
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
+import me.fornever.haskeletor.util.HaskellFileUtil
 import org.jdom.Element
 
 import java.io.File
@@ -114,36 +112,5 @@ object HaskellSdkType {
 
   def findOrCreateSdk(): Sdk = {
     SdkConfigurationUtil.findOrCreateSdk(null, getInstance)
-  }
-
-  def getStackPath(project: Project, notifyNoSdk: Boolean = true): Option[String] = {
-    val haskellProjectModule = HaskellProjectUtil.findProjectHaskellModules(project).headOption
-    val stackPath = for {
-      hpm <- haskellProjectModule
-      m <- HaskellProjectUtil.getModuleRootManager(project, hpm)
-      sdk <- Option(m.getSdk)
-      if sdk.getSdkType == HaskellSdkType.getInstance
-      p <- Option(sdk.getHomePath)
-    } yield p
-
-    stackPath.orElse(getProjectStackPath(project)) match {
-      case path@Some(_) => path
-      case None =>
-        if (notifyNoSdk) {
-          HaskellNotificationGroup.logErrorBalloonEvent(project, "Haskell SDK is not defined in Project Settings")
-        }
-        None
-    }
-  }
-
-  private def getProjectStackPath(project: Project): Option[String] = {
-    val projectRootManager = HaskellProjectUtil.getProjectRootManager(project)
-    val stackPath = for {
-      pm <- projectRootManager
-      sdk <- Option(pm.getProjectSdk)
-      if sdk.getSdkType == HaskellSdkType.getInstance
-      p <- Option(sdk.getHomePath)
-    } yield p
-    stackPath
   }
 }

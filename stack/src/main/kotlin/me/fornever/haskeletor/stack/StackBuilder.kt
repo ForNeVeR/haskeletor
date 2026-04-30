@@ -15,8 +15,6 @@ import com.intellij.openapi.progress.coroutineToIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.platform.ide.progress.withBackgroundProgress
-import com.intellij.platform.util.progress.reportRawProgress
-import com.intellij.platform.util.progress.withProgressText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.fornever.haskeletor.core.HaskeletorBundle
@@ -33,12 +31,12 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
     }
 
     fun launchBuildWorkflow(
-        stackExecutable: Path,
         libraryTargets: () -> List<String>,
         ghcOptions: () -> List<String>,
         finishingAction: (ProgressIndicator) -> Unit
     ) {
         coroutineScope.launch {
+            val stackExecutable = StackLocator.getInstance(project).locateStack() ?: return@launch
             withBackgroundProgress(project, HaskeletorBundle.message("workflow.build-project-with-dependencies.title")) {
                 val stack = StackProcessRunner.getInstance(project)
                 val ghcOptions = ghcOptions().asSequence()
