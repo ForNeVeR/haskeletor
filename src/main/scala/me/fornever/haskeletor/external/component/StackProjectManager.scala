@@ -82,10 +82,6 @@ object StackProjectManager {
     getStackProjectManager(project).exists(_.preloadingAllLibraryIdentifiers)
   }
 
-  def stackVersion(project: Project): Option[String] = {
-    getStackProjectManager(project).flatMap(_.stackVersion)
-  }
-
   def start(project: Project): Unit = {
     init(project)
   }
@@ -445,8 +441,6 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   private var replsManager: Option[StackReplsManager] = None
 
   private val projectLibraryFileWatcher = new ProjectLibraryFileWatcher(project)
-
-  private lazy val stackVersion = StackCommandLine.stackVersion(project)
 
   def getStackReplsManager: Option[StackReplsManager] = {
     replsManager

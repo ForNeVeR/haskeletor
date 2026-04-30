@@ -20,15 +20,9 @@ import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import org.jetbrains.annotations.Nls
 
-import scala.jdk.CollectionConverters._
-
 object StackCommandLine {
 
   final val NoDiagnosticsShowCaretFlag = "-fno-diagnostics-show-caret"
-
-  def stackVersion(project: Project): Option[String] = {
-    StackCommandLine.run(project, Seq("--numeric-version"), enableExtraArguments = false).flatMap(_.getStdoutLines.asScala.headOption)
-  }
 
   def run(project: Project, arguments: Seq[String], timeoutInMillis: Long = CommandLine.DefaultTimeout.toMillis,
           ignoreExitCode: Boolean = false, logOutput: Boolean = false, workDir: Option[String] = None, notifyBalloonError: Boolean = false, enableExtraArguments: Boolean = true): Option[ProcessOutput] = {
