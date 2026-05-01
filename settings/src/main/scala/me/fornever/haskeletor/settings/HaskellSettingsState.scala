@@ -71,8 +71,12 @@ object HaskellSettingsState {
     state.customTools
   }
 
-  def getExtraStackArguments: Seq[String] = {
-    Option.when(state.extraStackArguments.trim.nonEmpty)(state.extraStackArguments).map(_.split("""\s+""").toSeq).getOrElse(Seq())
+  def getExtraStackArguments: java.util.List[String] = {
+    import scala.jdk.CollectionConverters._
+    Option.when(state.extraStackArguments.trim.nonEmpty)(state.extraStackArguments)
+      .map(_.split("""\s+""").toSeq)
+      .getOrElse(Seq())
+      .asJava
   }
 
   def getDefaultGhcOptions: Seq[String] = {
