@@ -12,22 +12,20 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
 import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootEvent, ModuleRootListener, ModuleRootModificationUtil}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.ui.EditorNotifications
 import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
+import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
-import me.fornever.haskeletor.external.execution.StackCommandLine
-import me.fornever.haskeletor.external.execution.StackCommandLine.NoDiagnosticsShowCaretFlag
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
-import me.fornever.haskeletor.module.{HaskellModuleBuilder, StackProjectModelSupport}
 import me.fornever.haskeletor.notification.ConfigFileWatcher
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
@@ -35,11 +33,11 @@ import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
 import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
 import me.fornever.haskeletor.settings.{GlobalInfo, HTool, HaskellSettingsState}
-import me.fornever.haskeletor.stack.StackBuilder
+import me.fornever.haskeletor.stack.{HaskellToolInstaller, StackBuilder}
+import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
 
-import java.io.File
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object StackProjectManager {
@@ -100,74 +98,61 @@ object StackProjectManager {
     getStackProjectManager(project).map(_.projectLibraryFileWatcher)
   }
 
-  def installHaskellTools(project: Project, update: Boolean): Unit = {
+  def launchInstallHaskellTools(project: Project, update: Boolean): Unit = {
     getStackProjectManager(project).foreach(_.installingHaskellTools = true)
 
-    val title = (if (update) "Updating" else "Installing") + " Haskell tools"
-
-    ProgressManager.getInstance().run(new Task.Backgroundable(project, title, true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-
-      private def isToolAvailable(progressIndicator: ProgressIndicator, tool: HTool) = {
-        if (HaskellSettingsState.useCustomTools) {
-          tool match {
-            case Hlint => HaskellSettingsState.hlintPath
-            case Hoogle => HaskellSettingsState.hooglePath
-            case Ormolu => HaskellSettingsState.ormoluPath
-            case StylishHaskell => HaskellSettingsState.stylishHaskellPath
-          }
+    def isToolAvailable(tool: HTool) = {
+      if (HaskellSettingsState.useCustomTools) {
+        tool match {
+          case Hlint => HaskellSettingsState.hlintPath
+          case Hoogle => HaskellSettingsState.hooglePath
+          case Ormolu => HaskellSettingsState.ormoluPath
+          case StylishHaskell => HaskellSettingsState.stylishHaskellPath
+        }
+      } else {
+        if (GlobalInfo.toolPath(tool).exists()) {
+          Some(GlobalInfo.toolPath(tool).getAbsolutePath)
         } else {
-          if (!GlobalInfo.toolPath(tool).exists() || update) {
-            progressIndicator.setText(s"Busy with installing ${tool.name} in ${GlobalInfo.toolsBinPath}")
-            StackCommandLine.installTool(project, progressIndicator, tool.name)
-            if (GlobalInfo.toolPath(tool).exists()) {
-              Some(GlobalInfo.toolPath(tool).getAbsolutePath)
-            } else {
-              None
-            }
-          } else {
-            Some(GlobalInfo.toolPath(tool).getAbsolutePath)
-          }
+          None
         }
       }
+    }
 
-      /**
-        * Check if at least HLint is installed.
-        */
-      private def isHLintInstalled: Boolean = {
-        GlobalInfo.toolPath(HTool.Hlint).exists()
-      }
+    def isHLintInstalled: Boolean = {
+      GlobalInfo.toolPath(HTool.Hlint).exists()
+    }
 
-      override def run(progressIndicator: ProgressIndicator): Unit = {
-        try {
-          if (update || !isHLintInstalled) {
-            progressIndicator.setText(s"Busy with updating Stack's package index")
-            StackCommandLine.updateStackIndex(project)
-          }
+    val forceMakeChanges = update || !isHLintInstalled
+    val useSystemGhc = !StackYamlComponent.isNixEnabled(project) && HaskellSettingsState.useSystemGhc
 
-          getStackProjectManager(project).foreach(_.hlintAvailable = isToolAvailable(progressIndicator, HTool.Hlint))
+    HaskellToolInstaller.getInstance(project)
+      .launchInstallHaskellTools(
+        forceMakeChanges,
+        useSystemGhc,
+        HaskeletorBundle.message("progress.installing-tools.title"),
+        () => {
+          getStackProjectManager(project).foreach(_.hlintAvailable = isToolAvailable(HTool.Hlint))
 
-          getStackProjectManager(project).foreach(_.hoogleAvailable = isToolAvailable(progressIndicator, HTool.Hoogle))
+          getStackProjectManager(project).foreach(_.hoogleAvailable = isToolAvailable(HTool.Hoogle))
 
-          getStackProjectManager(project).foreach(_.stylishHaskellAvailable = isToolAvailable(progressIndicator, HTool.StylishHaskell))
+          getStackProjectManager(project).foreach(_.stylishHaskellAvailable = isToolAvailable(HTool.StylishHaskell))
 
-          getStackProjectManager(project).foreach(_.ormoluAvailable = isToolAvailable(progressIndicator, HTool.Ormolu))
-        } finally {
-          getStackProjectManager(project).foreach(_.installingHaskellTools = false)
-        }
-      }
-    })
+          getStackProjectManager(project).foreach(_.ormoluAvailable = isToolAvailable(HTool.Ormolu))
+        },
+        () => getStackProjectManager(project).foreach(_.installingHaskellTools = false)
+      )
   }
 
   private def ghcOptions(project: Project) = {
     if (HaskellProjectUtil.setNoDiagnosticsShowCaretFlag(project)) {
-      Seq("--ghc-options", NoDiagnosticsShowCaretFlag)
+      Seq("--ghc-options", "-fno-diagnostics-show-caret")
     } else {
       Seq()
     }
   }
 
   private def init(project: Project, restart: Boolean = false): Unit = {
-    if (HaskellProjectUtil.isValidHaskellProject(project, notifyNoSdk = true)) {
+    if (HaskellProjectUtil.isValidHaskellProject(project)) {
       if (isInitializing(project)) {
         HaskellNotificationGroup.logWarningBalloonEvent(project, "Action not possible whilst project is initializing")
       } else {
@@ -183,7 +168,7 @@ object StackProjectManager {
           getStackProjectManager(project).foreach(_.hoogleAvailable = None)
           getStackProjectManager(project).foreach(_.ormoluAvailable = None)
           getStackProjectManager(project).foreach(_.stylishHaskellAvailable = None)
-          installHaskellTools(project, update = false)
+          launchInstallHaskellTools(project, update = false)
         }
 
         StackBuilder.getInstance(project).launchBuildWorkflow(
@@ -207,35 +192,6 @@ object StackProjectManager {
                 ApplicationManager.getApplication.runReadAction(ScalaUtil.runnable {
                   getStackProjectManager(project).foreach(_.initStackReplsManager())
                 })
-
-                progressIndicator.setText("Busy updating project and module settings")
-                val projectPath = project.getBasePath
-                val projectModules = HaskellProjectUtil.findProjectHaskellModules(project)
-                val packagePaths = StackProjectModelSupport.getPackagePaths(project)
-                val packagePathsToAdd = packagePaths.filterNot { relativePath =>
-                  val moduleDirectory = HaskellModuleBuilder.getModuleRootDirectory(relativePath, projectPath)
-                  projectModules.exists(m => HaskellProjectUtil.getModuleDir(m) == moduleDirectory)
-                }
-
-                packagePathsToAdd.foreach(p => {
-                  val packagePath = new File(projectPath, p)
-                  if (packagePath.exists()) {
-                    StackProjectModelSupport.addHaskellModule(project, p, projectPath)
-                  } else {
-                    HaskellNotificationGroup.warningEvent(project, s"Couldn't add package $p as module, because its absolute path ${packagePath.getAbsolutePath} doesn't exist.")
-                  }
-                })
-
-                StackReplsManager.getReplsManager(project).map(_.modulePackageInfos).foreach { moduleCabalInfos =>
-                  moduleCabalInfos.foreach { case (module, cabalInfo) =>
-                    ModuleRootModificationUtil.updateModel(module, (modifiableRootModel: ModifiableRootModel) => {
-                      modifiableRootModel.getContentEntries.headOption.foreach { contentEntry =>
-                        contentEntry.clearSourceFolders()
-                        HaskellModuleBuilder.addSourceFolders(cabalInfo, contentEntry)
-                      }
-                    })
-                  }
-                }
               }
 
               val replsLoad = ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.runnable {
@@ -290,15 +246,6 @@ object StackProjectManager {
               progressIndicator.setText("Busy preloading Stack component info cache")
               val preloadStackComponentInfoCache = ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.callable {
                 HaskellComponentsManager.preloadStackComponentInfoCache(project)
-              })
-
-              val preloadLibraryFilesCacheFuture = ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.runnable {
-                if (!project.isDisposed) {
-                  progressIndicator.setText("Busy downloading library sources")
-                  HaskellModuleBuilder.addLibrarySources(project, update = restart)
-
-                  HaskellComponentsManager.preloadLibraryFilesCache(project)
-                }
               })
 
               progressIndicator.setText("Busy preloading library identifiers")
@@ -369,9 +316,8 @@ object StackProjectManager {
               }))
 
               progressIndicator.setText("Busy preloading caches")
-              if (!preloadLibraryFilesCacheFuture.isDone || !preloadStackComponentInfoCache.isDone || !preloadLibraryIdentifiersCacheFuture.isDone || !replsLoad.isDone) {
+              if (!preloadStackComponentInfoCache.isDone || !preloadLibraryIdentifiersCacheFuture.isDone || !replsLoad.isDone) {
                 FutureUtil.waitForValue(project, preloadStackComponentInfoCache, "preloading project cache", 600)
-                FutureUtil.waitForValue(project, preloadLibraryFilesCacheFuture, "preloading library files caches", 600)
                 FutureUtil.waitForValue(project, preloadLibraryIdentifiersCacheFuture, "preloading library identifiers caches", 600)
                 FutureUtil.waitForValue(project, replsLoad, "starting and loading REPLs", 600)
               }
@@ -451,7 +397,7 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   }
 
   override def projectClosed(): Unit = {
-    if (HaskellProjectUtil.isHaskellProject(project)) {
+    if (HaskellProjectUtil.isValidHaskellProject(project)) {
       replsManager.foreach(_.getGlobalRepl.exit())
       replsManager.foreach(_.getGlobalRepl2.exit())
       replsManager.foreach(_.getRunningProjectRepls.foreach(_.exit()))
@@ -462,7 +408,7 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   override def initComponent(): Unit = {}
 
   override def projectOpened(): Unit = {
-    if (HaskellProjectUtil.isHaskellProject(project)) {
+    if (HaskellProjectUtil.isValidHaskellProject(project)) {
       disableDefaultReformatAction()
 
       fixSdkStackVersion()

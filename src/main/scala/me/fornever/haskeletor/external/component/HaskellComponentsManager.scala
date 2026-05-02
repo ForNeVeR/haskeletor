@@ -30,7 +30,7 @@ import scala.concurrent._
 
 object HaskellComponentsManager {
 
-  case class ComponentTarget(module: Module, modulePath: String, packageName: String, target: String, stanzaType: StanzaType, sourceDirs: Seq[String],
+  case class ComponentTarget(modulePath: String, packageName: String, target: String, stanzaType: StanzaType, sourceDirs: Seq[String],
                              mainIs: Option[String], isImplicitPreludeActive: Boolean, buildDepends: Seq[String], exposedModuleNames: Seq[String] = Seq.empty)
 
   def findModuleIdentifiersInCache(project: Project): Iterable[ModuleIdentifier] = {
@@ -101,11 +101,11 @@ object HaskellComponentsManager {
   }
 
   def findProjectPackageNames(project: Project): Option[Iterable[String]] = {
-    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map { case (_, ci) => ci.packageName })
+    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map { case ci => ci.packageName })
   }
 
   def findCabalInfos(project: Project): Iterable[PackageInfo] = {
-    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map { case (_, ci) => ci }).getOrElse(Iterable())
+    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map { case ci => ci }).getOrElse(Iterable())
   }
 
   def loadHaskellFile(psiFile: PsiFile, fileModified: Boolean): Option[CompilationResult] = {
@@ -116,16 +116,12 @@ object HaskellComponentsManager {
     HaskellModuleInfoComponent.invalidate(psiFile)
   }
 
-  def findProjectModulePackageNames(project: Project): Seq[(Module, String)] = {
-    findStackComponentInfos(project).map(info => (info.module, info.packageName)).distinct
+  def findProjectModulePackageNames(project: Project): Seq[String] = {
+    findStackComponentInfos(project).map(info => info.packageName).distinct
   }
 
   def invalidateDefinitionLocations(project: Project): Unit = {
     DefinitionLocationComponent.invalidate(project)
-  }
-
-  def findLibraryPackageInfos(project: Project): Seq[LibraryPackageInfo] = {
-    LibraryPackageInfoComponent.libraryPackageInfos(project).toSeq
   }
 
   def invalidateBrowseInfo(project: Project, moduleNames: Seq[String]): Unit = {
@@ -171,12 +167,6 @@ object HaskellComponentsManager {
     HaskellNotificationGroup.logInfoEvent(project, "Finished with preloading stack component info cache")
   }
 
-  def preloadLibraryFilesCache(project: Project): Unit = {
-    HaskellNotificationGroup.logInfoEvent(project, "Start to preload library files cache")
-    preloadLibraryFiles(project)
-    HaskellNotificationGroup.logInfoEvent(project, "Finished with preloading library files cache")
-  }
-
   def findTypeInfoForElement(psiElement: PsiElement): TypeInfoResult = {
     TypeInfoComponent.findTypeInfoForElement(psiElement)
   }
@@ -192,13 +182,6 @@ object HaskellComponentsManager {
         val projectModuleNames = AvailableModuleNamesComponent.findAvailableProjectModuleNames(info)
         HaskellModuleNameIndex.fillCache(project, projectModuleNames)
       }
-    }
-  }
-
-  private def preloadLibraryFiles(project: Project): Unit = {
-    if (!project.isDisposed) {
-      val libraryPackageInfos = LibraryPackageInfoComponent.libraryPackageInfos(project)
-      HaskellModuleNameIndex.fillCache(project, libraryPackageInfos.flatMap(libraryModuleNames => libraryModuleNames.exposedModuleNames ++ libraryModuleNames.hiddenModuleNames))
     }
   }
 

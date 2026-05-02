@@ -203,7 +203,6 @@
         <internalFileTemplate name="Haskell Module"/>
         <internalFileTemplate name="Alex Source"/>
         <internalFileTemplate name="Haskell Test Module"/>
-        <moduleType id="HASKELL_MODULE" implementationClass="me.fornever.haskeletor.module.HaskellModuleType"/>
 
         <!-- Runner -->
         <actionPromoter implementation="me.fornever.haskeletor.runconfig.console.HaskellConsoleActionPromoter"/>

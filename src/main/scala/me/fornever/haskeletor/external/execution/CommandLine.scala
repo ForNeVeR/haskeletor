@@ -12,17 +12,14 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process
 import com.intellij.execution.process._
-import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.util.io.BaseOutputReader
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
-import me.fornever.haskeletor.core.stack.OutputToProgressIndicator
 import me.fornever.haskeletor.settings.GlobalInfo
-import org.jetbrains.annotations.Nls
 
 import java.nio.charset.Charset
+import java.nio.file.Path
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
@@ -32,51 +29,28 @@ object CommandLine {
   val DefaultIgnoreExitCode = false
   val DefaultLogOutput = false
 
-  def run(project: Project, commandPath: String, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
+  def run(project: Project, commandPath: Path, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
           notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
           logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
     run3(Some(project), project.getBasePath, commandPath, arguments, timeoutInMillis, notifyBalloonError, ignoreExitCode,
       logOutput, charset)
   }
 
-  def runInWorkDir(project: Project, workDir: String, commandPath: String, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
+  def runInWorkDir(project: Project, workDir: String, commandPath: Path, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
                    notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
                    logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
     run3(Some(project), workDir, commandPath, arguments, timeoutInMillis, notifyBalloonError, ignoreExitCode,
       logOutput, charset)
   }
 
-  def runInHomeDir(commandPath: String, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
+  def runInHomeDir(commandPath: Path, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
                    notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
                    logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
     run3(None, VfsUtil.getUserHomeDir.getPath, commandPath, arguments, timeoutInMillis, notifyBalloonError, ignoreExitCode,
       logOutput, charset)
   }
 
-  def runWithProgressIndicator(project: Project,
-                               workDir: Option[String],
-                               commandPath: String,
-                               arguments: Seq[String],
-                               @Nls title: String,
-                               progressIndicator: Option[ProgressIndicator],
-                               charset: Option[Charset] = None): CapturingProcessHandler = {
-    val commandLine = createCommandLine(workDir.getOrElse(project.getBasePath), commandPath, arguments, charset)
-
-    new CapturingProcessHandler(commandLine) {
-      override protected def createProcessAdapter(processOutput: ProcessOutput): CapturingProcessAdapter = {
-        progressIndicator match {
-          case Some(pi) => new OutputToProgressIndicator(title, pi)
-          case None => super.createProcessAdapter(processOutput)
-        }
-      }
-
-      override def readerOptions(): BaseOutputReader.Options = {
-        BaseOutputReader.Options.forMostlySilentProcess()
-      }
-    }
-  }
-
-  private def run3(project: Option[Project], workDir: String, commandPath: String, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
+  private def run3(project: Option[Project], workDir: String, commandPath: Path, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
                    notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
                    logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
 
@@ -108,10 +82,10 @@ object CommandLine {
     }
   }
 
-  def createCommandLine(workDir: String, commandPath: String, arguments: Seq[String], charset: Option[Charset] = None): GeneralCommandLine = {
+  def createCommandLine(workDir: String, commandPath: Path, arguments: Seq[String], charset: Option[Charset] = None): GeneralCommandLine = {
     val commandLine = new GeneralCommandLine
     commandLine.withWorkDirectory(workDir)
-    commandLine.setExePath(commandPath)
+    commandLine.setExePath(commandPath.toString)
     commandLine.addParameters(arguments.asJava)
     commandLine.withParentEnvironmentType(ParentEnvironmentType.CONSOLE)
     commandLine.withEnvironment(GlobalInfo.pathVariables)

@@ -46,7 +46,7 @@ class HaskellSdkType extends SdkType("Haskell Tool Stack SDK") {
       false
     } else {
       val stackPath = new File(path)
-      !stackPath.isDirectory && stackPath.getName.toLowerCase.contains("stack") && getNumericVersion(path).isDefined
+      !stackPath.isDirectory && stackPath.getName.toLowerCase.contains("stack") && getNumericVersion(Path.of(path)).isDefined
     }
   }
 
@@ -64,7 +64,7 @@ class HaskellSdkType extends SdkType("Haskell Tool Stack SDK") {
 
   override def getVersionString(sdkHome: String): String = {
     if (isValidSdkHome(sdkHome)) {
-      getNumericVersion(sdkHome).getOrElse("-")
+      getNumericVersion(Path.of(sdkHome)).getOrElse("-")
     } else {
       "-"
     }
@@ -84,7 +84,7 @@ class HaskellSdkType extends SdkType("Haskell Tool Stack SDK") {
               throw new Exception(message)
             }
           }
-          HaskellStackVersionValidator.validate(getNumericVersion(selectedPath))
+          HaskellStackVersionValidator.validate(getNumericVersion(Path.of(selectedPath)))
         }
       }
     }
@@ -92,7 +92,7 @@ class HaskellSdkType extends SdkType("Haskell Tool Stack SDK") {
     descriptor
   }
 
-  private def getNumericVersion(stackPath: String): Option[String] = {
+  private def getNumericVersion(stackPath: Path): Option[String] = {
     val output = CommandLine.runInHomeDir(
       stackPath,
       Seq("--numeric-version"),

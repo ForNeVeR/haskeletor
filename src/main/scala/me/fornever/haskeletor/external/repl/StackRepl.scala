@@ -11,11 +11,10 @@ package me.fornever.haskeletor.external.repl
 import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.core.util.{FileSystemUtil, StringUtil}
-import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.{BenchmarkType, ExeType, StackReplOutput, TestSuiteType}
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
-import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.GlobalInfo
+import me.fornever.haskeletor.stack.StackLocator
 import me.fornever.haskeletor.util.{HaskellEditorUtil, HaskellProjectUtil}
 
 import java.io._
@@ -209,7 +208,7 @@ abstract class StackRepl(project: Project, projectReplTargets: Option[ProjectRep
       starting = true
       clearLoadedModules()
 
-      HaskellSdkType.getStackPath(project).foreach(stackPath => {
+      Option(StackLocator.getInstance(project).locateStackBlocking()).foreach(stackPath => {
         try {
           val extraOptions = if (stanzaType.contains(TestSuiteType)) {
             extraReplOptions ++ Seq("--test")
@@ -261,7 +260,7 @@ abstract class StackRepl(project: Project, projectReplTargets: Option[ProjectRep
               execute(":set -fshow-loaded-modules", forceExecute = true)
               execute(":set -fno-max-valid-substitutions", forceExecute = true)
               if (HaskellProjectUtil.setNoDiagnosticsShowCaretFlag(project)) {
-                execute(s":set ${StackCommandLine.NoDiagnosticsShowCaretFlag}", forceExecute = true)
+                execute(s":set -fno-diagnostics-show-caret", forceExecute = true)
               }
             }
             logInfo("REPL is started")

@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.util
 
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleUtilCore}
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.io.FileUtil
@@ -18,9 +18,8 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.PathUtilRt
 import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
-import me.fornever.haskeletor.module.HaskellModuleType
-import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.GlobalInfo
+import me.fornever.haskeletor.stack.StackLocator
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 
 import java.io.File
@@ -36,12 +35,8 @@ object HaskellProjectUtil {
     )
   }
 
-  def isValidHaskellProject(project: Project, notifyNoSdk: Boolean): Boolean = {
-    isHaskellProject(project) && HaskellSdkType.getStackPath(project, notifyNoSdk).isDefined
-  }
-
-  def isHaskellProject(project: Project): Boolean = {
-    findProjectHaskellModules(project).nonEmpty
+  def isValidHaskellProject(project: Project): Boolean = {
+    Option(StackLocator.getInstance(project)).isDefined
   }
 
   def isSourceFile(project: Project, virtualFile: VirtualFile): Boolean = {
@@ -79,25 +74,12 @@ object HaskellProjectUtil {
     }
   }
 
-  def findCabalFiles(project: Project): Iterable[File] = {
-    val modules = findProjectHaskellModules(project)
-    val dirs = modules.map(getModuleDir)
-    dirs.flatMap(findCabalFile)
-  }
-
   def findCabalFile(directory: File): Option[File] = {
     directory.listFiles.find(_.getName.endsWith(".cabal"))
   }
 
   def findStackFile(directory: File): Option[File] = {
     directory.listFiles.find(_.getName == "stack.yaml")
-  }
-
-  def findPackageFiles(project: Project): Iterable[File] = {
-    val modules = findProjectHaskellModules(project)
-    val dirs = modules.map(getModuleDir)
-    dirs.flatMap(findCabalFile)
-    dirs.flatMap(findPackageFile)
   }
 
   def findStackFile(project: Project): Option[File] = {
@@ -116,30 +98,12 @@ object HaskellProjectUtil {
     if (includeNonProjectItems) getProjectSearchScope(project) else GlobalSearchScope.projectScope(project)
   }
 
-  import ScalaUtil._
-
-  def getProjectRootManager(project: Project): Option[ProjectRootManager] = {
-    project.isDisposed.optionNot(Option(ProjectRootManager.getInstance(project))).flatten
-  }
-
-  def getModuleManager(project: Project): Option[ModuleManager] = {
-    project.isDisposed.optionNot(Option(ModuleManager.getInstance(project))).flatten
-  }
-
-  def getModuleRootManager(project: Project, module: Module): Option[ModuleRootManager] = {
-    project.isDisposed.optionNot(Option(ModuleRootManager.getInstance(module))).flatten
-  }
-
   def findModule(psiElement: PsiElement): Option[Module] = {
     Option(ModuleUtilCore.findModuleForPsiElement(psiElement))
   }
 
   def findModuleForFile(psiFile: PsiFile): Option[Module] = {
     Option(ModuleUtilCore.findModuleForFile(psiFile))
-  }
-
-  def findProjectHaskellModules(project: Project): Iterable[Module] = {
-    ModuleManager.getInstance(project).getModules.filter(ModuleType.get(_).isInstanceOf[HaskellModuleType])
   }
 
   def findProjectPackageNames(project: Project): Seq[String] = {

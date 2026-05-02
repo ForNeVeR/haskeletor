@@ -19,6 +19,7 @@ import me.fornever.haskeletor.settings.{GlobalInfo, HTool}
 import me.fornever.haskeletor.util.{HtmlElement, ScalaFutureUtil}
 
 import java.io.File
+import java.nio.file.Path
 import scala.collection.mutable
 import scala.concurrent.{Future, blocking}
 import scala.jdk.CollectionConverters._
@@ -120,7 +121,7 @@ object HoogleComponent {
 
   def versionInfo(project: Project): String = {
     StackProjectManager.isHoogleAvailable(project) match {
-      case Some(hooglePath) => CommandLine.run(project, hooglePath, Seq("--version")).getStdout
+      case Some(hooglePath) => CommandLine.run(project, Path.of(hooglePath), Seq("--version")).getStdout
       case None => "-"
     }
   }
@@ -136,7 +137,12 @@ object HoogleComponent {
         ScalaFutureUtil.waitForValue(project,
           Future {
             blocking {
-              CommandLine.run(project, hooglePath, Seq(s"--database=${hoogleDbPath(project)}") ++ arguments, logOutput = true)
+              CommandLine.run(
+                project,
+                Path.of(hooglePath),
+                Seq(s"--database=${hoogleDbPath(project)}") ++ arguments,
+                logOutput = true
+              )
             }
           }, "runHoogle")
       case None => None

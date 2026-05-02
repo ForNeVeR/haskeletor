@@ -17,6 +17,8 @@ import me.fornever.haskeletor.util.HaskellFileUtil
 import spray.json.JsonParser.ParsingException
 import spray.json._
 
+import java.nio.file.Path
+
 object HLintComponent {
 
   def check(psiFile: PsiFile): Seq[HLintInfo] = {
@@ -51,7 +53,7 @@ object HLintComponent {
   }
 
   private def runHLint(project: Project, hlintPath: String, arguments: Seq[String], ignoreExitCode: Boolean) = {
-    CommandLine.run(project, hlintPath, arguments, logOutput = true, ignoreExitCode = ignoreExitCode)
+    CommandLine.run(project, Path.of(hlintPath), arguments, logOutput = true, ignoreExitCode = ignoreExitCode)
   }
 
   private object HlintJsonProtocol extends DefaultJsonProtocol {

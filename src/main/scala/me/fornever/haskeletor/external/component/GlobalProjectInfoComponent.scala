@@ -10,11 +10,14 @@ package me.fornever.haskeletor.external.component
 
 import com.github.blemale.scaffeine.{LoadingCache, Scaffeine}
 import com.intellij.openapi.project.Project
+import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.project.{GhcVersion, GlobalProjectInfo, PackageDbPaths, ProjectBinPaths}
-import me.fornever.haskeletor.external.execution.{CommandLine, StackCommandLine}
+import me.fornever.haskeletor.external.execution.CommandLine
+import me.fornever.haskeletor.stack.{StackCommand, StackLocator}
 import me.fornever.haskeletor.util.ScalaUtil
 
 import java.io.File
+import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 object GlobalProjectInfoComponent {
@@ -33,7 +36,7 @@ object GlobalProjectInfoComponent {
     }
   }
 
-  def getSupportedLanguageExtensions(project: Project, ghcPath: String): Seq[String] = {
+  def getSupportedLanguageExtensions(project: Project, ghcPath: Path): Seq[String] = {
     CommandLine.run(
       project,
       ghcPath,
@@ -58,21 +61,30 @@ object GlobalProjectInfoComponent {
       pathInfoMap = ScalaUtil.linesToMap(pathLines)
       binPaths <- findBinPaths(pathInfoMap)
       packageDbPaths <- findPackageDbPaths(pathInfoMap)
-      ghcPath = new File(binPaths.compilerBinPath, "ghc").getPath
+      ghcPath = Path.of(binPaths.compilerBinPath, "ghc")
       ghcPkgPath = new File(binPaths.compilerBinPath, "ghc-pkg").getPath
       extensions = getSupportedLanguageExtensions(project, ghcPath)
       stackagePackageNames = getAvailableStackagesPackages(project)
       ghcVersion = findGhcVersion(project, ghcPath)
       localDocRoot <- pathInfoMap.get("local-doc-root")
       snapshotDocRoot <- pathInfoMap.get("snapshot-doc-root")
-    } yield GlobalProjectInfo(ghcVersion, ghcPath, ghcPkgPath, localDocRoot, snapshotDocRoot, packageDbPaths, binPaths, extensions, stackagePackageNames)
+    } yield GlobalProjectInfo(ghcVersion, ghcPath.toString, ghcPkgPath, localDocRoot, snapshotDocRoot, packageDbPaths, binPaths, extensions, stackagePackageNames)
   }
 
   private def findPathLines(project: Project): Option[Seq[String]] = {
-    StackCommandLine.run(project, Seq("path"), enableExtraArguments = false).map(_.getStdoutLines.asScala.toSeq)
+    Option(StackLocator.getInstance(project).locateStackBlocking())
+      .map(stack =>
+        new StackCommand(
+          stack,
+          StackCommand.defaultWorkingDir(project),
+          Seq("path").asJava,
+          false
+        ).readOutputBlocking(project, HaskeletorBundle.message("common.progress.loading-path"))
+          .getStdoutLines.asScala.toSeq
+      )
   }
 
-  private def findGhcVersion(project: Project, ghcPath: String): GhcVersion = {
+  private def findGhcVersion(project: Project, ghcPath: Path): GhcVersion = {
     val output = CommandLine.run(project, ghcPath, Seq("--numeric-version"))
     GhcVersion.parse(output.getStdout.trim)
   }

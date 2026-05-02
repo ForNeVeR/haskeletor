@@ -23,7 +23,7 @@ class UpdateHaskellToolsAction extends AnAction {
   def actionPerformed(actionEvent: AnActionEvent): Unit = {
     Option(actionEvent.getProject).foreach(project => {
       HaskellNotificationGroup.logInfoEvent(project, "Updating Haskell Tools")
-      StackProjectManager.installHaskellTools(project, update = true)
+      StackProjectManager.launchInstallHaskellTools(project, update = true)
     })
   }
 }

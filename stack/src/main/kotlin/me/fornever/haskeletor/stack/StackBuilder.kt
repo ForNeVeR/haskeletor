@@ -10,9 +10,12 @@ package me.fornever.haskeletor.stack
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.coroutineToIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.NlsContexts
+import com.intellij.platform.ide.progress.runWithModalProgressBlocking
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -58,6 +61,29 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
         }
     }
 
+    fun buildTargetBlocking(
+        title: @NlsContexts.ModalProgressTitle String,
+        targetName: String,
+        buildArguments: List<String>,
+        finishingAction: (Boolean) -> Unit
+    ): Boolean =
+        runWithModalProgressBlocking(project, title) {
+            val success = StackCommand(
+                StackLocator.getInstance(project).locateStack() ?: run {
+                    logger.warn("Cannot locate Stack executable, build impossible.")
+                    return@runWithModalProgressBlocking false
+                },
+                StackCommand.defaultWorkingDir(project),
+                listOf("build", "--fast", "--progress-bar", "none", "--no-interleaved-output")
+                    + targetName
+                    + buildArguments
+            ).executeInBuildView(project, title)
+
+            finishingAction(success)
+
+            success
+        }
+
     private suspend fun build(
         title: @Nls(capitalization = Nls.Capitalization.Title) String,
         stackExecutable: Path,
@@ -86,3 +112,4 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
     )
 }
 
+private val logger = logger<StackBuilder>()

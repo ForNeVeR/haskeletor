@@ -16,6 +16,7 @@ import me.fornever.haskeletor.core.util.StringUtil.removePackageQualifier
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}
 
+import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 private[component] object LibraryPackageInfoComponent {
@@ -41,7 +42,7 @@ private[component] object LibraryPackageInfoComponent {
     val projectPackageNames = HaskellComponentsManager.findProjectModulePackageNames(project).map(_._2)
     val globalProjectInfo = HaskellComponentsManager.getGlobalProjectInfo(project)
 
-    val result = globalProjectInfo.map(info => CommandLine.run(project, info.ghcPkgPath,
+    val result = globalProjectInfo.map(info => CommandLine.run(project, Path.of(info.ghcPkgPath),
       Seq("dump",
         s"--package-db=${info.packageDbPaths.globalPackageDbPath}",
         s"--package-db=${info.packageDbPaths.snapshotPackageDbPath}",
@@ -76,10 +77,6 @@ private[component] object LibraryPackageInfoComponent {
       case result@Some(_) => result
       case _ => None
     }
-  }
-
-  def libraryPackageInfos(project: Project): Iterable[LibraryPackageInfo] = {
-    Cache.asMap().values.flatten
   }
 
   private def findPackageInfo(key: Key): Result = {

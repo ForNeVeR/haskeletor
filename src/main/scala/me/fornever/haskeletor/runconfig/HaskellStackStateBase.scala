@@ -12,8 +12,8 @@ import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.{CommandLineState, GeneralCommandLine}
 import com.intellij.execution.process.{KillableColoredProcessHandler, ProcessHandler, ProcessTerminatedListener}
 import com.intellij.execution.runners.ExecutionEnvironment
-import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.GlobalInfo
+import me.fornever.haskeletor.stack.StackLocator
 
 import scala.jdk.CollectionConverters._
 
@@ -22,11 +22,11 @@ class HaskellStackStateBase(val configuration: HaskellStackConfigurationBase, va
   protected def startProcess: ProcessHandler = {
     val project = configuration.getProject
 
-    HaskellSdkType.getStackPath(project) match {
+    Option(StackLocator.getInstance(project).locateStackBlocking()) match {
       case Some(stackPath) =>
         val stackArgs = configuration.getStackArgs
 
-        val commandLine = new GeneralCommandLine(stackPath)
+        val commandLine = new GeneralCommandLine(stackPath.toString)
           .withParameters(parameters.asJava)
           .withWorkDirectory(configuration.getWorkingDirPath)
           .withEnvironment(GlobalInfo.pathVariables)

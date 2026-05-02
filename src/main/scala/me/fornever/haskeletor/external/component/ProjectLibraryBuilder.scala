@@ -9,15 +9,15 @@
 package me.fornever.haskeletor.external.component
 
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.annotator.HaskellAnnotator
+import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
-import me.fornever.haskeletor.external.execution.StackCommandLine
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
+import me.fornever.haskeletor.stack.StackBuilder
 import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
 import java.util.concurrent.ConcurrentHashMap
@@ -64,53 +64,55 @@ object ProjectLibraryBuilder {
 
   private def build(project: Project, componentLibTargets: Set[ComponentTarget], libTargetsName: String): Unit = {
     buildStatus.put(project, Building(componentLibTargets))
+    try {
+      StackBuilder.getInstance(project)
+        .buildTargetBlocking(
+          HaskeletorBundle.message("build.project.title"),
+          libTargetsName,
+          // Forced `-Wwarn` otherwise build will fail in case of warnings and that will cause that REPLs of dependent
+          // targets will not start anymore:
+          Seq("--ghc-options", "-Wwarn").asJava,
+          buildResult => {
+            if (buildResult) {
+              val openFiles = FileEditorManager.getInstance(project).getOpenFiles.filter(HaskellFileUtil.isHaskellFile)
+              val openProjectFiles = openFiles.filter(vf => HaskellProjectUtil.isSourceFile(project, vf))
+              val openNonLibFiles = openProjectFiles.flatMap(file =>
+                HaskellComponentsManager.findComponentTarget(project, HaskellFileUtil.getAbsolutePath(file)) match {
+                  case Some(target) => Some((target, file))
+                  case None => None
+                }).filter(_._1.stanzaType != LibType)
 
-    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Building project", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+              val projectNonLibRepls = StackReplsManager.getRunningProjectRepls(project).filter(_.stanzaType != LibType)
+              projectNonLibRepls.foreach { repl =>
+                repl.restart()
+              }
 
-      def run(progressIndicator: ProgressIndicator): Unit = {
+              // When project is opened and has build errors some REPLs could not have been started
+              StackReplsManager.getReplsManager(project).foreach(_.projectReplTargets.filter(_.stanzaType == LibType).foreach { info =>
+                StackReplsManager.getProjectRepl(project, info).foreach { repl =>
+                  if (!repl.available && !repl.starting) {
+                    repl.start()
+                  }
+                }
+              })
 
-        val buildMessage = s"Building targets: " + libTargetsName
-        HaskellNotificationGroup.logInfoEvent(project, buildMessage)
-        progressIndicator.setText(buildMessage)
+              HaskellComponentsManager.invalidateBrowseInfo(project, componentLibTargets.flatMap(_.exposedModuleNames).toSeq)
+              componentLibTargets.foreach(target => target.exposedModuleNames.foreach(FileModuleIdentifiers.invalidate))
 
-        // Forced `-Wwarn` otherwise build will fail in case of warnings and that will cause that REPLs of dependent targets will not start anymore
-        val buildResult = StackCommandLine.buildInBackground(project, Seq(libTargetsName, "--ghc-options", "-Wwarn"))
-        if (buildResult.contains(true) && !project.isDisposed) {
-          val openFiles = FileEditorManager.getInstance(project).getOpenFiles.filter(HaskellFileUtil.isHaskellFile)
-          val openProjectFiles = openFiles.filter(vf => HaskellProjectUtil.isSourceFile(project, vf))
-          val openNonLibFiles = openProjectFiles.flatMap(file =>
-            HaskellComponentsManager.findComponentTarget(project, HaskellFileUtil.getAbsolutePath(file)) match {
-              case Some(target) => Some((target, file))
-              case None => None
-            }).filter(_._1.stanzaType != LibType)
-
-          val projectNonLibRepls = StackReplsManager.getRunningProjectRepls(project).filter(_.stanzaType != LibType)
-          projectNonLibRepls.foreach { repl =>
-            repl.restart()
-          }
-
-          // When project is opened and has build errors some REPLs could not have been started
-          StackReplsManager.getReplsManager(project).foreach(_.projectReplTargets.filter(_.stanzaType == LibType).foreach { info =>
-            StackReplsManager.getProjectRepl(project, info).foreach { repl =>
-              if (!repl.available && !repl.starting) {
-                repl.start()
+              openNonLibFiles.map(_._2).foreach { vf =>
+                HaskellFileUtil.convertToHaskellFileInReadAction(project, vf).toOption match {
+                  case Some(psiFile) =>
+                    HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
+                  case None => HaskellNotificationGroup.logInfoEvent(project, s"Could not invalidate cache and restart daemon analyzer for file ${vf.getName}")
+                }
               }
             }
-          })
 
-          HaskellComponentsManager.invalidateBrowseInfo(project, componentLibTargets.flatMap(_.exposedModuleNames).toSeq)
-          componentLibTargets.foreach(target => target.exposedModuleNames.foreach(FileModuleIdentifiers.invalidate))
-
-          openNonLibFiles.map(_._2).foreach { vf =>
-            HaskellFileUtil.convertToHaskellFileInReadAction(project, vf).toOption match {
-              case Some(psiFile) =>
-                HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
-              case None => HaskellNotificationGroup.logInfoEvent(project, s"Could not invalidate cache and restart daemon analyzer for file ${vf.getName}")
-            }
+            kotlin.Unit.INSTANCE
           }
-        }
-        buildStatus.remove(project)
-      }
-    })
+        )
+    } finally {
+      buildStatus.remove(project)
+    }
   }
 }

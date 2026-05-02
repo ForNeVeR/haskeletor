@@ -8,8 +8,9 @@
 
 package me.fornever.haskeletor.external.repl
 
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.cabal._
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
@@ -57,33 +58,39 @@ private[external] object StackReplsManager {
     repl
   }
 
-  private def createPackageInfos(project: Project): Iterable[(Module, PackageInfo)] = {
-    val modules = HaskellProjectUtil.findProjectHaskellModules(project)
-    val moduleDirs = modules.map(HaskellProjectUtil.getModuleDir)
-    if (moduleDirs.isEmpty) {
-      HaskellNotificationGroup.logWarningBalloonEvent(project, s"No Haskell modules found for project `${project.getName}`. Check your project configuration.")
-      Iterable()
-    } else {
-      val cabalFiles = for {
-        m <- modules
-        dir = HaskellProjectUtil.getModuleDir(m)
-        cf <- HaskellProjectUtil.findCabalFile(dir)
-        ci <- PackageInfo.create(project, cf)
-      } yield (m, ci)
-      if (cabalFiles.isEmpty) {
-        HaskellNotificationGroup.logWarningBalloonEvent(project, s"No Cabal files found for project `${project.getName}`. Check your project configuration.")
-      }
-      cabalFiles
+  private def createPackageInfos(project: Project): Iterable[PackageInfo] = {
+    val projectRoots = ProjectRootManager.getInstance(project).getContentRoots
+
+    val cabalFiles = for {
+      root <- projectRoots
+      cabalFile <- findCabalFilesInVfs(root)
+      ci <- PackageInfo.create(project, cabalFile.toNioPath.toFile)
+    } yield ci
+
+    if (cabalFiles.isEmpty) {
+      HaskellNotificationGroup.logWarningBalloonEvent(project, s"No Cabal files found for project `${project.getName}`. Check your project configuration.")
     }
+    cabalFiles
   }
 
-  private def createComponentTargets(moduleCabalInfos: Iterable[(Module, PackageInfo)]): Iterable[ComponentTarget] = {
+  private def findCabalFilesInVfs(root: VirtualFile): Seq[VirtualFile] = {
+    val result = scala.collection.mutable.ArrayBuffer[VirtualFile]()
+    VfsUtil.processFileRecursivelyWithoutIgnored(root, (file: VirtualFile) => {
+      if (!file.isDirectory && file.getName.endsWith(".cabal")) {
+        result += file
+      }
+      true
+    })
+    result.toSeq
+  }
+
+  private def createComponentTargets(moduleCabalInfos: Iterable[PackageInfo]): Iterable[ComponentTarget] = {
     moduleCabalInfos.flatMap {
-      case (m: Module, cabalInfo: PackageInfo) => cabalInfo.cabalStanzas.map {
-        case cs: LibraryCabalStanza => ComponentTarget(m, cs.modulePath, cs.packageName, cs.targetName, LibType, cs.sourceDirs, None, cs.isNoImplicitPreludeActive, cs.buildDepends, cs.exposedModuleNames)
-        case cs: ExecutableCabalStanza => ComponentTarget(m, cs.modulePath, cs.packageName, cs.targetName, ExeType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
-        case cs: TestSuiteCabalStanza => ComponentTarget(m, cs.modulePath, cs.packageName, cs.targetName, TestSuiteType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
-        case cs: BenchmarkCabalStanza => ComponentTarget(m, cs.modulePath, cs.packageName, cs.targetName, BenchmarkType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
+      case (cabalInfo: PackageInfo) => cabalInfo.cabalStanzas.map {
+        case cs: LibraryCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, LibType, cs.sourceDirs, None, cs.isNoImplicitPreludeActive, cs.buildDepends, cs.exposedModuleNames)
+        case cs: ExecutableCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, ExeType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
+        case cs: TestSuiteCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, TestSuiteType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
+        case cs: BenchmarkCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, BenchmarkType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
       }
     }
   }
@@ -96,7 +103,7 @@ private[external] class StackReplsManager(val project: Project) {
 
   private val startedTargetProjectRepls = new ConcurrentHashMap[ProjectReplTargets, ProjectStackRepl]().asScala
 
-  val modulePackageInfos: Iterable[(Module, PackageInfo)] = StackReplsManager.createPackageInfos(project)
+  val modulePackageInfos: Iterable[PackageInfo] = StackReplsManager.createPackageInfos(project)
 
   val componentTargets: Iterable[ComponentTarget] = StackReplsManager.createComponentTargets(modulePackageInfos)
 
