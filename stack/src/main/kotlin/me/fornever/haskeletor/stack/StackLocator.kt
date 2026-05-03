@@ -17,6 +17,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.withContext
 import me.fornever.haskeletor.core.HaskeletorBundle
+import me.fornever.haskeletor.settings.HaskellSettingsState
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 
@@ -30,7 +31,10 @@ class StackLocator(private val project: Project) {
 
     suspend fun locateStack(): Path? {
         fun loadFromCache(): Path? = TODO("Cache")
-        fun loadFromSettings(): Path? = TODO("Load from settings if overridden")
+        fun loadFromSettings(): Path? {
+            val opt = HaskellSettingsState.stackPath()
+            return if (opt.isDefined) Path.of(opt.get()) else null
+        }
         suspend fun loadFromPath(): Path? = withContext(Dispatchers.IO) {
             PathEnvironmentVariableUtil.findExecutableInPathOnAnyOS("stack")?.toPath()
         }

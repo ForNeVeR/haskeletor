@@ -8,12 +8,14 @@
 
 package me.fornever.haskeletor.settings
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.components.JBLabel
 import me.fornever.haskeletor.core.HaskeletorBundle
 
-import java.awt.{GridBagConstraints, GridBagLayout, Insets}
+import java.awt.{BorderLayout, GridBagConstraints, GridBagLayout, Insets}
 import javax.swing._
 import javax.swing.event.DocumentEvent
 
@@ -29,6 +31,7 @@ class HaskellConfigurable extends HaskellConfigurableBase {
   private val hooglePathField = new JTextField
   private val ormoluPathField = new JTextField
   private val stylishHaskellPathField = new JTextField
+  private val stackPathField = new JTextField
   private val useCustomToolsToggle = new JCheckBox
   private val extraStackArgumentsField = new JTextField
   private val defaultGhcOptionsField = new JTextField
@@ -75,6 +78,7 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     }
     extraStackArgumentsField.getDocument.addDocumentListener(docListener)
     defaultGhcOptionsField.getDocument.addDocumentListener(docListener)
+    stackPathField.getDocument.addDocumentListener(docListener)
 
     class SettingsGridBagConstraints extends GridBagConstraints {
 
@@ -113,8 +117,15 @@ class HaskellConfigurable extends HaskellConfigurableBase {
       ))
     }
 
+    val stackPathHintLabel = new JBLabel(AllIcons.General.Information)
+    stackPathHintLabel.setToolTipText(HaskeletorBundle.message("configurable.haskell.stack-path.hint"))
+    val stackPathPanel = new JPanel(new BorderLayout(5, 0))
+    stackPathPanel.add(stackPathField, BorderLayout.CENTER)
+    stackPathPanel.add(stackPathHintLabel, BorderLayout.EAST)
+
     val labeledControls = List(
       (new JLabel(DefaultGhcOptions), defaultGhcOptionsField),
+      (new JLabel(HaskeletorBundle.message("configurable.haskell.stack-path.label")), stackPathPanel: JComponent),
       (new JLabel(HlintOptions), hlintOptionsField),
       (new JLabel(ReplTimout), replTimeoutField),
       (new JLabel(ExtraStackArguments), extraStackArgumentsField),
@@ -168,6 +179,7 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     state.stylishHaskellPath = stylishHaskellPathField.getText
     state.customTools = useCustomToolsToggle.isSelected
     state.extraStackArguments = extraStackArgumentsField.getText
+    state.stackPath = stackPathField.getText
   }
 
   private def validateREPLTimeout(): Integer = {
@@ -224,6 +236,7 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     stylishHaskellPathField.setText(state.stylishHaskellPath)
     useCustomToolsToggle.setSelected(state.customTools)
     extraStackArgumentsField.setText(state.extraStackArguments)
+    stackPathField.setText(state.stackPath)
   }
 }
 

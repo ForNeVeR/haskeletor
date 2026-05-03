@@ -51,6 +51,7 @@ public class HaskellSettingsPersistentStateComponent implements PersistentStateC
         public String hooglePath = "";
         public String ormoluPath = "";
         public String stylishHaskellPath = "";
+        public String stackPath = "";
         public Boolean customTools = false;
         public String extraStackArguments = "";
         public String defaultGhcOptions = "-Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints";
