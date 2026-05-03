@@ -181,10 +181,6 @@
             <category>Haskell</category>
         </intentionAction>
 
-
-        <!-- Stack -->
-        <sdkType implementation="me.fornever.haskeletor.sdk.HaskellSdkType"/>
-
         <!-- Index -->
         <fileBasedIndex implementation="me.fornever.haskeletor.util.index.HaskellModuleNameIndex"/>
         <stubIndex implementation="me.fornever.haskeletor.psi.stubs.index.HaskellAllNameIndex"/>
@@ -210,7 +206,6 @@
         <!-- Notification -->
         <editorNotificationProvider
                 implementation="me.fornever.haskeletor.notification.ConfigFileWatcherNotificationProvider"/>
-        <projectSdkSetupValidator implementation="me.fornever.haskeletor.notification.HaskellProjectSdkSetupValidator"/>
 
         <!-- Mover -->
         <!--<statementUpDownMover implementation="me.fornever.haskeletor.editor.HaskellStatementMover"/>-->

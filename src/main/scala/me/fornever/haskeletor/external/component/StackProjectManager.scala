@@ -10,11 +10,10 @@ package me.fornever.haskeletor.external.component
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.application.{ApplicationManager, WriteAction}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -30,7 +29,6 @@ import me.fornever.haskeletor.notification.ConfigFileWatcher
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
-import me.fornever.haskeletor.sdk.HaskellSdkType
 import me.fornever.haskeletor.settings.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
 import me.fornever.haskeletor.settings.{GlobalInfo, HTool, HaskellSettingsState}
 import me.fornever.haskeletor.stack.{HaskellToolInstaller, StackBuilder}
@@ -410,8 +408,6 @@ class StackProjectManager(project: Project) extends ProjectComponent {
     if (HaskellProjectUtil.isHaskellProject(project)) {
       disableDefaultReformatAction()
 
-      fixSdkStackVersion()
-
       initStackReplsManager()
       if (replsManager.exists(_.componentTargets.isEmpty)) {
         Messages.showErrorDialog(project, s"Can't start project as no Cabal file was found (or could not be read)", "Can't start project")
@@ -428,17 +424,5 @@ class StackProjectManager(project: Project) extends ProjectComponent {
     // Overriding IntelliJ's default shortcut for formatting
     actionManager.unregisterAction("ReformatCode")
     actionManager.registerAction("ReformatCode", new HaskellReformatAction)
-  }
-
-  // Makes sure that after Stack is updated the right version is displayed.
-  private def fixSdkStackVersion(): Unit = {
-    val sdks = ProjectJdkTable.getInstance.getSdksOfType(HaskellSdkType.getInstance)
-    sdks.forEach { sdk =>
-      WriteAction.run(() => {
-        val sdkModificator = sdk.getSdkModificator
-        sdkModificator.setVersionString(HaskellSdkType.getInstance.getVersionString(sdk))
-        sdkModificator.commitChanges()
-      })
-    }
   }
 }

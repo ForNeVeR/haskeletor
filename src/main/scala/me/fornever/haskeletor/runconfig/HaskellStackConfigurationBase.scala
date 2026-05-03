@@ -11,9 +11,7 @@ package me.fornever.haskeletor.runconfig
 import com.intellij.execution.configurations.{ConfigurationFactory, ModuleBasedConfiguration, RunConfigurationModule, RuntimeConfigurationException}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.util.xmlb.XmlSerializer
-import me.fornever.haskeletor.sdk.HaskellSdkType
 import org.jdom.Element
 
 import scala.jdk.CollectionConverters._
@@ -42,10 +40,6 @@ abstract class HaskellStackConfigurationBase(name: String, project: Project, con
     val selectedModule = getConfigurationModule.getModule
     if (selectedModule == null)
       throw new RuntimeConfigurationException("Haskell module is not selected")
-
-    val projectSdk = ProjectRootManager.getInstance(getProject).getProjectSdk
-    if (projectSdk == null || (projectSdk.getSdkType ne HaskellSdkType.getInstance))
-      throw new RuntimeConfigurationException("Haskell Stack SDK is configured for the project")
   }
 
   def setWorkingDirPath(workingDirPath: String): Unit = {
