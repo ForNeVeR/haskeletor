@@ -26,7 +26,7 @@ import scala.jdk.CollectionConverters._
 class GotoByDeclarationContributor extends GotoClassContributor {
 
   override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
-    GotoHelper.getNames(project, includeNonProjectItems)
+    GotoHelper.getNames(project)
   }
 
   override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
@@ -54,7 +54,7 @@ class GotoByDeclarationContributor extends GotoClassContributor {
 class GotoByNameContributor extends ChooseByNameContributor {
 
   override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
-    GotoHelper.getNames(project, includeNonProjectItems)
+    GotoHelper.getNames(project)
   }
 
   override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
@@ -65,12 +65,8 @@ class GotoByNameContributor extends ChooseByNameContributor {
 
 private object GotoHelper {
 
-  def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
-    if (HaskellProjectUtil.isHaskellProject(project)) {
-      ArrayUtil.toStringArray(StubIndex.getInstance.getAllKeys(HaskellAllNameIndex.Key, project))
-    } else {
-      Array()
-    }
+  def getNames(project: Project): Array[String] = {
+    ArrayUtil.toStringArray(StubIndex.getInstance.getAllKeys(HaskellAllNameIndex.Key, project))
   }
 
   def getNamedElements(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Seq[HaskellNamedElement] = {

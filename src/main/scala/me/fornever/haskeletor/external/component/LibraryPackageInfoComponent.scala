@@ -39,7 +39,7 @@ private[component] object LibraryPackageInfoComponent {
   import scala.concurrent.duration._
 
   def preloadLibraryPackageInfos(project: Project): Unit = {
-    val projectPackageNames = HaskellComponentsManager.findProjectModulePackageNames(project).map(_._2)
+    val projectPackageNames = HaskellComponentsManager.findProjectModulePackageNames(project)
     val globalProjectInfo = HaskellComponentsManager.getGlobalProjectInfo(project)
 
     val result = globalProjectInfo.map(info => CommandLine.run(project, Path.of(info.ghcPkgPath),

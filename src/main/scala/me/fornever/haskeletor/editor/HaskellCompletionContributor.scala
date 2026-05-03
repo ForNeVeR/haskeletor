@@ -174,7 +174,7 @@ class HaskellCompletionContributor extends CompletionContributor {
           case Some(e) if isImportModuleDeclarationInProgress(e) =>
             // Do not give suggestions when defining import qualifier
             if (e.getParent.getNode.getElementType != HS_QUALIFIER) {
-              stackComponentInfo.foreach(info => resultSet.addAllElements(HaskellComponentsManager.findAvailableModuleNamesWithIndex(info).map(createModuleLookupElement).asJavaCollection))
+              stackComponentInfo.foreach(info => resultSet.addAllElements(HaskellComponentsManager.findAvailableModuleNamesWithIndex(project, info).map(createModuleLookupElement).asJavaCollection))
               resultSet.addAllElements(getInsideImportClausesLookupElements.asJavaCollection)
               resultSet.addElement(createKeywordLookupElement("import"))
             }
@@ -346,7 +346,7 @@ class HaskellCompletionContributor extends CompletionContributor {
   private def getGlobalInfo(psiFile: PsiFile): Option[(ComponentTarget, StackComponentGlobalInfo)] = {
     for {
       info <- HaskellComponentsManager.findStackComponentInfo(psiFile)
-      globalInfo <- HaskellComponentsManager.findStackComponentGlobalInfo(info)
+      globalInfo <- HaskellComponentsManager.findStackComponentGlobalInfo(psiFile.getProject, info)
     } yield (info, globalInfo)
   }
 

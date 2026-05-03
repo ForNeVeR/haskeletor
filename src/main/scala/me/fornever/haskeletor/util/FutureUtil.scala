@@ -27,7 +27,7 @@ object FutureUtil {
     }
   }
 
-  def waitForValue[T](project: Project, future: scala.concurrent.Future[T], actionDescription: String, timeoutInSeconds: Int = 5): Option[T] = {
+  def waitForValue[T](project: Project, future: scala.concurrent.Future[T], actionDescription: String, timeoutInSeconds: Int): Option[T] = {
     try {
       Option(Await.result(future, timeoutInSeconds.seconds))
     } catch {

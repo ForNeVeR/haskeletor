@@ -17,7 +17,7 @@ import me.fornever.haskeletor.external.component.HaskellComponentsManager.Compon
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleView
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil, ScalaFutureUtil, ScalaUtil}
+import me.fornever.haskeletor.util.{HaskellFileUtil, ScalaFutureUtil, ScalaUtil}
 
 import java.nio.file.Paths
 
@@ -104,7 +104,7 @@ private[component] object HaskellModuleInfoComponent {
         target match {
           case Some(_) => (target, message)
           case None =>
-            componentTargets.find(info => info.stanzaType == LibType && FileUtil.isAncestor(HaskellProjectUtil.getModuleDir(info.module).getAbsolutePath, filePath, true)) match {
+            componentTargets.find(info => info.stanzaType == LibType) match {
               case Some(target) => (Some(target), None)
               case None => val message = Some(s"Could not determine Stack target for file `$filePath` because no accompanying `hs-source-dirs` or `main-is` can be found in Cabal file(s)")
                 (None, message)

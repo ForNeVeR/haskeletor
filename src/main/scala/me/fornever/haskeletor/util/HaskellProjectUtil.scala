@@ -35,7 +35,7 @@ object HaskellProjectUtil {
     )
   }
 
-  def isValidHaskellProject(project: Project): Boolean = {
+  def isHaskellProject(project: Project): Boolean = {
     Option(StackLocator.getInstance(project)).isDefined
   }
 
@@ -74,20 +74,12 @@ object HaskellProjectUtil {
     }
   }
 
-  def findCabalFile(directory: File): Option[File] = {
-    directory.listFiles.find(_.getName.endsWith(".cabal"))
-  }
-
   def findStackFile(directory: File): Option[File] = {
     directory.listFiles.find(_.getName == "stack.yaml")
   }
 
   def findStackFile(project: Project): Option[File] = {
     findStackFile(new File(project.getBasePath))
-  }
-
-  private def findPackageFile(directory: File): Option[File] = {
-    directory.listFiles.find(_.getName == "package.yaml")
   }
 
   def getProjectSearchScope(project: Project): GlobalSearchScope = {
@@ -107,7 +99,7 @@ object HaskellProjectUtil {
   }
 
   def findProjectPackageNames(project: Project): Seq[String] = {
-    HaskellComponentsManager.findProjectModulePackageNames(project).map(_._2)
+    HaskellComponentsManager.findProjectModulePackageNames(project)
   }
 }
 

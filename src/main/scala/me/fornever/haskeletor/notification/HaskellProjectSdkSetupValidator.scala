@@ -19,7 +19,6 @@ import com.intellij.psi.PsiManager
 import com.intellij.ui.EditorNotificationPanel
 import me.fornever.haskeletor.core.HaskellLanguage
 import me.fornever.haskeletor.sdk.HaskellSdkType
-import me.fornever.haskeletor.util.HaskellProjectUtil
 
 object HaskellProjectSdkSetupValidator {
   final val Instance = new HaskellProjectSdkSetupValidator
@@ -33,10 +32,10 @@ class HaskellProjectSdkSetupValidator extends ProjectSdkSetupValidator {
   private final val Message = "Haskell SDK is not defined. Please setup Haskell SDK and then reopen project."
 
   override def isApplicableFor(project: Project, file: VirtualFile): Boolean = {
-    HaskellProjectUtil.isHaskellProject(project) && (Option(PsiManager.getInstance(project).findFile(file)) match {
+    Option(PsiManager.getInstance(project).findFile(file)) match {
       case Some(psiFile) => psiFile.getLanguage.isKindOf(HaskellLanguage.Instance)
       case _ => false
-    })
+    }
   }
 
   override def getErrorMessage(project: Project, file: VirtualFile): String = {

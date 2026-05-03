@@ -9,7 +9,6 @@
 package me.fornever.haskeletor.external.component
 
 import com.intellij.openapi.editor.SelectionModel
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.cabal.PackageInfo
@@ -64,16 +63,12 @@ object HaskellComponentsManager {
     NameInfoComponent.findNameInfo(psiElement)
   }
 
-  def findAvailableModuleNamesWithIndex(stackComponentInfo: ComponentTarget): Iterable[String] = {
-    AvailableModuleNamesComponent.findAvailableModuleNamesWithIndex(stackComponentInfo)
+  def findAvailableModuleNamesWithIndex(project: Project, stackComponentInfo: ComponentTarget): Iterable[String] = {
+    AvailableModuleNamesComponent.findAvailableModuleNamesWithIndex(project, stackComponentInfo)
   }
 
-  def findAvailableModuleLibraryModuleNamesWithIndex(module: Module): Iterable[String] = {
-    AvailableModuleNamesComponent.findAvailableModuleLibraryModuleNamesWithIndex(module)
-  }
-
-  def findStackComponentGlobalInfo(stackComponentInfo: ComponentTarget): Option[StackComponentGlobalInfo] = {
-    StackComponentGlobalInfoComponent.findStackComponentGlobalInfo(stackComponentInfo)
+  def findStackComponentGlobalInfo(project: Project, stackComponentInfo: ComponentTarget): Option[StackComponentGlobalInfo] = {
+    StackComponentGlobalInfoComponent.getInstance(project).findStackComponentGlobalInfo(stackComponentInfo)
   }
 
   def findStackComponentInfo(psiFile: PsiFile): Option[ComponentTarget] = {
@@ -145,7 +140,7 @@ object HaskellComponentsManager {
     LibraryPackageInfoComponent.invalidate(project)
     HaskellModuleNameIndex.invalidate(project)
     FileModuleIdentifiers.invalidateAll(project)
-    StackComponentGlobalInfoComponent.invalidate(project)
+    StackComponentGlobalInfoComponent.getInstance(project).invalidate()
     HaskellNotificationGroup.logInfoEvent(project, "Finished with invalidating cache")
   }
 
@@ -178,8 +173,8 @@ object HaskellComponentsManager {
   private def preloadStackComponentInfos(project: Project): Unit = {
     if (!project.isDisposed) {
       findStackComponentInfos(project).foreach { info =>
-        findStackComponentGlobalInfo(info)
-        val projectModuleNames = AvailableModuleNamesComponent.findAvailableProjectModuleNames(info)
+        findStackComponentGlobalInfo(project, info)
+        val projectModuleNames = AvailableModuleNamesComponent.findAvailableProjectModuleNames(project, info)
         HaskellModuleNameIndex.fillCache(project, projectModuleNames)
       }
     }
@@ -202,7 +197,7 @@ object HaskellComponentsManager {
           if (project.isDisposed) {
             Iterable()
           } else {
-            val packageInfos = componentInfos.flatMap(HaskellComponentsManager.findStackComponentGlobalInfo).flatMap(_.packageInfos)
+            val packageInfos = componentInfos.flatMap(info => HaskellComponentsManager.findStackComponentGlobalInfo(project, info)).flatMap(_.packageInfos)
 
             val exposedLibraryModuleNames = packageInfos.flatMap(_.exposedModuleNames).distinct
             val importDeclarations = ApplicationUtil.runReadActionWithFileAccess(project, HaskellPsiUtil.findImportDeclarations(f), "In preloadLibraryIdentifiers findImportDeclarations").toOption.getOrElse(Iterable())
@@ -225,7 +220,9 @@ object HaskellComponentsManager {
   private def preloadAllLibraryIdentifiers(project: Project): Unit = {
     if (!project.isDisposed) {
       val componentInfos = findStackComponentInfos(project)
-      val packageInfos = componentInfos.flatMap(info => findStackComponentGlobalInfo(info).map(_.packageInfos).getOrElse(Seq())).distinct
+      val packageInfos = componentInfos
+        .flatMap(info => findStackComponentGlobalInfo(project, info).map(_.packageInfos).getOrElse(Seq()))
+        .distinct
 
       if (!project.isDisposed) {
         if (StackReplsManager.getGlobalRepl(project).exists(_.available)) {

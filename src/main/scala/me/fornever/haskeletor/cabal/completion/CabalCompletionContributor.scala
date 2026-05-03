@@ -12,15 +12,13 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import me.fornever.haskeletor.cabal.lang.psi.impl.ExtensionsImpl
 import me.fornever.haskeletor.cabal.lang.psi.{BuildDepends, CabalPsiUtil, ExposedModules}
 import me.fornever.haskeletor.core.cabal.CabalLanguage
-import me.fornever.haskeletor.external.component.HaskellComponentsManager
+import me.fornever.haskeletor.external.component.AvailableModuleNamesComponent
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.{getAvailableStackagePackages, getSupportedLanguageExtension}
 import me.fornever.haskeletor.icons.HaskellIcons
-import me.fornever.haskeletor.util.HaskellProjectUtil
 
 import scala.jdk.CollectionConverters._
 
@@ -35,7 +33,7 @@ final class CabalCompletionContributor extends CompletionContributor {
       CabalPsiUtil.getFieldContext(position).foreach {
         case ei: ExtensionsImpl => result.addAllElements(filterExtensions(ei, project).asJavaCollection)
         case bd: BuildDepends => result.addAllElements(filterPackageNames(bd, project).asJavaCollection)
-        case em: ExposedModules => result.addAllElements(filterExposedModuleNames(em, position).asJavaCollection)
+        case em: ExposedModules => result.addAllElements(filterExposedModuleNames(project, em).asJavaCollection)
         case _ => ()
       }
     }
@@ -58,10 +56,9 @@ final class CabalCompletionContributor extends CompletionContributor {
     }
 
     // TODO Take into account stanza type, currently always project library module names are suggested.
-    private def filterExposedModuleNames(em: ExposedModules, position: PsiElement): Iterable[LookupElement] = {
+    private def filterExposedModuleNames(project: Project, em: ExposedModules): Iterable[LookupElement] = {
       val skipModuleNames = em.getModuleNames.toSet
-      val module = HaskellProjectUtil.findModule(position)
-      val moduleNames = module.map(HaskellComponentsManager.findAvailableModuleLibraryModuleNamesWithIndex).getOrElse(Iterable())
+      val moduleNames = AvailableModuleNamesComponent.findModuleNames(project)
       moduleNames
         .filterNot(skipModuleNames.contains)
         .map(n => LookupElementBuilder.create(n).withIcon(HaskellIcons.HaskellSmallBlueLogo))

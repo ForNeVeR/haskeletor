@@ -16,7 +16,7 @@ import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.{VFileContentChangeEvent, VFileEvent}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import me.fornever.haskeletor.external.component.StackProjectManager
-import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
+import me.fornever.haskeletor.util.HaskellProjectUtil
 
 import java.util
 import java.util.concurrent.ConcurrentHashMap
@@ -60,13 +60,18 @@ class ConfigFileWatcherNotificationProvider extends EditorNotifications.Provider
 
 class ConfigFileWatcher(project: Project, notifications: EditorNotifications) extends BulkFileListener {
 
-  private val watchFiles = HaskellProjectUtil.findStackFile(project).toIterable ++ HaskellProjectUtil.findCabalFiles(project) ++ HaskellProjectUtil.findPackageFiles(project)
+  private val watchFileNames = IndexedSeq("stack.yaml", "package.yaml")
+  private val watchFileExtensions = IndexedSeq("cabal")
 
   override def before(events: util.List[_ <: VFileEvent]): Unit = {}
 
   override def after(events: util.List[_ <: VFileEvent]): Unit = {
     if (!StackProjectManager.isInitializing(project)) {
-      if (events.asScala.exists(e => e.isInstanceOf[VFileContentChangeEvent] && !e.isFromRefresh && watchFiles.exists(_.getAbsolutePath == HaskellFileUtil.getAbsolutePath(e.getFile)))) {
+      if (events.asScala.exists(e =>
+        e.isInstanceOf[VFileContentChangeEvent]
+        && !e.isFromRefresh
+        && (watchFileNames.exists(e.getFile.getName.equalsIgnoreCase) || watchFileExtensions.exists(e.getFile.getExtension.equalsIgnoreCase))
+      )) {
         ConfigFileWatcherNotificationProvider.showNotificationsByProject.put(project, true)
         notifications.updateAllNotifications()
       }

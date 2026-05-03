@@ -152,7 +152,7 @@ object StackProjectManager {
   }
 
   private def init(project: Project, restart: Boolean = false): Unit = {
-    if (HaskellProjectUtil.isValidHaskellProject(project)) {
+    if (HaskellProjectUtil.isHaskellProject(project)) {
       if (isInitializing(project)) {
         HaskellNotificationGroup.logWarningBalloonEvent(project, "Action not possible whilst project is initializing")
       } else {
@@ -336,12 +336,11 @@ object StackProjectManager {
               HoogleComponent.showHoogleDatabaseDoesNotExistNotification(project)
             }
 
-            StackReplsManager.getReplsManager(project).foreach(_.modulePackageInfos.foreach { case (module, cabalInfo) =>
+            StackReplsManager.getReplsManager(project).foreach(_.modulePackageInfos.foreach { case (cabalInfo) =>
               val intersection = cabalInfo.sourceRoots.toSeq.intersect(cabalInfo.testSourceRoots.toSeq)
               if (intersection.nonEmpty) {
                 intersection.foreach(p => {
-                  val moduleName = module.getName
-                  HaskellNotificationGroup.logWarningBalloonEvent(project, s"Source folder `$p` of module `$moduleName` is defined both as Source and Test Source")
+                  HaskellNotificationGroup.logWarningBalloonEvent(project, s"Source folder `$p` is defined both as Source and Test Source")
                 })
               }
             })
@@ -397,7 +396,7 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   }
 
   override def projectClosed(): Unit = {
-    if (HaskellProjectUtil.isValidHaskellProject(project)) {
+    if (HaskellProjectUtil.isHaskellProject(project)) {
       replsManager.foreach(_.getGlobalRepl.exit())
       replsManager.foreach(_.getGlobalRepl2.exit())
       replsManager.foreach(_.getRunningProjectRepls.foreach(_.exit()))
@@ -408,7 +407,7 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   override def initComponent(): Unit = {}
 
   override def projectOpened(): Unit = {
-    if (HaskellProjectUtil.isValidHaskellProject(project)) {
+    if (HaskellProjectUtil.isHaskellProject(project)) {
       disableDefaultReformatAction()
 
       fixSdkStackVersion()
