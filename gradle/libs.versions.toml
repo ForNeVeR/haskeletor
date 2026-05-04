@@ -5,12 +5,17 @@
 [versions]
 intellij-gradle = "2.16.0"
 intellij-platform = "2026.1"
+junit = "6.0.3"
 kotlin = "2.3.20"
 scala = "2.13.18"
 
 [libraries]
 directories = { module = "io.github.soc:directories", version = "12" }
 fastparse = { module = "com.lihaoyi:fastparse_2.13", version = "3.1.1" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.9.2" }
+junit4 = "junit:junit:4.13.2"
 scaffeine = { module = "com.github.blemale:scaffeine_2.13", version = "5.3.0" }
 scala-library = { module = "org.scala-lang:scala-library", version.ref = "scala" }
 scalatest = { module = "org.scalatest:scalatest_2.13", version = "3.3.0-SNAP4" }

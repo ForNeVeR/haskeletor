@@ -192,7 +192,6 @@
                                  instance="me.fornever.haskeletor.settings.HaskellConfigurable"
                                  bundle="messages.HaskeletorBundle"
                                  key="configurable.haskell.title"/>
-        <applicationService serviceImplementation="me.fornever.haskeletor.settings.HaskellSettingsPersistentStateComponent"/>
         <lang.importOptimizer language="Haskell" implementationClass="me.fornever.haskeletor.editor.HaskellImportOptimizer"/>
 
         <!-- Module -->

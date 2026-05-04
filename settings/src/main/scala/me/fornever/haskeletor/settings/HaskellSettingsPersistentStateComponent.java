@@ -8,19 +8,17 @@
 
 package me.fornever.haskeletor.settings;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import org.jetbrains.annotations.NotNull;
 
+@Service(Service.Level.APP)
 @State(
         name = "HaskellConfiguration",
         storages = {
                 @Storage(file = "haskeletor.xml")
         }
 )
-public class HaskellSettingsPersistentStateComponent implements PersistentStateComponent<HaskellSettingsPersistentStateComponent.HaskellSettingsState> {
+public final class HaskellSettingsPersistentStateComponent implements PersistentStateComponent<HaskellSettingsPersistentStateComponent.HaskellSettingsState> {
 
     private HaskellSettingsState haskellSettingsState = new HaskellSettingsState();
 
@@ -39,7 +37,7 @@ public class HaskellSettingsPersistentStateComponent implements PersistentStateC
         this.haskellSettingsState = haskellSettingsState;
     }
 
-    static class HaskellSettingsState {
+    public static class HaskellSettingsState {
         public Integer replTimeout = 30;
         public String hlintOptions = "";
         public Boolean useSystemGhc = false;

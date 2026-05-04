@@ -11,6 +11,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.runWithModalProgressBlocking
+import com.intellij.util.text.nullize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -20,28 +21,46 @@ import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
-class StackLocator(private val project: Project) {
+class StackLocator(private val project: Project, private val environment: EnvironmentAccessor) {
+
+    constructor(project: Project) : this(project, EnvironmentAccessorImpl)
 
     companion object {
         @JvmStatic
         fun getInstance(project: Project): StackLocator = project.service()
     }
 
+    internal sealed class CacheState {
+        object NotCached : CacheState()
+        data class Cached(val settingValue: String?, val path: Path?) : CacheState()
+    }
+
+    @Volatile
+    internal var cacheState: CacheState = CacheState.NotCached
+
     suspend fun locateStack(): Path? {
-        fun loadFromCache(): Path? = TODO("Cache")
-        fun loadFromSettings(): Path? {
-            val opt = HaskellSettingsState.stackPath()
-            return if (opt.isDefined) Path.of(opt.get()) else null
-        }
         suspend fun loadFromPath(): Path? = withContext(Dispatchers.IO) {
-            PathEnvironmentVariableUtil.findExecutableInPathOnAnyOS("stack")?.toPath()
+            environment.findExecutableInPath("stack")
         }
 
-        return loadFromCache()
-            ?: loadFromSettings()
-            ?: loadFromPath()
+        val currentStackPathSetting = HaskellSettingsState.stackPath()
+            .map { it.trim() }
+            .getOrElse { "" }
+            .nullize()
+
+        val cache = cacheState
+        if (cache is CacheState.Cached && cache.settingValue == currentStackPathSetting) {
+            return cache.path
+        }
+
+        // Invalidate the cache:
+        val result = currentStackPathSetting?.let(::Path) ?: loadFromPath()
+        return result.also {
+            cacheState = CacheState.Cached(currentStackPathSetting, result)
+        }
     }
 
     fun locateStackBlocking(): Path? =
@@ -54,4 +73,13 @@ class StackLocator(private val project: Project) {
             locateStack()
         }.asCompletableFuture()
     }
+}
+
+interface EnvironmentAccessor {
+    fun findExecutableInPath(baseName: String): Path?
+}
+
+object EnvironmentAccessorImpl : EnvironmentAccessor {
+    override fun findExecutableInPath(baseName: String): Path? =
+        PathEnvironmentVariableUtil.findExecutableInPathOnAnyOS("stack")?.toPath()
 }
