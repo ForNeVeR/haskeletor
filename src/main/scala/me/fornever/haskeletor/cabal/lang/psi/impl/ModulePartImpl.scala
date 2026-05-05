@@ -10,15 +10,14 @@ package me.fornever.haskeletor.cabal.lang.psi.impl
 
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiFileFactory, PsiReference}
 import me.fornever.haskeletor.cabal.CabalFile
 import me.fornever.haskeletor.cabal.lang.psi._
 import me.fornever.haskeletor.core.cabal.CabalLanguage
 import me.fornever.haskeletor.psi.HaskellPsiUtil
+import me.fornever.haskeletor.util.ScalaUtil
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
-import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}
 
 import java.util.regex.Pattern
 
@@ -95,10 +94,6 @@ trait ModulePartImpl extends CabalNamedElementImpl {
   private def resolveToModuleDecl(): Option[PsiElement] = {
     // If the module part IS the last part, resolve to its file's module decl.
     val moduleName = getParent.getText
-    val scope = HaskellProjectUtil.findModule(this) match {
-      case Some(m) => GlobalSearchScope.moduleScope(m)
-      case None => GlobalSearchScopesCore.projectProductionScope(getProject)
-    }
     val haskellFile = HaskellModuleNameIndex.findFilesByModuleName(getProject, moduleName).toOption.flatMap(_.headOption)
     haskellFile.flatMap(f => HaskellPsiUtil.findModuleDeclaration(f).find(_.getModuleName.contains(moduleName)).flatMap(_.getIdentifierElements.headOption))
   }

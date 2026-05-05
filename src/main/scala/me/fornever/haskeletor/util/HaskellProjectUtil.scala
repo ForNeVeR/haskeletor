@@ -13,8 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
+import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.PathUtilRt
 import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
@@ -88,14 +88,6 @@ object HaskellProjectUtil {
 
   def getSearchScope(project: Project, includeNonProjectItems: Boolean): GlobalSearchScope = {
     if (includeNonProjectItems) getProjectSearchScope(project) else GlobalSearchScope.projectScope(project)
-  }
-
-  def findModule(psiElement: PsiElement): Option[Module] = {
-    Option(ModuleUtilCore.findModuleForPsiElement(psiElement))
-  }
-
-  def findModuleForFile(psiFile: PsiFile): Option[Module] = {
-    Option(ModuleUtilCore.findModuleForFile(psiFile))
   }
 
   def findProjectPackageNames(project: Project): Seq[String] = {
