@@ -21,7 +21,6 @@ import com.intellij.openapi.progress.runBlockingCancellable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.util.NlsContexts
-import com.intellij.platform.ide.progress.runWithModalProgressBlocking
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import me.fornever.haskeletor.core.HaskeletorBundle
@@ -96,7 +95,7 @@ class StackCommand(
         }.asCompletableFuture()
 
     fun readOutputBlocking(project: Project, title: @NlsContexts.ModalProgressTitle String): ProcessOutput =
-        runWithModalProgressBlocking(project, title) {
+        runBlockingCancellable {
             readOutput()
         }
 }
@@ -104,13 +103,15 @@ class StackCommand(
 internal suspend fun StackCommand.executeWithProgress(
     title: @Nls(capitalization = Nls.Capitalization.Title) String,
     additionalListeners: List<ProcessListener> = emptyList()
-): Int =
+): ProcessOutput =
     // TODO[#45]: We really want to call reportRawProgress here, but we cannot due to IJPL-243681.
     coroutineToIndicator { indicator ->
         runBlockingCancellable {
+            val listener = OutputToProgressIndicator(title, indicator)
             execute(
-                additionalListeners + OutputToProgressIndicator(title, indicator)
+                additionalListeners + listener
             )
+            listener.output
         }
     }
 
@@ -132,11 +133,12 @@ internal suspend fun StackCommand.executeInBuildView(
     onBuildStarted(buildViewManager, buildId, buildDescriptor)
 
     try {
-        val exitCode = executeWithProgress(
+        val processOutput = executeWithProgress(
             title,
             listOf(BuildViewProcessAdapter(buildViewManager, buildId))
         )
 
+        val exitCode = processOutput.exitCode
         if (exitCode == 0) {
             onBuildSucceeded(buildViewManager, buildId)
             return true

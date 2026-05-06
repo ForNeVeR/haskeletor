@@ -11,12 +11,10 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.runWithModalProgressBlocking
+import com.intellij.util.application
 import com.intellij.util.text.nullize
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
-import kotlinx.coroutines.withContext
 import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import java.nio.file.Path
@@ -64,8 +62,14 @@ class StackLocator(private val project: Project, private val environment: Enviro
     }
 
     fun locateStackBlocking(): Path? =
-        runWithModalProgressBlocking(project, HaskeletorBundle.message("common.progress.locating-stack")) {
-            locateStack()
+        if (application.isDispatchThread) {
+            runWithModalProgressBlocking(project, HaskeletorBundle.message("common.progress.locating-stack")) {
+                locateStack()
+            }
+        } else {
+            runBlocking {
+                locateStack()
+            }
         }
 
     fun locateStackAsFuture(coroutineScope: CoroutineScope): CompletableFuture<Path?> {

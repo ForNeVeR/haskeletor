@@ -23,6 +23,7 @@
 
     <depends optional="true"
              config-file="me.fornever.haskeletor.spellchecker.xml">com.intellij.modules.spellchecker</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- File types -->

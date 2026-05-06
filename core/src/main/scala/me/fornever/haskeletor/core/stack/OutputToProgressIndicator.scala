@@ -47,7 +47,11 @@ class OutputToProgressIndicator(@Nls title: String,
     if (ProcessOutputType.isStderr(outputType)) {
       parser.addText(event.getText)
     }
+    super.onTextAvailable(event, outputType)
   }
 
-  override def processTerminated(event: ProcessEvent): Unit = parser.finishProcess()
+  override def processTerminated(event: ProcessEvent): Unit = {
+    parser.finishProcess()
+    super.processTerminated(event)
+  }
 }

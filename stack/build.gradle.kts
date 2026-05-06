@@ -22,6 +22,8 @@ dependencies {
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
 
+        bundledPlugin("org.jetbrains.plugins.terminal")
+
         testFramework(TestFrameworkType.JUnit5)
         testFramework(TestFrameworkType.Platform)
     }

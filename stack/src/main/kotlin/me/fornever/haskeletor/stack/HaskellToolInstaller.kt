@@ -10,17 +10,16 @@ package me.fornever.haskeletor.stack
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import kotlinx.coroutines.*
-import kotlinx.coroutines.future.asCompletableFuture
 import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.settings.GlobalInfo
 import me.fornever.haskeletor.settings.HTool
 import me.fornever.haskeletor.settings.HaskellSettingsState
-import java.util.concurrent.CompletableFuture
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
@@ -79,16 +78,15 @@ class HaskellToolInstaller(private val project: Project, private val coroutineSc
                 "--no-interleaved-output"
             )
 
-            val result = StackCommand(
+            val processOutput = StackCommand(
                 StackLocator.getInstance(project).locateStack() ?: return,
                 StackCommand.defaultWorkingDir(project),
                 arguments,
                 addExtraArguments = false
             ).executeWithProgress(HaskeletorBundle.message("progress.installing-tool.title", tool.name()))
-            if (result != 0) {
-                HaskellNotificationGroup.logErrorBalloonEvent(
-                    project,
-                    HaskeletorBundle.message("notification.install-tool-failed.text", tool.name()))
+            if (processOutput.exitCode != 0) {
+                ToolInstallFailureBuildView.getInstance(project)
+                    .showFailure(tool.name(), processOutput.stderr)
             }
         }
 
@@ -124,8 +122,6 @@ class HaskellToolInstaller(private val project: Project, private val coroutineSc
             }
         }
     }
-
-    fun updateStackIndexAsFuture(): CompletableFuture<Unit> = coroutineScope.async {
-        updateStackIndex()
-    }.asCompletableFuture()
 }
+
+private val logger = logger<HaskellToolInstaller>()

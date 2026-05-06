@@ -20,7 +20,6 @@ import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.settings.GlobalInfo
 import me.fornever.haskeletor.stack.StackLocator
-import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 
 import java.io.File
 import scala.jdk.CollectionConverters._
@@ -45,8 +44,8 @@ object HaskellProjectUtil {
       false
     } else {
       val rootManager = ProjectRootManager.getInstance(project)
-      val sourceRoots = rootManager.getModuleSourceRoots(JavaModuleSourceRootTypes.SOURCES).asScala.toSet.asJava
-      VfsUtilCore.isUnder(virtualFile, sourceRoots)
+      val contentRoots = rootManager.getContentRoots.toSet.asJava
+      VfsUtilCore.isUnder(virtualFile, contentRoots)
     }
   }
 
