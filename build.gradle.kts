@@ -6,6 +6,7 @@
 
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.exceptions.MissingVersionException
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.models.ProductRelease
 import org.jetbrains.intellij.platform.gradle.tasks.GenerateLexerTask
@@ -187,6 +188,14 @@ tasks {
             into(pluginName)
         }
     }
+
+    @Suppress("unused") // Used externally to test Rider
+    val runRider by intellijPlatformTesting.runIde.registering {
+        type = IntelliJPlatformType.Rider
+        version = libs.versions.intellij.platform
+        useInstaller = false
+    }
+
     test {
         useJUnit()
         workingDir = project.projectDir
