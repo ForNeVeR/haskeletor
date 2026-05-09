@@ -19,6 +19,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.ui.EditorNotifications
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.core.HaskeletorBundle
@@ -26,6 +27,7 @@ import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.notification.ConfigFileWatcher
+import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
@@ -36,6 +38,7 @@ import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
 
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object StackProjectManager {
@@ -150,7 +153,7 @@ object StackProjectManager {
   }
 
   private def init(project: Project, restart: Boolean = false): Unit = {
-    if (HaskellProjectUtil.isHaskellProject(project)) {
+    if (HaskellProjectManager.getInstance(project).isHaskellProject.getValueOrNull == true) {
       if (isInitializing(project)) {
         HaskellNotificationGroup.logWarningBalloonEvent(project, "Action not possible whilst project is initializing")
       } else {
@@ -383,6 +386,9 @@ class StackProjectManager(project: Project) extends ProjectComponent {
 
   private val projectLibraryFileWatcher = new ProjectLibraryFileWatcher(project)
 
+  private val lifetimeDefinition = new LifetimeDefinition()
+  private def lifetime = lifetimeDefinition.getLifetime
+
   def getStackReplsManager: Option[StackReplsManager] = {
     replsManager
   }
@@ -392,7 +398,7 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   }
 
   override def projectClosed(): Unit = {
-    if (HaskellProjectUtil.isHaskellProject(project)) {
+    if (initialized.get()) {
       replsManager.foreach(_.getGlobalRepl.exit())
       replsManager.foreach(_.getGlobalRepl2.exit())
       replsManager.foreach(_.getRunningProjectRepls.foreach(_.exit()))
@@ -402,20 +408,32 @@ class StackProjectManager(project: Project) extends ProjectComponent {
 
   override def initComponent(): Unit = {}
 
-  override def projectOpened(): Unit = {
-    if (HaskellProjectUtil.isHaskellProject(project)) {
-      disableDefaultReformatAction()
+  private val initialized = new AtomicBoolean()
 
-      initStackReplsManager()
-      if (replsManager.exists(_.componentTargets.isEmpty)) {
-        Messages.showErrorDialog(project, s"Can't start project as no Cabal file was found (or could not be read)", "Can't start project")
-      } else {
-        StackProjectManager.start(project)
+  override def projectOpened(): Unit = {
+    HaskellProjectManager.getInstance(project).isHaskellProject.advise(lifetime, isHaskellProject => {
+      if (isHaskellProject && initialized.compareAndSet(false, true)) {
+        initializeOnce()
       }
+
+      kotlin.Unit.INSTANCE
+    })
+  }
+
+  private def initializeOnce(): Unit = {
+    disableDefaultReformatAction()
+
+    initStackReplsManager()
+    if (replsManager.exists(_.componentTargets.isEmpty)) {
+      Messages.showErrorDialog(project, s"Can't start project as no Cabal file was found (or could not be read)", "Can't start project")
+    } else {
+      StackProjectManager.start(project)
     }
   }
 
-  override def disposeComponent(): Unit = {}
+  override def disposeComponent(): Unit = {
+    lifetimeDefinition.terminate(true)
+  }
 
   private def disableDefaultReformatAction(): Unit = {
     val actionManager = ActionManager.getInstance

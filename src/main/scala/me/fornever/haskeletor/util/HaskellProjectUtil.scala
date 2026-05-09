@@ -18,8 +18,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.PathUtilRt
 import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
+import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.settings.GlobalInfo
-import me.fornever.haskeletor.stack.StackLocator
 
 import java.io.File
 import scala.jdk.CollectionConverters._
@@ -35,7 +35,7 @@ object HaskellProjectUtil {
   }
 
   def isHaskellProject(project: Project): Boolean = {
-    Option(StackLocator.getInstance(project).locateStackBlocking()).isDefined
+    HaskellProjectManager.getInstance(project).isHaskellProject.getValueOrNull == true
   }
 
   def isSourceFile(project: Project, virtualFile: VirtualFile): Boolean = {

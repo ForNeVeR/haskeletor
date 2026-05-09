@@ -7,6 +7,7 @@
 package me.fornever.haskeletor.projectmodel
 
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -26,6 +27,11 @@ import kotlin.io.path.pathString
 
 @Service(Service.Level.PROJECT)
 class HaskellProjectManager(private val project: Project) {
+
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): HaskellProjectManager = project.service()
+    }
 
     private val _configFiles = mutableSetOf<Path>()
     private val _configFilesLock = Any()
