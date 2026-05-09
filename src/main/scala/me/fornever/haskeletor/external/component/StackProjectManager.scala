@@ -343,8 +343,6 @@ object StackProjectManager {
               }
             })
             HaskellNotificationGroup.logInfoEvent(project, "Finished initializing Haskell project")
-
-            kotlin.Unit.INSTANCE
           }
         )
       }

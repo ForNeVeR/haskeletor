@@ -30,7 +30,7 @@ class GotoByDeclarationContributor extends GotoClassContributor {
   }
 
   override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
-    val namedElements = GotoHelper.getNamedElements(name, pattern, project, includeNonProjectItems)
+    val namedElements = GotoHelper.getNamedElements(pattern, project, includeNonProjectItems)
     namedElements.flatMap(ne => HaskellPsiUtil.findHighestDeclarationElement(ne)).toArray
   }
 
@@ -58,7 +58,7 @@ class GotoByNameContributor extends ChooseByNameContributor {
   }
 
   override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
-    val namedElements = GotoHelper.getNamedElements(name, pattern, project, includeNonProjectItems)
+    val namedElements = GotoHelper.getNamedElements(pattern, project, includeNonProjectItems)
     namedElements.toArray
   }
 }
@@ -66,10 +66,14 @@ class GotoByNameContributor extends ChooseByNameContributor {
 private object GotoHelper {
 
   def getNames(project: Project): Array[String] = {
-    ArrayUtil.toStringArray(StubIndex.getInstance.getAllKeys(HaskellAllNameIndex.Key, project))
+    if (HaskellProjectUtil.isHaskellProject(project)) {
+      ArrayUtil.toStringArray(StubIndex.getInstance.getAllKeys(HaskellAllNameIndex.Key, project))
+    } else {
+      Array.empty
+    }
   }
 
-  def getNamedElements(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Seq[HaskellNamedElement] = {
+  def getNamedElements(pattern: String, project: Project, includeNonProjectItems: Boolean): Seq[HaskellNamedElement] = {
     val searchScope = HaskellProjectUtil.getSearchScope(project, includeNonProjectItems)
     val result = ListBuffer[String]()
     val re = pattern.toLowerCase.flatMap(c => StringUtil.escapeToRegexp(c.toString) + ".*")

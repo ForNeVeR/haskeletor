@@ -10,7 +10,6 @@ package me.fornever.haskeletor.external.component
 
 import com.github.blemale.scaffeine.{LoadingCache, Scaffeine}
 import com.intellij.openapi.project.Project
-import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.project.{GhcVersion, GlobalProjectInfo, PackageDbPaths, ProjectBinPaths}
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.stack.{StackCommand, StackLocator}
@@ -79,7 +78,7 @@ object GlobalProjectInfoComponent {
           StackCommand.defaultWorkingDir(project),
           Seq("path").asJava,
           false
-        ).readOutputBlocking(project, HaskeletorBundle.message("common.progress.loading-path"))
+        ).readOutputBlocking()
           .getStdoutLines.asScala.toSeq
       )
   }

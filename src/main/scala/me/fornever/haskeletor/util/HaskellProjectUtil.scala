@@ -35,7 +35,7 @@ object HaskellProjectUtil {
   }
 
   def isHaskellProject(project: Project): Boolean = {
-    Option(StackLocator.getInstance(project)).isDefined
+    Option(StackLocator.getInstance(project).locateStackBlocking()).isDefined
   }
 
   def isSourceFile(project: Project, virtualFile: VirtualFile): Boolean = {
