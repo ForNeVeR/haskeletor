@@ -6,7 +6,7 @@
 intellij-gradle = "2.14.0"
 intellij-platform = "2026.1"
 kotlin = "2.3.20"
-scala = "2.13.14"
+scala = "2.13.18"
 
 [libraries]
 directories = { module = "io.github.soc:directories", version = "12" }
