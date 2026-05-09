@@ -14,7 +14,7 @@ directories = { module = "io.github.soc:directories", version = "12" }
 fastparse = { module = "com.lihaoyi:fastparse_2.13", version = "3.1.1" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.14.4" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "6.0.3" }
 junit4 = "junit:junit:4.13.2"
 scaffeine = { module = "com.github.blemale:scaffeine_2.13", version = "5.3.0" }
 scala-library = { module = "org.scala-lang:scala-library", version.ref = "scala" }
