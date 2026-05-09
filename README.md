@@ -43,26 +43,15 @@ Usage
 -----
 
 ### Prerequisites
-- Install the latest version of [Stack](https://github.com/commercialhaskell/stack); use `stack upgrade` to confirm you are on the latest version.
+- Obtain the latest version of [Stack](https://github.com/commercialhaskell/stack).
+  - The recommended installation is via [GHCup][ghcup].
 
 ### Importing An Existing Project
-1. Open your project folder in an IntelliJ-based IDE. It will import all the source files under a default module kind.
-2. Go to the **Project Structure** dialog.
-3. Make sure you have set up a Haskell SDK on **Platform Settings** → **SDKs** page.
+By default, Haskeletor will use the `stack` executable in the `PATH`.
 
-   If there's no Haskell SDK set yet, press the **+** button, choose **Add Stack executable from disk** and enter a path to your `stack` or `stack.exe` file.
+If you have `stack` somewhere else, you can specify its path in the IDE **Settings**. See the **Languages and Frameworks → Haskell** page: if required, set up the **Stack path** to the custom executable.
 
-   ![Haskell SDK setup][images.haskell-sdk]
-4. Choose this SDK as the default for the project on the **Project Settings** → **Project** page.
-
-   ![Default Haskell SDK][images.project-sdk]
-5. Go to the **Modules** page.
-6. Delete the root module of default kind (the one with the name of the project) and create a new **Haskell** module for the project.
-   1. Press the **+** button.
-   2. Choose **New Module**.
-   3. In the dialog that appears, choose **Haskell module**. Set up the content root as the project folder. The module name is not important, choose anything (e.g. the project folder name).
-7. After all set, you might need to reopen the project in the IDE.
-8. Haskeletor will compile the project and set up the required tools on startup.
+When set up, open your project folder in an IntelliJ-based IDE. It will import all the source files under a default module kind. It is expected that all the setup actions will be performed automatically.
 
 ### Remarks
 1. IntelliJ's Build action is not (yet) implemented. Project is built when the project is opened and when needed, e.g. when library code is changed and the user navigates to test code;
@@ -136,9 +125,8 @@ Copyright holders:
 [docs.contributing]: CONTRIBUTING.md
 [docs.license]: LICENSE.txt
 [docs.maintaining]: MAINTAINING.md
+[ghcup]: https://www.haskell.org/ghcup/
 [image.logo]: logo/icon_intellij_haskell_32.png
-[images.haskell-sdk]: docs/haskell-sdk.png
-[images.project-sdk]: docs/project-sdk.png
 [marketplace.plugin]: https://plugins.jetbrains.com/plugin/31233-haskeletor
 [releases]: https://github.com/ForNeVeR/haskeletor/releases
 [reuse.spec]: https://reuse.software/spec-3.3/
