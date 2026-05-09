@@ -8,6 +8,9 @@
 /.gradle/
 /.intellijPlatform/
 
+# Gradle Kotlin daemon
+/.kotlin/
+
 build/
 
 # IDE
