@@ -10,6 +10,7 @@ package me.fornever.haskeletor.notification
 
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
@@ -71,6 +72,7 @@ class ConfigFileWatcher(project: Project, notifications: EditorNotifications) ex
         e.isInstanceOf[VFileContentChangeEvent]
         && !e.isFromRefresh
         && (watchFileNames.exists(e.getFile.getName.equalsIgnoreCase) || watchFileExtensions.exists(e.getFile.getExtension.equalsIgnoreCase))
+        && ProjectFileIndex.getInstance(project).isInContent(e.getFile)
       )) {
         ConfigFileWatcherNotificationProvider.showNotificationsByProject.put(project, true)
         notifications.updateAllNotifications()

@@ -23,6 +23,7 @@ import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import org.jetbrains.annotations.Nls
 import java.nio.file.Path
+import java.util.function.Consumer
 
 @Service(Service.Level.PROJECT)
 class StackBuilder(private val project: Project, private val coroutineScope: CoroutineScope) {
@@ -35,7 +36,7 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
     fun launchBuildWorkflow(
         libraryTargets: () -> List<String>,
         ghcOptions: () -> List<String>,
-        finishingAction: (ProgressIndicator) -> Unit
+        finishingAction: Consumer<ProgressIndicator>
     ) {
         coroutineScope.launch {
             val stackExecutable = StackLocator.getInstance(project).locateStack() ?: return@launch
@@ -56,7 +57,7 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
                     HaskellNotificationGroup.logErrorBalloonEvent(project, HaskeletorBundle.message("notification.dependencies-failed.text"))
                 }
 
-                coroutineToIndicator(finishingAction)
+                coroutineToIndicator(finishingAction::accept)
             }
         }
     }
@@ -65,7 +66,7 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
         title: @NlsContexts.ModalProgressTitle String,
         targetName: String,
         buildArguments: List<String>,
-        finishingAction: (Boolean) -> Unit
+        finishingAction: Consumer<Boolean>
     ): Boolean =
         runWithModalProgressBlocking(project, title) {
             val success = StackCommand(
@@ -79,7 +80,7 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
                     + buildArguments
             ).executeInBuildView(project, title)
 
-            finishingAction(success)
+            finishingAction.accept(success)
 
             success
         }

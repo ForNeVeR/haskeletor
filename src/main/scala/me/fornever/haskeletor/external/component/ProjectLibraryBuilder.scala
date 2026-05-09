@@ -107,8 +107,6 @@ object ProjectLibraryBuilder {
                 }
               }
             }
-
-            kotlin.Unit.INSTANCE
           }
         )
     } finally {

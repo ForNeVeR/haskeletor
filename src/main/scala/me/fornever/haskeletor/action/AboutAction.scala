@@ -18,6 +18,7 @@ import me.fornever.haskeletor.stack.{StackCommand, StackLocator}
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.FutureConverters.CompletionStageOps
 
@@ -40,22 +41,24 @@ class AboutAction extends AnAction {
       import scala.concurrent.ExecutionContext.Implicits.global
 
       val futureResult = for {
-        stack <- StackLocator.getInstance(project).locateStackAsFuture(ProjectScope.get(project)).asScala
-        command = new StackCommand(
+        stack <- StackLocator.getInstance(project).locateStackAsFuture(ProjectScope.get(project)).asScala.map(Option(_))
+        command = stack.map(stack => new StackCommand(
           stack,
           StackCommand.defaultWorkingDir(project),
           IndexedSeq("--numeric-version").asJava,
           false
-        )
-        versionOutput <- command.readOutputAsFuture(ProjectScope.get(project)).asScala
+        ))
+        versionOutput <- command.map(_.readOutputAsFuture(ProjectScope.get(project)).asScala.map(Some)).getOrElse(Future.successful(None))
       } yield versionOutput
 
       futureResult.foreach { versionOutput =>
         ApplicationManager.getApplication.invokeLater(() => {
           val messages = new ArrayBuffer[String]
-          val version = versionOutput.getStdout.trim
-          val printedVersion = if (version.isEmpty) "-" else version
-          messages.+=(s"${boldToolName("Stack")} version: " + printedVersion)
+          val version = versionOutput.map(_.getStdout.trim) match {
+            case Some(value) if value.nonEmpty => value
+            case None => "-"
+          }
+          messages.+=(s"${boldToolName("Stack")} version: " + version)
           messages.+=(s"${boldToolName("GHC")}: " + HaskellComponentsManager.getGhcVersion(project).map(_.prettyString).getOrElse("-") + "\n")
           messages.+=(s"${boldToolName("HLint")}: " + HLintComponent.versionInfo(project))
           messages.+=(s"${boldToolName("Hoogle")}: " + HoogleComponent.versionInfo(project))

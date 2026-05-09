@@ -20,7 +20,6 @@ import com.intellij.openapi.progress.coroutineToIndicator
 import com.intellij.openapi.progress.runBlockingCancellable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.util.NlsContexts
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import me.fornever.haskeletor.core.HaskeletorBundle
@@ -94,7 +93,7 @@ class StackCommand(
             readOutput()
         }.asCompletableFuture()
 
-    fun readOutputBlocking(project: Project, title: @NlsContexts.ModalProgressTitle String): ProcessOutput =
+    fun readOutputBlocking(): ProcessOutput =
         runBlockingCancellable {
             readOutput()
         }

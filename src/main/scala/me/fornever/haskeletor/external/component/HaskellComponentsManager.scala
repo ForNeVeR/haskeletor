@@ -96,11 +96,11 @@ object HaskellComponentsManager {
   }
 
   def findProjectPackageNames(project: Project): Option[Iterable[String]] = {
-    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map { case ci => ci.packageName })
+    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map(_.packageName))
   }
 
   def findCabalInfos(project: Project): Iterable[PackageInfo] = {
-    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos.map { case ci => ci }).getOrElse(Iterable())
+    StackReplsManager.getReplsManager(project).map(_.modulePackageInfos).getOrElse(Iterable())
   }
 
   def loadHaskellFile(psiFile: PsiFile, fileModified: Boolean): Option[CompilationResult] = {

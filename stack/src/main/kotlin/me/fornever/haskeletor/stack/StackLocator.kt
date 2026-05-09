@@ -85,5 +85,5 @@ interface EnvironmentAccessor {
 
 object EnvironmentAccessorImpl : EnvironmentAccessor {
     override fun findExecutableInPath(baseName: String): Path? =
-        PathEnvironmentVariableUtil.findExecutableInPathOnAnyOS("stack")?.toPath()
+        PathEnvironmentVariableUtil.findExecutableInPathOnAnyOS(baseName)?.toPath()
 }
