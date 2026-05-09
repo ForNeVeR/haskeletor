@@ -13,12 +13,10 @@ The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the REA
 ### Removed
 - **Import Project** functionality (was tied too tightly to IntelliJ IDEA).
 - **Haskell Problems** view. The errors and warnings have been migrated to the main IntelliJ **Problems View**.
-
-### Fixed
-- Incorrect SDK path setup on Windows (`Illegal char <:> at index 6: Some(…)`).
+- Haskell SDK and Haskell module configuration. The project configuration is now determined automatically, no manual SDK and module setup required.
 
 ### Added
-- Compatibility with many other IntelliJ-based IDEs (basically, everything except Rider and CLion, since these two don't have the project structure dialog).
+- Compatibility with many other IntelliJ-based IDEs.
 
 ## [1.0.1] - 2026-04-18
 ### Fixed
