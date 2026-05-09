@@ -6,7 +6,7 @@
   ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<idea-plugin require-restart="true">
+<idea-plugin>
     <id>me.fornever.haskeletor</id>
     <name>Haskeletor</name>
     <vendor email="friedrich@fornever.me">Friedrich von Never</vendor>
