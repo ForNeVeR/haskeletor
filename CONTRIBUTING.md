@@ -41,9 +41,14 @@ $ ./gradlew check
 
 Local Deployment
 ----------------
-To run the development version of the plugin, execute the following shell command:
+To run the development version of the plugin in IntelliJ IDEA, execute the following shell command:
 ```console
 $ ./gradlew runIde
+```
+
+We also have a configuration to run Rider:
+```console
+$ ./gradlew runRider
 ```
 
 If you want to install the locally-built plugin to your IDE, execute the following shell command:
