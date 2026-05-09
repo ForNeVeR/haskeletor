@@ -1,12 +1,6 @@
 #!/bin/sh
 
 #
-# SPDX-FileCopyrightText: 2026 haskeletor contributors <https://github.com/ForNeVeR/haskeletor>
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
-#
 # Copyright © 2015 the original authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +57,7 @@
 #       Darwin, MinGW, and NonStop.
 #
 #   (3) This script is generated from the Groovy template
-#       https://github.com/gradle/gradle/blob/2d6327017519d23b96af35865dc997fcb544fb40/platforms/jvm/plugins-application/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
+#       https://github.com/gradle/gradle/blob/3d91ce3b8caaf77ad09f381f43615b715b53f72c/platforms/jvm/plugins-application/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
 #       within the Gradle project.
 #
 #       You can find Gradle at https://github.com/gradle/gradle/.
@@ -136,7 +130,7 @@ if [ "$darwin" = "true" ]; then
         JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-macos-jdk.tar.gz
         JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-aarch64-macos-jdk-61fa25
         ;;
-    *)
+    *) 
         die "Unknown architecture $JVM_ARCH"
         ;;
     esac
@@ -154,7 +148,7 @@ else
             JVM_URL=https://corretto.aws/downloads/latest/amazon-corretto-17-aarch64-linux-jdk.tar.gz
             JVM_TARGET_DIR=$BUILD_DIR/amazon-corretto-17-aarch64-linux-jdk-11b11b
             ;;
-        *)
+        *) 
             die "Unknown architecture $JVM_ARCH"
             ;;
         esac
@@ -189,7 +183,7 @@ else
     *".zip") unzip "$JVM_TEMP_FILE" -d "$JVM_TARGET_DIR" ;;
     *) tar -x -f "$JVM_TEMP_FILE" -C "$JVM_TARGET_DIR" ;;
   esac
-
+  
   rm -f "$JVM_TEMP_FILE"
 
   echo "$JVM_URL" >"$JVM_TARGET_DIR/.flag"
