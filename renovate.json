@@ -5,14 +5,16 @@
     ],
     "automerge": true,
     "automergeType": "branch",
-    "customManagers": [
+    "packageRules": [
         {
             "matchPackagePatterns": [
                 "org.jetbrains.kotlin.jvm"
             ],
             "enabled": false,
             "description": "Kotlin is managed by intellij-updater."
-        },
+        }
+    ],
+    "customManagers": [
         {
             "description": "Update the F# script packages.",
             "customType": "regex",
