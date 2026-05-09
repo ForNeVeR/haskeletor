@@ -7,11 +7,11 @@
     "automergeType": "branch",
     "packageRules": [
         {
-            "matchPackagePatterns": [
-                "org.jetbrains.kotlin.jvm"
-            ],
             "enabled": false,
-            "description": "Kotlin is managed by intellij-updater."
+            "description": "Kotlin is managed by intellij-updater.",
+            "matchPackageNames": [
+                "/org.jetbrains.kotlin.jvm/"
+            ]
         }
     ],
     "customManagers": [
