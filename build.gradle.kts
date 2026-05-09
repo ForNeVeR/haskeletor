@@ -56,6 +56,7 @@ dependencies {
         intellijIdea(libs.versions.intellij.platform)
 
         pluginComposedModule(implementation(project(":core")))
+        pluginComposedModule(implementation(project(":projectModel")))
         pluginComposedModule(implementation(project(":settings")))
         pluginComposedModule(implementation(project(":spellchecker")))
         pluginComposedModule(implementation(project(":stack")))
