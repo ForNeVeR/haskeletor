@@ -8,14 +8,12 @@
 
 package me.fornever.haskeletor.util
 
-import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.PathUtilRt
 import me.fornever.haskeletor.core.project.GhcVersion
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.projectmodel.HaskellProjectManager
@@ -62,15 +60,6 @@ object HaskellProjectUtil {
 
   def getProjectLibrarySourcesDirectory(project: Project): File = {
     new File(GlobalInfo.getLibrarySourcesPath, project.getName)
-  }
-
-  def getModuleDir(module: Module): File = {
-    val path = ModuleUtilCore.getModuleDirPath(module)
-    val dir = new File(path)
-    dir.getName match {
-      case ".idea" => new File(PathUtilRt.getParentPath(path))
-      case _ => dir
-    }
   }
 
   def findStackFile(directory: File): Option[File] = {

@@ -13,7 +13,6 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.FileUtil
@@ -122,10 +121,6 @@ object HaskellFileUtil {
 
   def makeFilePathAbsolute(filePath: String, project: Project): String = {
     makeFilePathAbsolute(filePath, project.getBasePath)
-  }
-
-  def makeFilePathAbsolute(filePath: String, module: Module): String = {
-    makeFilePathAbsolute(filePath, HaskellProjectUtil.getModuleDir(module).getAbsolutePath)
   }
 
   def makeFilePathAbsolute(filePath: Path, project: Project): Path = {
