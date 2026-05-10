@@ -18,6 +18,7 @@ import me.fornever.haskeletor.stack.StackLocator
 import me.fornever.haskeletor.util.{HaskellEditorUtil, HaskellProjectUtil}
 
 import java.io._
+import java.nio.file.Path
 import java.util.concurrent.LinkedBlockingQueue
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
@@ -25,7 +26,12 @@ import scala.io._
 import scala.jdk.CollectionConverters._
 import scala.sys.process._
 
-abstract class StackRepl(project: Project, projectReplTargets: Option[ProjectReplTargets], extraReplOptions: Seq[String] = Seq(), replTimeout: Int, ghcOptions: Seq[String] = Seq()) {
+abstract class StackRepl(project: Project,
+                         workingDirectory: Path,
+                         projectReplTargets: Option[ProjectReplTargets],
+                         extraReplOptions: Seq[String] = Seq(),
+                         replTimeout: Int,
+                         ghcOptions: Seq[String] = Seq()) {
 
   private val stanzaType = projectReplTargets.map(_.stanzaType)
 
@@ -227,7 +233,7 @@ abstract class StackRepl(project: Project, projectReplTargets: Option[ProjectRep
 
           logInfo(s"REPL will be started with command: $command")
 
-          val processBuilder = Process(command, new File(project.getBasePath), GlobalInfo.pathVariables.asScala.toSeq: _*)
+          val processBuilder = Process(command, workingDirectory.toFile, GlobalInfo.pathVariables.asScala.toSeq: _*)
 
           stdoutQueue.clear()
           stderrQueue.clear()

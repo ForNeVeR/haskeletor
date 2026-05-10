@@ -12,10 +12,20 @@ import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.external.repl.StackRepl.StackReplOutput
 import me.fornever.haskeletor.util.ScalaFutureUtil
 
+import java.nio.file.Path
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 
-case class GlobalStackRepl(project: Project, replTimeout: Int) extends StackRepl(project, None, Seq("--no-package-hiding", "--no-load"), replTimeout) {
+case class GlobalStackRepl(project: Project,
+                           workingDirectory: Path,
+                           replTimeout: Int)
+  extends StackRepl(
+    project,
+    workingDirectory,
+    None,
+    Seq("--no-package-hiding", "--no-load"),
+    replTimeout
+  ) {
 
   @volatile
   private[this] var loadedModuleName: Option[String] = None

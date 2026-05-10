@@ -20,6 +20,7 @@ import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.util._
 
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
@@ -70,8 +71,8 @@ private[external] object StackReplsManager {
   }
 
   private def createComponentTargets(moduleCabalInfos: Iterable[PackageInfo]): Iterable[ComponentTarget] = {
-    moduleCabalInfos.flatMap {
-      case (cabalInfo: PackageInfo) => cabalInfo.cabalStanzas.map {
+    moduleCabalInfos.flatMap { cabalInfo =>
+      cabalInfo.cabalStanzas.map {
         case cs: LibraryCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, LibType, cs.sourceDirs, None, cs.isNoImplicitPreludeActive, cs.buildDepends, cs.exposedModuleNames)
         case cs: ExecutableCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, ExeType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
         case cs: TestSuiteCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, TestSuiteType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
@@ -81,10 +82,10 @@ private[external] object StackReplsManager {
   }
 }
 
-private[external] class StackReplsManager(val project: Project) {
+private[external] class StackReplsManager(val project: Project, workingDirectory: Path) {
 
-  private val globalRepl: GlobalStackRepl = GlobalStackRepl(project, HaskellSettingsState.getReplTimeout)
-  private val globalRepl2: GlobalStackRepl = GlobalStackRepl(project, HaskellSettingsState.getReplTimeout)
+  private val globalRepl= GlobalStackRepl(project, workingDirectory, HaskellSettingsState.getReplTimeout)
+  private val globalRepl2 = GlobalStackRepl(project, workingDirectory, HaskellSettingsState.getReplTimeout)
 
   private val startedTargetProjectRepls = new ConcurrentHashMap[ProjectReplTargets, ProjectStackRepl]().asScala
 
@@ -112,7 +113,7 @@ private[external] class StackReplsManager(val project: Project) {
 
   def getGlobalRepl2: GlobalStackRepl = globalRepl2
 
-  def findProjectReplTargets(componentTarget: ComponentTarget): Option[ProjectReplTargets] = {
+  private def findProjectReplTargets(componentTarget: ComponentTarget): Option[ProjectReplTargets] = {
     projectReplTargets.find(_.targets.contains(componentTarget))
   }
 
@@ -147,7 +148,7 @@ private[external] class StackReplsManager(val project: Project) {
   }
 
   private def createAndStartProjectRepl(targets: ProjectReplTargets): ProjectStackRepl = {
-    val repl = new ProjectStackRepl(project, targets, HaskellSettingsState.getReplTimeout)
+    val repl = new ProjectStackRepl(project, workingDirectory, targets, HaskellSettingsState.getReplTimeout)
     if (!project.isDisposed) {
       repl.start()
     }

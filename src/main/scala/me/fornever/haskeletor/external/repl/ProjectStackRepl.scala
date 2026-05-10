@@ -17,11 +17,23 @@ import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.util.{HaskellFileUtil, ScalaFutureUtil}
 
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.{Future, blocking}
 import scala.jdk.CollectionConverters._
 
-case class ProjectStackRepl(project: Project, projectReplTargets: ProjectReplTargets, replTimeout: Int) extends StackRepl(project, Some(projectReplTargets), Seq(), replTimeout: Int, HaskellSettingsState.getDefaultGhcOptions) {
+case class ProjectStackRepl(project: Project,
+                            workingDirectory: Path,
+                            projectReplTargets: ProjectReplTargets,
+                            replTimeout: Int)
+  extends StackRepl(
+    project,
+    workingDirectory,
+    Some(projectReplTargets),
+    Seq(),
+    replTimeout: Int,
+    HaskellSettingsState.getDefaultGhcOptions
+  ) {
 
   import me.fornever.haskeletor.external.repl.ProjectStackRepl._
 

@@ -12,6 +12,7 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
@@ -38,8 +39,9 @@ import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
 
+import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object StackProjectManager {
 
@@ -81,14 +83,19 @@ object StackProjectManager {
     getStackProjectManager(project).exists(_.preloadingAllLibraryIdentifiers)
   }
 
-  def start(project: Project): Unit = {
-    init(project)
+  private def start(project: Project, workingDirectory: Path): Unit = {
+    init(project, workingDirectory)
   }
 
   def restart(project: Project): Unit = {
     HaskellFileUtil.saveFiles(project)
 
-    init(project, restart = true)
+    val workingDirectory = findWorkingDirectory(project)
+    if (workingDirectory.isEmpty) {
+      logger.error("Stack working directory cannot be determined for project " + project.getName)
+      return
+    }
+    init(project, workingDirectory.get, restart = true)
   }
 
   def getStackProjectManager(project: Project): Option[StackProjectManager] = {
@@ -152,8 +159,9 @@ object StackProjectManager {
     }
   }
 
-  private def init(project: Project, restart: Boolean = false): Unit = {
-    if (HaskellProjectManager.getInstance(project).isHaskellProject.getValueOrNull == true) {
+  private def init(project: Project, workingDirectory: Path, restart: Boolean = false): Unit = {
+    val haskellProjectManager = HaskellProjectManager.getInstance(project)
+    if (haskellProjectManager.isHaskellProject.getValueOrNull == true) {
       if (isInitializing(project)) {
         HaskellNotificationGroup.logWarningBalloonEvent(project, "Action not possible whilst project is initializing")
       } else {
@@ -173,6 +181,7 @@ object StackProjectManager {
         }
 
         StackBuilder.getInstance(project).launchBuildWorkflow(
+          workingDirectory,
           () => HaskellComponentsManager.findStackComponentInfos(project)
             .filter(_.stanzaType == LibType)
             .map(_.target)
@@ -191,7 +200,7 @@ object StackProjectManager {
                 HaskellComponentsManager.invalidateGlobalCaches(project)
 
                 ApplicationManager.getApplication.runReadAction(ScalaUtil.runnable {
-                  getStackProjectManager(project).foreach(_.initStackReplsManager())
+                  getStackProjectManager(project).foreach(_.initStackReplsManager(workingDirectory))
                 })
               }
 
@@ -351,6 +360,28 @@ object StackProjectManager {
       }
     }
   }
+
+  private def findWorkingDirectory(project: Project): Option[Path] = {
+    val stackFiles = HaskellProjectManager.getInstance(project).findStackFiles().asScala
+    val workingDirectories = stackFiles
+      .flatMap(it => Option(it.getParent))
+      .distinct
+      .toIndexedSeq
+    workingDirectories.size match {
+      case 0 =>
+        StackProjectManager.logger.warn("Stack working directory cannot be determined for project " + project.getName)
+        None
+      case 1 => Some(workingDirectories.head)
+      case _ =>
+        StackProjectManager.logger.warn(
+          s"Multiple stack working directories found for project ${project.getName}:" +
+            s" ${workingDirectories.mkString(", ")}"
+        )
+        Some(workingDirectories.head)
+    }
+  }
+
+  private val logger = Logger.getInstance(this.getClass)
 }
 
 class StackProjectManager(project: Project) extends ProjectComponent {
@@ -393,8 +424,8 @@ class StackProjectManager(project: Project) extends ProjectComponent {
     replsManager
   }
 
-  def initStackReplsManager(): Unit = {
-    replsManager = Option(new StackReplsManager(project))
+  private def initStackReplsManager(workingDirectory: Path): Unit = {
+    replsManager = Option(new StackReplsManager(project, workingDirectory))
   }
 
   override def projectClosed(): Unit = {
@@ -425,11 +456,19 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   private def initializeOnce(): Unit = {
     disableDefaultReformatAction()
 
-    initStackReplsManager()
-    if (replsManager.exists(_.componentTargets.isEmpty)) {
-      Messages.showErrorDialog(project, s"Can't start project as no Cabal file was found (or could not be read)", "Can't start project")
-    } else {
-      StackProjectManager.start(project)
+    StackProjectManager.findWorkingDirectory(project) match {
+      case Some(workingDirectory) =>
+        initStackReplsManager(workingDirectory)
+        if (replsManager.exists(_.componentTargets.isEmpty)) {
+          Messages.showErrorDialog(
+            project,
+            s"Can't start project as no Cabal file was found (or could not be read)",
+            "Can't start project"
+          )
+        } else {
+          StackProjectManager.start(project, workingDirectory)
+        }
+      case None =>
     }
   }
 
