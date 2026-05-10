@@ -34,6 +34,7 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
     }
 
     fun launchBuildWorkflow(
+        workingDirectory: Path,
         libraryTargets: () -> List<String>,
         ghcOptions: () -> List<String>,
         finishingAction: Consumer<ProgressIndicator>
@@ -43,13 +44,14 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
             withBackgroundProgress(project, HaskeletorBundle.message("workflow.build-project-with-dependencies.title")) {
                 val ghcOptions = ghcOptions().asSequence()
 
-                val dependencyBuildStatus = buildDependenciesInBuildView(stackExecutable, ghcOptions)
+                val dependencyBuildStatus = buildDependenciesInBuildView(stackExecutable, workingDirectory, ghcOptions)
 
                 if (dependencyBuildStatus) {
                     val projectLibTargets = libraryTargets()
                     build(
                         HaskeletorBundle.message("build.project-libraries.title"),
                         stackExecutable,
+                        workingDirectory,
                         projectLibTargets.asSequence(),
                         ghcOptions
                     )
@@ -88,12 +90,13 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
     private suspend fun build(
         title: @Nls(capitalization = Nls.Capitalization.Title) String,
         stackExecutable: Path,
+        workingDirectory: Path,
         buildArguments: Sequence<String>,
         ghcOptions: Sequence<String>
     ) =
         StackCommand(
             stackExecutable,
-            StackCommand.defaultWorkingDir(project),
+            workingDirectory,
             listOf("build", "--fast", "--progress-bar", "full", "--no-interleaved-output")
                 + buildArguments
                 + ghcOptions
@@ -104,10 +107,12 @@ class StackBuilder(private val project: Project, private val coroutineScope: Cor
 
     private suspend fun buildDependenciesInBuildView(
         stackExecutable: Path,
+        workingDirectory: Path,
         ghcOptions: Sequence<String>
     ) = build(
         HaskeletorBundle.message("build.project-dependencies.title"),
         stackExecutable,
+        workingDirectory,
         sequenceOf("--test", "--bench", "--no-run-tests", "--no-run-benchmarks", "--only-dependencies"),
         ghcOptions
     )

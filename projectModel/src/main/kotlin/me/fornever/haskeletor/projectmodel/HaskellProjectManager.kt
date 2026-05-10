@@ -48,8 +48,17 @@ class HaskellProjectManager(private val project: Project) {
 
     private val _isHaskellProject = OptProperty<Boolean>()
 
+    // We could do better than just compare with ignoreCase, but it's the simplest cross-platform solution
+    // available so far.
+    private fun isStackFile(path: Path) = path.name.equals("stack.yaml", ignoreCase = true)
+    private fun isCabalFile(path: Path) = path.extension.equals("cabal", ignoreCase = true)
+
+    fun findStackFiles(): List<Path> = synchronized(_configFilesLock) {
+        _configFiles.filter(::isStackFile)
+    }
+
     fun findCabalFiles(): List<Path> = synchronized(_configFilesLock) {
-        _configFiles.filter { it.extension.equals("cabal", ignoreCase = true) }
+        _configFiles.filter(::isCabalFile)
     }
 
     /**
@@ -133,10 +142,7 @@ class HaskellProjectManager(private val project: Project) {
     }
 
     private fun isConfigFile(path: Path): Boolean {
-        // We could do better than just compare with ignoreCase, but it's the simplest cross-platform solution
-        // available so far.
-        return path.extension.equals("cabal", ignoreCase = true)
-            || path.name.equals("stack.yaml", ignoreCase = true)
+        return isStackFile(path) || isCabalFile(path)
     }
 
     private fun processConfigFile(file: VirtualFile, exists: Boolean) {
