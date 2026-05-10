@@ -413,7 +413,9 @@ class StackProjectManager(project: Project) extends ProjectComponent {
   override def projectOpened(): Unit = {
     HaskellProjectManager.getInstance(project).isHaskellProject.advise(lifetime, isHaskellProject => {
       if (isHaskellProject && initialized.compareAndSet(false, true)) {
-        initializeOnce()
+        ApplicationManager.getApplication.invokeLater(() => {
+          initializeOnce()
+        })
       }
 
       kotlin.Unit.INSTANCE
