@@ -48,6 +48,10 @@ class HaskellProjectManager(private val project: Project) {
 
     private val _isHaskellProject = OptProperty<Boolean>()
 
+    fun findCabalFiles(): List<Path> = synchronized(_configFilesLock) {
+        _configFiles.filter { it.extension.equals("cabal", ignoreCase = true) }
+    }
+
     /**
      * A Haskell project is a project that contains at least one `.cabal` or `stack.yaml` file under its content roots.
      */
