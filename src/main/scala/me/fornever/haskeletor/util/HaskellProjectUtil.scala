@@ -44,7 +44,7 @@ object HaskellProjectUtil {
       false
     } else {
       val rootManager = ProjectRootManager.getInstance(project)
-      val contentRoots = rootManager.getContentRoots.toSet.asJava
+      val contentRoots = rootManager.getContentRootsFromAllModules.toSet.asJava
       VfsUtilCore.isUnder(virtualFile, contentRoots)
     }
   }
