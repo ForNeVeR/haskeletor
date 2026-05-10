@@ -302,8 +302,7 @@
         <group id="HaskellMenu" text="Haskell" description="Haskell Tools" icon="me.fornever.haskeletor.icons.HaskellIcons.HaskellLogo"
                keep-content="true">
             <action id="Haskell.RestartStackRepl" class="me.fornever.haskeletor.action.RestartStackReplsAction"
-                    text="Update Settings and restart REPLs"
-                    description="Update Module Settings and restart REPLs">
+                    text="Update Settings and restart REPLs">
             </action>
 
             <action id="Haskell.BuildHoogleDatabase" class="me.fornever.haskeletor.action.BuildHoogleDbAction"
