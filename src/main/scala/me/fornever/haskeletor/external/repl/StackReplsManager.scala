@@ -9,8 +9,6 @@
 package me.fornever.haskeletor.external.repl
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.cabal._
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
@@ -18,6 +16,7 @@ import me.fornever.haskeletor.external.component.HaskellComponentsManager.Compon
 import me.fornever.haskeletor.external.component.{HaskellComponentsManager, StackProjectManager}
 import me.fornever.haskeletor.external.repl.StackRepl._
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
+import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.settings.HaskellSettingsState
 import me.fornever.haskeletor.util._
 
@@ -59,29 +58,15 @@ private[external] object StackReplsManager {
   }
 
   private def createPackageInfos(project: Project): Iterable[PackageInfo] = {
-    val projectRoots = ProjectRootManager.getInstance(project).getContentRoots
-
     val cabalFiles = for {
-      root <- projectRoots
-      cabalFile <- findCabalFilesInVfs(root)
-      ci <- PackageInfo.create(project, cabalFile.toNioPath.toFile)
+      cabalFile <- HaskellProjectManager.getInstance(project).findCabalFiles().asScala
+      ci <- PackageInfo.create(project, cabalFile.toFile)
     } yield ci
 
     if (cabalFiles.isEmpty) {
       HaskellNotificationGroup.logWarningBalloonEvent(project, s"No Cabal files found for project `${project.getName}`. Check your project configuration.")
     }
     cabalFiles
-  }
-
-  private def findCabalFilesInVfs(root: VirtualFile): Seq[VirtualFile] = {
-    val result = scala.collection.mutable.ArrayBuffer[VirtualFile]()
-    VfsUtil.processFileRecursivelyWithoutIgnored(root, (file: VirtualFile) => {
-      if (!file.isDirectory && file.getName.endsWith(".cabal")) {
-        result += file
-      }
-      true
-    })
-    result.toSeq
   }
 
   private def createComponentTargets(moduleCabalInfos: Iterable[PackageInfo]): Iterable[ComponentTarget] = {
