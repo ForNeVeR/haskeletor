@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.ModuleRootEvent
 import com.intellij.openapi.roots.ModuleRootListener
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListenerBackgroundable
@@ -93,23 +94,14 @@ class HaskellProjectManager(private val project: Project) {
 
     private fun findConfigFiles(directory: VirtualFile): List<VirtualFile> {
         val result = mutableListOf<VirtualFile>()
-        if (!directory.isDirectory) return result
-
-        val queue = ArrayDeque<VirtualFile>()
-        queue.add(directory)
-
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            if (!current.isDirectory) continue
-
-            for (child in current.children) {
-                if (child.isDirectory) {
-                    queue.add(child)
-                } else if (child.name.equals("stack.yaml", ignoreCase = true)) {
-                    result.add(child)
-                }
+        VfsUtil.processFileRecursivelyWithoutIgnored(directory) {
+            if (isConfigFile(it.toNioPath())) {
+                result.add(it)
             }
+
+            true
         }
+
         return result
     }
 
