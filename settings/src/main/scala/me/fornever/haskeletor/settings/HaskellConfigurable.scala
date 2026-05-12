@@ -30,7 +30,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
   private val hlintPathField = new JTextField
   private val hooglePathField = new JTextField
   private val ormoluPathField = new JTextField
-  private val stylishHaskellPathField = new JTextField
   private val stackPathField = new JTextField
   private val useCustomToolsToggle = new JCheckBox
   private val extraStackArgumentsField = new JTextField
@@ -48,7 +47,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
       val visible = useCustomToolsToggle.isSelected
       hlintPathField.setVisible(visible)
       hooglePathField.setVisible(visible)
-      stylishHaskellPathField.setVisible(visible)
       ormoluPathField.setVisible(visible)
     }
 
@@ -68,7 +66,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     hlintPathField.getDocument.addDocumentListener(docListener)
     hooglePathField.getDocument.addDocumentListener(docListener)
     ormoluPathField.getDocument.addDocumentListener(docListener)
-    stylishHaskellPathField.getDocument.addDocumentListener(docListener)
     useSystemGhcToggle.addChangeListener { _ =>
       isModifiedByUser = true
     }
@@ -137,7 +134,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
       (new JLabel(HlintPath), hlintPathField),
       (new JLabel(HooglePath), hooglePathField),
       (new JLabel(OrmoluPath), ormoluPathField),
-      (new JLabel(StylishHaskellPath), stylishHaskellPathField),
       (new JLabel(""), afterRestartLabel)
     )
 
@@ -176,7 +172,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     state.hlintPath = hlintPathField.getText
     state.hooglePath = hooglePathField.getText
     state.ormoluPath = ormoluPathField.getText
-    state.stylishHaskellPath = stylishHaskellPathField.getText
     state.customTools = useCustomToolsToggle.isSelected
     state.extraStackArguments = extraStackArgumentsField.getText
     state.stackPath = stackPathField.getText
@@ -213,7 +208,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
       checkFileExists(hlintPathField.getText)
       checkFileExists(hooglePathField.getText)
       checkFileExists(ormoluPathField.getText)
-      checkFileExists(stylishHaskellPathField.getText)
     }
   }
 
@@ -233,7 +227,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     hlintPathField.setText(state.hlintPath)
     hooglePathField.setText(state.hooglePath)
     ormoluPathField.setText(state.ormoluPath)
-    stylishHaskellPathField.setText(state.stylishHaskellPath)
     useCustomToolsToggle.setSelected(state.customTools)
     extraStackArgumentsField.setText(state.extraStackArguments)
     stackPathField.setText(state.stackPath)
@@ -249,7 +242,6 @@ object HaskellConfigurable {
   final val BuildToolsUsingSystemGhc = "Build tools using system GHC *"
   final val HlintPath = "Hlint path"
   final val HooglePath = "Hoogle path"
-  final val StylishHaskellPath = "Stylish Haskell path"
   final val OrmoluPath = "Ormolu path"
   final val UseCustomTool = "Use custom Haskell tools *"
   final val CustomToolPathWarning =

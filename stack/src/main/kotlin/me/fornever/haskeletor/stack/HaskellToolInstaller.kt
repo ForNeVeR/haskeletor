@@ -10,7 +10,6 @@ package me.fornever.haskeletor.stack
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.platform.ide.progress.withBackgroundProgress
@@ -52,8 +51,7 @@ class HaskellToolInstaller(private val project: Project, private val coroutineSc
         val tools = listOf(
             HTool.`Hlint$`.`MODULE$`,
             HTool.`Hoogle$`.`MODULE$`,
-            HTool.`Ormolu$`.`MODULE$`,
-            HTool.`StylishHaskell$`.`MODULE$`,
+            HTool.`Ormolu$`.`MODULE$`
         )
 
         suspend fun toolInstalled(tool: HTool): Boolean =
@@ -123,5 +121,3 @@ class HaskellToolInstaller(private val project: Project, private val coroutineSc
         }
     }
 }
-
-private val logger = logger<HaskellToolInstaller>()

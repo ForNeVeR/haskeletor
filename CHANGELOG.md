@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the REA
 - **Import Project** functionality (was tied too tightly to IntelliJ IDEA).
 - **Haskell Problems** view. The errors and warnings have been migrated to the main IntelliJ **Problems View**.
 - Haskell SDK and Haskell module configuration. The project configuration is now determined automatically, no manual SDK and module setup required.
+- Formatting using stylish-haskell: since we are moving towards HLS anyway, there are no plans to support installation of tools not supported by the older LTS.
 
 ### Added
 - Compatibility with many other IntelliJ-based IDEs.
