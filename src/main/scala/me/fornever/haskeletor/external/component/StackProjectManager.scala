@@ -32,7 +32,7 @@ import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
-import me.fornever.haskeletor.settings.HTool.{Hlint, Hoogle, Ormolu, StylishHaskell}
+import me.fornever.haskeletor.settings.HTool.{Hlint, Hoogle, Ormolu}
 import me.fornever.haskeletor.settings.{GlobalInfo, HTool, HaskellSettingsState}
 import me.fornever.haskeletor.stack.{HaskellToolInstaller, StackBuilder}
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
@@ -57,10 +57,6 @@ object StackProjectManager {
 
   def isHlintAvailable(project: Project): Option[String] = {
     getStackProjectManager(project).flatMap(_.hlintAvailable)
-  }
-
-  def isStylishHaskellAvailable(project: Project): Option[String] = {
-    getStackProjectManager(project).flatMap(_.stylishHaskellAvailable)
   }
 
   def isOrmoluAvailable(project: Project): Option[String] = {
@@ -115,7 +111,6 @@ object StackProjectManager {
           case Hlint => HaskellSettingsState.hlintPath
           case Hoogle => HaskellSettingsState.hooglePath
           case Ormolu => HaskellSettingsState.ormoluPath
-          case StylishHaskell => HaskellSettingsState.stylishHaskellPath
         }
       } else {
         if (GlobalInfo.toolPath(tool).exists()) {
@@ -142,8 +137,6 @@ object StackProjectManager {
           getStackProjectManager(project).foreach(_.hlintAvailable = isToolAvailable(HTool.Hlint))
 
           getStackProjectManager(project).foreach(_.hoogleAvailable = isToolAvailable(HTool.Hoogle))
-
-          getStackProjectManager(project).foreach(_.stylishHaskellAvailable = isToolAvailable(HTool.StylishHaskell))
 
           getStackProjectManager(project).foreach(_.ormoluAvailable = isToolAvailable(HTool.Ormolu))
         },
@@ -176,7 +169,6 @@ object StackProjectManager {
           getStackProjectManager(project).foreach(_.hlintAvailable = None)
           getStackProjectManager(project).foreach(_.hoogleAvailable = None)
           getStackProjectManager(project).foreach(_.ormoluAvailable = None)
-          getStackProjectManager(project).foreach(_.stylishHaskellAvailable = None)
           launchInstallHaskellTools(project, update = false)
         }
 
@@ -396,9 +388,6 @@ class StackProjectManager(project: Project) extends ProjectComponent {
 
   @volatile
   private var hlintAvailable: Option[String] = None
-
-  @volatile
-  private var stylishHaskellAvailable: Option[String] = None
 
   @volatile
   private var ormoluAvailable: Option[String] = None

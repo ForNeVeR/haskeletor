@@ -331,13 +331,6 @@
                 <keyboard-shortcut first-keystroke="ctrl alt SEMICOLON" keymap="$default"/>
             </action>
 
-            <action id="Haskell.StylishHaskellFormat"
-                    class="me.fornever.haskeletor.action.StylishHaskellReformatAction"
-                    text="Reformat Code by Stylish-Haskell"
-                    description="Reformat current file by Stylish-Haskell">
-                <keyboard-shortcut first-keystroke="ctrl alt u" keymap="$default"/>
-            </action>
-
             <add-to-group group-id="CodeMenu" anchor="last"/>
         </group>
 

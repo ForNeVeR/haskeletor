@@ -88,7 +88,7 @@ Plugin Features
 - Show error action to view formatted messages. Useful in case message consists of multiple lines (Ctrl-F10, Meta-F10 on Mac OSX);
 - Intention actions to add language extension (depends on compiler error), add top-level type signature (depends on compiler warning);
 - Intention action to select which module to import if the identifier is not in scope;
-- Default code formatting by `ormolu`. Alternatively by `stylish-Haskell`.
+- Code formatting by `ormolu`.
 - Code completion for project module names, language extensions, and package names in Cabal file;
 - Running REPL, tests, and executables via `Run Configurations`;
 - Smart code completion on typed holes (since GHC 8.4);
