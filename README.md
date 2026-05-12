@@ -51,7 +51,7 @@ By default, Haskeletor will use the `stack` executable in the `PATH`.
 
 If you have `stack` somewhere else, you can specify its path in the IDE **Settings**. See the **Languages and Frameworks → Haskell** page: if required, set up the **Stack path** to the custom executable.
 
-When set up, open your project folder in an IntelliJ-based IDE. It will import all the source files under a default module kind. It is expected that all the setup actions will be performed automatically.
+When set up, open your project folder in an IntelliJ-based IDE. It is expected that all the setup actions will be performed automatically. You will see several progress bars (can take several minutes for initial one-time setup); afterward, the project will be ready to use: you'll see code highlighting and completion in `.hs` files.
 
 ### Remarks
 1. IntelliJ's Build action is not (yet) implemented. Project is built when the project is opened and when needed, e.g. when library code is changed and the user navigates to test code;
