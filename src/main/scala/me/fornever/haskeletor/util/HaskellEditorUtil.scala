@@ -51,15 +51,15 @@ object HaskellEditorUtil {
     }
 
     val dataContext = actionEvent.getDataContext
-    val psiFile = CommonDataKeys.PSI_FILE.getData(dataContext)
-    if (HaskellProjectUtil.isHaskellProject(psiFile.getProject)) {
-      psiFile match {
-        case _: HaskellFile if !onlyForSourceFile => enable()
-        case _: HaskellFile if onlyForSourceFile && HaskellProjectUtil.isSourceFile(psiFile) => enable()
-        case _ => disable()
-      }
-    } else {
-      disable()
+    val psiFile = Option(CommonDataKeys.PSI_FILE.getData(dataContext))
+    psiFile match {
+      case Some(psiFile: HaskellFile) if HaskellProjectUtil.isHaskellProject(psiFile.getProject) =>
+        if (!onlyForSourceFile || HaskellProjectUtil.isSourceFile(psiFile)) {
+          enable()
+        } else {
+          disable()
+        }
+      case _ => disable()
     }
   }
 
