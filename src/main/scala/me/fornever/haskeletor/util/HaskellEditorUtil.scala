@@ -57,21 +57,16 @@ object HaskellEditorUtil {
       presentation.setVisible(false)
     }
 
-    try {
-      val dataContext = actionEvent.getDataContext
-      val psiFile = CommonDataKeys.PSI_FILE.getData(dataContext)
-      if (HaskellProjectUtil.isHaskellProject(psiFile.getProject)) {
-        psiFile match {
-          case _: HaskellFile if !onlyForSourceFile => enable()
-          case _: HaskellFile if onlyForSourceFile && HaskellProjectUtil.isSourceFile(psiFile) => enable()
-          case _ => disable()
-        }
-      } else {
-        disable()
+    val dataContext = actionEvent.getDataContext
+    val psiFile = CommonDataKeys.PSI_FILE.getData(dataContext)
+    if (HaskellProjectUtil.isHaskellProject(psiFile.getProject)) {
+      psiFile match {
+        case _: HaskellFile if !onlyForSourceFile => enable()
+        case _: HaskellFile if onlyForSourceFile && HaskellProjectUtil.isSourceFile(psiFile) => enable()
+        case _ => disable()
       }
-    }
-    catch {
-      case _: Exception => disable()
+    } else {
+      disable()
     }
   }
 
