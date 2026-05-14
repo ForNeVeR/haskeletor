@@ -93,6 +93,15 @@ Plugin Features
 - Running REPL, tests, and executables via `Run Configurations`;
 - Smart code completion on typed holes (since GHC 8.4);
 
+Folders
+-------
+Haskeletor stores tooling packages in a special cache folder, shared by all the projects. This directory might get large, especially if you have several versions of tooling used by Haskeletor, so periodic cleanup is recommended (at least after you update or uninstall Haskeletor).
+
+The cache is stored in a per-OS location:
+- **Linux**: `$XDG_CACHE_HOME/haskeletor` or `$HOME/.cache/haskeletor`,
+- **macOS**: `~/Library/Caches/me.fornever.haskeletor`,
+- **Windows**: `%LOCALAPPDATA%\haskeletor`.
+
 Documentation
 -------------
 - [Contributor Guide][docs.contributing]
