@@ -17,7 +17,7 @@ open type Generaptor.GitHubActions.Commands
 let workflows = [
     let defaultLinux = "ubuntu-24.04"
     let runners = [
-        "macos-15"
+        "macos-26"
         "ubuntu-24.04-arm"
         "windows-2025"
         defaultLinux
