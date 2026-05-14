@@ -8,8 +8,8 @@
 
 package me.fornever.haskeletor.editor;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -23,7 +23,7 @@ public class HaskellFoldingSettings implements PersistentStateComponent<HaskellF
     private final HaskellFoldingSettings.State myState = new State();
 
     public static HaskellFoldingSettings getInstance() {
-        return ServiceManager.getService(HaskellFoldingSettings.class);
+        return ApplicationManager.getApplication().getService(HaskellFoldingSettings.class);
     }
 
     public boolean isCollapseImports() {

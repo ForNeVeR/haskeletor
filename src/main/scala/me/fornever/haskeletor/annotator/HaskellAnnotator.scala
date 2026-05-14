@@ -15,7 +15,6 @@ import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.codeInsight.intention.{HighPriorityAction, PriorityAction}
 import com.intellij.lang.annotation.{AnnotationHolder, ExternalAnnotator, HighlightSeverity}
 import com.intellij.openapi.application.{ApplicationManager, WriteAction}
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
@@ -80,7 +79,7 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
     val currentFile = HaskellFileUtil.findVirtualFile(psiFile)
 
     // Start an annotation build session to clear old problems from the build view
-    val buildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
+    val buildViewManager = project.getService(classOf[BuildViewManager])
     val buildSession = AnnotationBuildManager.getInstance(project).startAnnotationBuild(psiFile.getName)
     val buildId = buildSession.getBuildId
 
