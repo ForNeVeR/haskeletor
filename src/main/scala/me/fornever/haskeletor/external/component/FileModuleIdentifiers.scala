@@ -84,7 +84,7 @@ object FileModuleIdentifiers {
     val noImplicitPrelude = if (HaskellProjectUtil.isSourceFile(psiFile)) {
       HaskellComponentsManager.findStackComponentInfo(psiFile).exists(info => isNoImplicitPreludeActive(info, psiFile))
     } else {
-      // TODO: This can give unexpected behavior when finding references in library files
+      // TODO[#70]: This can give unexpected behavior when finding references in library files
       false
     }
     val idsF1 = getModuleIdentifiersFromFullImportedModules(noImplicitPrelude, psiFile, importDeclarations)

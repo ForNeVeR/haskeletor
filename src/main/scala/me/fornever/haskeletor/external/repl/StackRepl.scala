@@ -89,7 +89,7 @@ abstract class StackRepl(project: Project,
   private val stderrResult = new ArrayBuffer[String]
 
 
-  // TODO: command should be a GhciCommand instead of a String
+  // TODO[#71]: command should be a GhciCommand instead of a String
   protected def execute(command: String, forceExecute: Boolean = false): Option[StackReplOutput] = {
 
     if ((!available || starting) && !forceExecute) {
