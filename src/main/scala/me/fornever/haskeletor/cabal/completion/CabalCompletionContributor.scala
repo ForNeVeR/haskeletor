@@ -55,7 +55,7 @@ final class CabalCompletionContributor extends CompletionContributor {
         .map(n => LookupElementBuilder.create(n).withIcon(HaskellIcons.HaskellSmallBlueLogo)).toSeq
     }
 
-    // TODO Take into account stanza type, currently always project library module names are suggested.
+    // TODO[#68] Take into account stanza type, currently always project library module names are suggested.
     private def filterExposedModuleNames(project: Project, em: ExposedModules): Iterable[LookupElement] = {
       val skipModuleNames = em.getModuleNames.toSet
       val moduleNames = AvailableModuleNamesComponent.findModuleNames(project)

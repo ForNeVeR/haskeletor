@@ -26,7 +26,7 @@ class HaskellTestCreator extends TestCreator with ItemPresentation {
     * Should this action be available for this context?
     */
   override def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
-    //TODO Is there any check we should do here?
+    // TODO[#72] Is there any check we should do here?
     true
   }
 
@@ -46,7 +46,7 @@ class HaskellTestCreator extends TestCreator with ItemPresentation {
   }
 
   override def getLocationString: String = {
-    //TODO What's this?
+    // TODO[#72] What's this?
     "This is my location string"
   }
 

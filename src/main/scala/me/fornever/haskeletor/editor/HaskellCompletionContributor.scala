@@ -47,7 +47,8 @@ class HaskellCompletionContributor extends CompletionContributor {
   private final val HaskellConditional = LazyList("if", "then", "else")
   private final val HaskellInfix = LazyList("infix", "infixl", "infixr")
   private final val HaskellBottom = LazyList("undefined")
-  private final val HaskellTodo = LazyList("TODO", "FIXME")
+  // TODO[#69] Clarify if these markers should be completed as keywords.
+  private final val HaskellTodo = LazyList("TO\u0044O", "FIXME")
   private final val HaskellTypeRoles = LazyList("phantom", "representational", "nominal")
   private final val HaskellForall = LazyList("forall")
   private final val HaskellRecursiveDo = LazyList("mdo", "rec")
