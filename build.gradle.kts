@@ -125,9 +125,10 @@ intellijPlatform {
             }
         }
         failureLevel.addAll(
+            VerifyPluginTask.FailureLevel.COMPATIBILITY_WARNINGS,
+            VerifyPluginTask.FailureLevel.DEPRECATED_API_USAGES,
             VerifyPluginTask.FailureLevel.INTERNAL_API_USAGES,
-            VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,
-            VerifyPluginTask.FailureLevel.DEPRECATED_API_USAGES
+            VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES
         )
     }
     publishing {
