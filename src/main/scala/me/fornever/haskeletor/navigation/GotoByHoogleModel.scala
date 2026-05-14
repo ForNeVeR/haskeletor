@@ -17,6 +17,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.presentation.java.SymbolPresentationUtil
+import me.fornever.haskeletor.core.HaskeletorBundle
 
 import javax.swing.ListCellRenderer
 
@@ -38,7 +39,7 @@ class GotoByHoogleModel(val project: Project, val contributors: Array[ChooseByNa
   }
 
   def getNotInMessage: String = {
-    IdeBundle.message("label.no.matches.found.in.project", project.getName)
+    HaskeletorBundle.message("action.goto.no-matches-found", project.getName)
   }
 
   def getNotFoundMessage: String = {
