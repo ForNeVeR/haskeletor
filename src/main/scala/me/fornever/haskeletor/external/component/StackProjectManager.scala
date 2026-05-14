@@ -8,7 +8,6 @@
 
 package me.fornever.haskeletor.external.component
 
-import com.intellij.ProjectTopics
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
@@ -280,7 +279,7 @@ object StackProjectManager {
                 messageBus.connect().subscribe(VirtualFileManager.VFS_CHANGES, new ConfigFileWatcher(project, notifications))
 
 
-                messageBus.connect().subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
+                messageBus.connect().subscribe(ModuleRootListener.TOPIC, new ModuleRootListener() {
                   override def rootsChanged(event: ModuleRootEvent): Unit = {
                     notifications.updateAllNotifications()
                   }
