@@ -8,7 +8,6 @@
 
 package me.fornever.haskeletor.external.component
 
-import com.intellij.codeInsight.documentation.DocumentationManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.annotator.HaskellAnnotator
@@ -69,9 +68,6 @@ private[component] object LoadComponent {
                 FileModuleIdentifiers.invalidate(mn)
               })
 
-            }
-            if (!project.isDisposed) {
-              DocumentationManager.getInstance(project).updateToolwindowContext()
             }
           })
           Some(HaskellCompilationResultHelper.createCompilationResult(psiFile.getVirtualFile.toNioPath, loadOutput.stderrLines, loadFailed))
