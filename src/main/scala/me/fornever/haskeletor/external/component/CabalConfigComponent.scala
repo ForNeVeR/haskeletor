@@ -9,14 +9,14 @@
 package me.fornever.haskeletor.external.component
 
 import com.intellij.openapi.project.Project
-import com.intellij.util.io.URLUtil
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.settings.GlobalInfo
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 import me.fornever.haskeletor.util.HaskellFileUtil
 
-import java.io.File
-import java.net.URL
+import java.io.{ByteArrayInputStream, File}
+import java.net.URI
+import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import scala.io.Source
 
 object CabalConfigComponent {
@@ -109,17 +109,25 @@ object CabalConfigComponent {
     }
 
     StackYamlComponent.getResolver(project).foreach(resolver => {
-      val url = new URL(s"https://www.stackage.org/$resolver/cabal.config")
+      val uri = URI.create(s"https://www.stackage.org/$resolver/cabal.config")
       val targetFile = getCabalConfigFile(project)
 
       try {
-        val inputStream = URLUtil.openStream(url)
-        try {
-          HaskellFileUtil.copyStreamToFile(inputStream, targetFile)
-        } catch {
-          case _: Exception => logError(resolver)
-        } finally {
-          inputStream.close()
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest.newBuilder(uri)
+          .GET()
+          .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+        if (response.statusCode() == 200) {
+          try {
+            val inputStream = new ByteArrayInputStream(response.body())
+            HaskellFileUtil.copyStreamToFile(inputStream, targetFile)
+          } catch {
+            case _: Exception => logError(resolver)
+          }
+        } else {
+          logError(resolver)
         }
       } catch {
         case _: Exception => logError(resolver)
