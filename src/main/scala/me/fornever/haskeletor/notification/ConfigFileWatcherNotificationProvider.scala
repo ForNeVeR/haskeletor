@@ -11,29 +11,28 @@ package me.fornever.haskeletor.notification
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.{VFileContentChangeEvent, VFileEvent}
-import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
+import com.intellij.ui.{EditorNotificationPanel, EditorNotificationProvider, EditorNotifications}
 import me.fornever.haskeletor.external.component.StackProjectManager
 import me.fornever.haskeletor.util.HaskellProjectUtil
 
 import java.util
 import java.util.concurrent.ConcurrentHashMap
+import java.util.function
+import javax.swing.JComponent
 import scala.collection.concurrent
 import scala.jdk.CollectionConverters._
 
 object ConfigFileWatcherNotificationProvider {
-  private val ConfigFileWatcherKey: Key[EditorNotificationPanel] = Key.create("Haskell config file watcher")
   val showNotificationsByProject: concurrent.Map[Project, Boolean] = new ConcurrentHashMap[Project, Boolean]().asScala
 }
 
-class ConfigFileWatcherNotificationProvider extends EditorNotifications.Provider[EditorNotificationPanel] {
+class ConfigFileWatcherNotificationProvider extends EditorNotificationProvider {
 
-  override def getKey: Key[EditorNotificationPanel] = ConfigFileWatcherNotificationProvider.ConfigFileWatcherKey
-
-  override def createNotificationPanel(virtualFile: VirtualFile, fileEditor: FileEditor, project: Project): EditorNotificationPanel = {
+  override def collectNotificationData(project: Project,
+                                       virtualFile: VirtualFile): function.Function[_ >: FileEditor, _ <: JComponent] = { _ =>
     if (HaskellProjectUtil.isHaskellProject(project) && ConfigFileWatcherNotificationProvider.showNotificationsByProject.get(project).contains(true)) {
       createPanel(project, virtualFile)
     } else {
