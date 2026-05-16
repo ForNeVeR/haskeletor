@@ -8,19 +8,20 @@
 
 package me.fornever.haskeletor.editor
 
-import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.psi.PsiFile
+import com.intellij.codeInsight.template.{TemplateActionContext, TemplateContextType}
 import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.HaskellFileType
 import me.fornever.haskeletor.psi.{HaskellExpression, HaskellFileHeader}
 
-class HaskellTemplateContextType extends TemplateContextType("HASKELL_FILE", "Haskell") {
-  override def isInContext(file: PsiFile, offset: Int): Boolean =
-    file.getFileType == HaskellFileType.INSTANCE
+class HaskellTemplateContextType extends TemplateContextType("Haskell") {
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean =
+    templateActionContext.getFile.getFileType == HaskellFileType.INSTANCE
 }
 
-class HaskellPragmaTemplateContextType extends TemplateContextType("HASKELL_PRAGMA", "Pragma", classOf[HaskellTemplateContextType]) {
-  override def isInContext(file: PsiFile, offset: Int): Boolean = {
+class HaskellPragmaTemplateContextType extends TemplateContextType("Pragma") {
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean = {
+    val file = templateActionContext.getFile
+    val offset = templateActionContext.getStartOffset
     if (file.getFileType != HaskellFileType.INSTANCE) return false
     if (offset < 5) return true
     val element = file.findElementAt(offset - 5)
@@ -29,8 +30,10 @@ class HaskellPragmaTemplateContextType extends TemplateContextType("HASKELL_PRAG
   }
 }
 
-class HaskellGlobalDefinitionTemplateContextType extends TemplateContextType("HASKELL_GLOB_DEF", "Global definition", classOf[HaskellTemplateContextType]) {
-  override def isInContext(file: PsiFile, offset: Int): Boolean = {
+class HaskellGlobalDefinitionTemplateContextType extends TemplateContextType("Global definition") {
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean = {
+    val file = templateActionContext.getFile
+    val offset = templateActionContext.getStartOffset
     if (file.getFileType != HaskellFileType.INSTANCE) return false
     var element = file.findElementAt(offset)
     if (element == null) element = file.findElementAt(offset - 1)

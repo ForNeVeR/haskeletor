@@ -136,9 +136,14 @@
                 implementationClass="me.fornever.haskeletor.cabal.completion.CabalCompletionContributor"/>
         <lookup.charFilter implementation="me.fornever.haskeletor.editor.HaskellCompletionCharFilter"/>
         <psi.referenceContributor language="Haskell" implementation="me.fornever.haskeletor.psi.HaskellReferenceContributor"/>
-        <liveTemplateContext implementation="me.fornever.haskeletor.editor.HaskellTemplateContextType"/>
-        <liveTemplateContext implementation="me.fornever.haskeletor.editor.HaskellPragmaTemplateContextType"/>
-        <liveTemplateContext implementation="me.fornever.haskeletor.editor.HaskellGlobalDefinitionTemplateContextType"/>
+        <liveTemplateContext contextId="HASKELL_FILE"
+                             implementation="me.fornever.haskeletor.editor.HaskellTemplateContextType"/>
+        <liveTemplateContext contextId="HASKELL_PRAGMA"
+                             baseContextId="HASKELL_FILE"
+                             implementation="me.fornever.haskeletor.editor.HaskellPragmaTemplateContextType"/>
+        <liveTemplateContext contextId="HASKELL_GLOB_DEF"
+                             baseContextId="HASKELL_FILE"
+                             implementation="me.fornever.haskeletor.editor.HaskellGlobalDefinitionTemplateContextType"/>
         <defaultLiveTemplates file="liveTemplates/Haskell"/>
         <!-- Handler -->
         <typedHandler implementation="me.fornever.haskeletor.editor.HaskellTypedHandler" id="HaskellFile"/>
