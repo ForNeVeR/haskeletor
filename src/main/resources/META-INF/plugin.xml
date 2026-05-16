@@ -221,10 +221,6 @@
 
     </extensions>
 
-    <application-components>
-        <!-- Add your application components here -->
-    </application-components>
-
     <project-components><component><implementation-class>me.fornever.haskeletor.external.component.StackProjectManager</implementation-class></component><component><implementation-class>me.fornever.haskeletor.external.component.HaskellDocumentationProvider</implementation-class></component></project-components>
 
     <actions>
