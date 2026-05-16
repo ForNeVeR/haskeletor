@@ -15,6 +15,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.util.indexing._
 import com.intellij.util.io.{EnumeratorStringDescriptor, KeyDescriptor}
 import me.fornever.haskeletor.HaskellFileType
+import me.fornever.haskeletor.core.language.PsiFileUtil
 import me.fornever.haskeletor.external.component.{IndexNotReady, NoInfo, ReadActionTimeout}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil, HaskellProjectUtil}
@@ -48,7 +49,7 @@ object HaskellModuleNameIndex {
     findFiles(project, key.moduleName) match {
       case Right(virtualFiles) =>
         if (ApplicationUtil.isBlockingReadAccessAllowed) {
-          Right(virtualFiles.flatMap { case (vf, isPf) => HaskellFileUtil.convertToHaskellFileDispatchThread(project, vf).map((_, isPf)).toSeq })
+          Right(virtualFiles.flatMap { case (vf, isPf) => PsiFileUtil.convertToHaskellFileDispatchThread(project, vf).map((_, isPf)).toSeq })
         } else {
           val psiFiles = virtualFiles.map { case (vf, isPf) => (HaskellFileUtil.convertToHaskellFileInReadAction(project, vf), isPf) }
           if (psiFiles.exists(_._1.isLeft)) {

@@ -18,7 +18,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.{PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.ui.EditorNotifications
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import me.fornever.haskeletor.action.HaskellReformatAction
@@ -291,7 +291,7 @@ object StackProjectManager {
                 }
               }
 
-              HaskellPsiUtil.getPsiManager(project).foreach(_.addPsiTreeChangeListener(new PsiTreeChangeAdapter {
+              PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter {
 
                 private def invalidateInfo(event: PsiTreeChangeEvent): Unit = {
                   if (Option(event.getParent).flatMap(p => Option(p.getNode)).exists(_.getElementType != HaskellFileElementType.Instance) || Option(event.getNewChild).isDefined) {
@@ -315,7 +315,7 @@ object StackProjectManager {
                 override def childRemoved(event: PsiTreeChangeEvent): Unit = {
                   invalidateInfo(event)
                 }
-              }))
+              })
 
               progressIndicator.setText("Busy preloading caches")
               if (!preloadStackComponentInfoCache.isDone || !preloadLibraryIdentifiersCacheFuture.isDone || !replsLoad.isDone) {

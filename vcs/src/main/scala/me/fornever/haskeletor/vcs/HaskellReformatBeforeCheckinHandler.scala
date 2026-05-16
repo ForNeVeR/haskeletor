@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.action
+package me.fornever.haskeletor.vcs
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{DumbService, Project}
@@ -15,8 +15,8 @@ import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.checkin._
 import com.intellij.openapi.vcs.ui.RefreshableOnComponent
 import com.intellij.ui.NonFocusableCheckBox
+import me.fornever.haskeletor.core.language.{HaskellReformatService, PsiFileUtil}
 import me.fornever.haskeletor.settings.HaskellSettingsState
-import me.fornever.haskeletor.util.HaskellFileUtil
 
 import java.awt.GridLayout
 import javax.swing.{JCheckBox, JComponent, JPanel}
@@ -57,7 +57,12 @@ class HaskellReformatBeforeCheckinHandler(project: Project, checkinProjectPanel:
     }
 
     if (HaskellSettingsState.isReformatCodeBeforeCommit && !DumbService.isDumb(project)) {
-      val reformatResult = virtualFiles.asScala.filter(vf => HaskellFileUtil.isHaskellFile(vf)).forall(vf => HaskellFileUtil.convertToHaskellFileDispatchThread(project, vf).exists(OrmoluReformatAction.reformat))
+      val reformatResult = virtualFiles.asScala
+        .filter(vf => vf.getExtension == "hs")
+        .forall(vf =>
+          PsiFileUtil.convertToHaskellFileDispatchThread(project, vf)
+            .exists(file => HaskellReformatService.getInstance().reformat(file))
+        )
       if (reformatResult) {
         performCheckoutAction.run()
       }

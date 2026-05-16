@@ -6,16 +6,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.action
+package me.fornever.haskeletor.vcs
 
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
 import com.intellij.openapi.vcs.checkin.{CheckinHandler, CheckinHandlerFactory}
-import me.fornever.haskeletor.util.HaskellProjectUtil
+import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 
 class HaskellOptimizeImportsCheckinHandlerFactory extends CheckinHandlerFactory {
   override def createHandler(panel: CheckinProjectPanel, commitContext: CommitContext): CheckinHandler = {
-    if (HaskellProjectUtil.isHaskellProject(panel.getProject)) {
+    if (HaskellProjectManager.getInstance(panel.getProject).isHaskellProject.getValueOrNull == true) {
       new HaskellOptimizeImportsBeforeCheckinHandler(panel.getProject, panel)
     } else {
       CheckinHandler.DUMMY

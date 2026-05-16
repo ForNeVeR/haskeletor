@@ -13,15 +13,13 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile, VirtualFileManager}
-import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import me.fornever.haskeletor.HaskellFileType
+import me.fornever.haskeletor.core.language.PsiFileUtil
 import me.fornever.haskeletor.external.component.{NoInfo, NoInfoAvailable}
-import me.fornever.haskeletor.psi.HaskellPsiUtil
 
 import java.io.{File, FileOutputStream, InputStream}
 import java.nio.charset.Charset
@@ -73,7 +71,7 @@ object HaskellFileUtil {
 
   def findFile(project: Project, filePath: String): (Option[VirtualFile], Option[PsiFile]) = {
     val virtualFile = Option(LocalFileSystem.getInstance().findFileByPath(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
-    val psiFile = virtualFile.map(f => HaskellFileUtil.convertToHaskellFileDispatchThread(project, f)) match {
+    val psiFile = virtualFile.map(f => PsiFileUtil.convertToHaskellFileDispatchThread(project, f)) match {
       case Some(r) => r
       case None => None
     }
@@ -146,44 +144,24 @@ object HaskellFileUtil {
   }
 
   def convertToHaskellFiles(project: Project, virtualFiles: Iterable[VirtualFile]): Iterable[PsiFile] = {
-    HaskellPsiUtil.getPsiManager(project).map(psiManager =>
-      virtualFiles.flatMap(vf => findCachedPsiFile(psiManager, vf) match {
-        case Some(pf) => Some(pf)
-        case _ => None
-      })).getOrElse(Iterable())
+    virtualFiles.flatMap(vf => PsiFileUtil.findCachedPsiFile(project, vf) match {
+      case Some(pf) => Some(pf)
+      case _ => None
+    })
   }
 
-  private def findCachedPsiFile(psiManager: PsiManager, virtualFile: VirtualFile): Option[PsiFile] = {
-    val manager = psiManager.asInstanceOf[PsiManagerEx]
-    val fileManager = manager.getFileManager
-    ProgressManager.checkCanceled()
-    Option(fileManager.getCachedPsiFile(virtualFile))
-  }
 
-  private def findPsiFile(psiManager: PsiManager, virtualFile: VirtualFile): Option[PsiFile] = {
-    Option(psiManager.findFile(virtualFile))
-  }
-
-  def convertToHaskellFileDispatchThread(project: Project, virtualFile: VirtualFile): Option[PsiFile] = {
-    HaskellPsiUtil.getPsiManager(project).flatMap(psiManager =>
-      findCachedPsiFile(psiManager, virtualFile) match {
-        case pf@Some(_) => pf
-        case None => findPsiFile(psiManager, virtualFile)
-      })
-  }
 
   def convertToHaskellFileInReadAction(project: Project, virtualFile: VirtualFile): Either[NoInfo, PsiFile] = {
-    HaskellPsiUtil.getPsiManager(project).map(psiManager => {
-      val actionMessage = s"Converting ${virtualFile.getName} to psi file"
-      ApplicationUtil.runReadActionWithFileAccess(project, findCachedPsiFile(psiManager, virtualFile), actionDescription = actionMessage) match {
+    val actionMessage = s"Converting ${virtualFile.getName} to psi file"
+    ApplicationUtil.runReadActionWithFileAccess(project, PsiFileUtil.findCachedPsiFile(project, virtualFile), actionDescription = actionMessage) match {
+      case Right(Some(pf)) => Right(pf)
+      case _ => ApplicationUtil.runReadActionWithFileAccess(project, PsiFileUtil.findPsiFile(project, virtualFile), actionDescription = actionMessage) match {
         case Right(Some(pf)) => Right(pf)
-        case _ => ApplicationUtil.runReadActionWithFileAccess(project, findPsiFile(psiManager, virtualFile), actionDescription = actionMessage) match {
-          case Right(Some(pf)) => Right(pf)
-          case Right(None) => Left(NoInfoAvailable(virtualFile.getName, "-"))
-          case Left(noInfo) => Left(noInfo)
-        }
+        case Right(None) => Left(NoInfoAvailable(virtualFile.getName, "-"))
+        case Left(noInfo) => Left(noInfo)
       }
-    }).getOrElse(Left(NoInfoAvailable(virtualFile.getName, "-")))
+    }
   }
 
   def saveFileWithNewContent(psiFile: PsiFile, sourceCode: String): Unit = {

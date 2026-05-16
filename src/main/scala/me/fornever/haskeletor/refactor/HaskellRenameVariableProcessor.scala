@@ -14,6 +14,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import me.fornever.haskeletor.HaskellFile
+import me.fornever.haskeletor.core.language.PsiFileUtil
 import me.fornever.haskeletor.external.component.{HaskellComponentsManager, ProjectLibraryBuilder}
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.psi.HaskellModid
@@ -65,6 +66,6 @@ class HaskellRenameVariableProcessor extends RenamePsiElementProcessor {
   }
 
   private def getCurrentFile(project: Project) = {
-    FileEditorManager.getInstance(project).getSelectedFiles.headOption.flatMap(f => HaskellFileUtil.convertToHaskellFileDispatchThread(project, f))
+    FileEditorManager.getInstance(project).getSelectedFiles.headOption.flatMap(f => PsiFileUtil.convertToHaskellFileDispatchThread(project, f))
   }
 }

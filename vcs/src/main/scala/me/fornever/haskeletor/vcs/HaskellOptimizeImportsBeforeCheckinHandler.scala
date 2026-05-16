@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.action
+package me.fornever.haskeletor.vcs
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{DumbService, Project}
@@ -15,9 +15,8 @@ import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.checkin._
 import com.intellij.openapi.vcs.ui.RefreshableOnComponent
 import com.intellij.ui.NonFocusableCheckBox
-import me.fornever.haskeletor.editor.HaskellImportOptimizer
+import me.fornever.haskeletor.core.language.{HaskellImportOptimizerService, PsiFileUtil}
 import me.fornever.haskeletor.settings.HaskellSettingsState
-import me.fornever.haskeletor.util.HaskellFileUtil
 
 import java.awt.GridLayout
 import javax.swing.{JCheckBox, JComponent, JPanel}
@@ -57,7 +56,7 @@ class HaskellOptimizeImportsBeforeCheckinHandler(project: Project, checkinProjec
     }
 
     if (HaskellSettingsState.isReformatCodeBeforeCommit && !DumbService.isDumb(project)) {
-      val reformatResult = virtualFiles.asScala.forall(vf => HaskellFileUtil.convertToHaskellFileDispatchThread(project, vf).exists(HaskellImportOptimizer.removeRedundantImports))
+      val reformatResult = virtualFiles.asScala.forall(vf => PsiFileUtil.convertToHaskellFileDispatchThread(project, vf).exists(file => HaskellImportOptimizerService.getInstance().removeRedundantImports(file)))
       if (reformatResult) {
         performCheckoutAction.run()
       }

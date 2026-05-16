@@ -61,6 +61,7 @@ dependencies {
         pluginComposedModule(implementation(project(":settings")))
         pluginComposedModule(implementation(project(":spellchecker")))
         pluginComposedModule(implementation(project(":stack")))
+        pluginComposedModule(implementation(project(":vcs")))
 
         testFramework(TestFrameworkType.Bundled)
         testFramework(TestFrameworkType.Platform)
