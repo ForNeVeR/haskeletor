@@ -9,14 +9,19 @@
 
 package me.fornever.haskeletor.vcs
 
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.checkin.CheckinHandler
-import com.intellij.openapi.vcs.checkin.CheckinMetaHandler
+import com.intellij.openapi.vcs.checkin.CommitCheck
+import com.intellij.openapi.vcs.checkin.CommitInfo
+import com.intellij.openapi.vcs.checkin.CommitProblem
 import com.intellij.openapi.vcs.ui.RefreshableOnComponent
 import com.intellij.ui.NonFocusableCheckBox
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.fornever.haskeletor.core.language.HaskellReformatService
 import me.fornever.haskeletor.core.language.PsiFileUtil
 import me.fornever.haskeletor.settings.HaskellSettingsState
@@ -28,7 +33,7 @@ import javax.swing.JPanel
 class HaskellReformatBeforeCheckinHandler(
     private val project: Project,
     private val checkinProjectPanel: CheckinProjectPanel
-) : CheckinHandler(), CheckinMetaHandler {
+) : CheckinHandler(), CommitCheck {
 
     override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent {
         val reformatBox = NonFocusableCheckBox("Haskell reformat code")
@@ -52,28 +57,25 @@ class HaskellReformatBeforeCheckinHandler(
         }
     }
 
-    override fun runCheckinHandlers(finishAction: Runnable) {
+    override fun getExecutionOrder(): CommitCheck.ExecutionOrder = CommitCheck.ExecutionOrder.MODIFICATION
+
+    override fun isEnabled(): Boolean = HaskellSettingsState.isReformatCodeBeforeCommit() && !DumbService.isDumb(project)
+
+    override suspend fun runCheck(commitInfo: CommitInfo): CommitProblem? {
         val virtualFiles = checkinProjectPanel.virtualFiles
 
-        val performCheckoutAction = Runnable {
-            FileDocumentManager.getInstance().saveAllDocuments()
-            finishAction.run()
-        }
-
-        if (HaskellSettingsState.isReformatCodeBeforeCommit() && !DumbService.isDumb(project)) {
-            val reformatResult = virtualFiles
+        withContext(Dispatchers.EDT) {
+            virtualFiles
                 .asSequence()
                 .filter { it.extension == "hs" }
                 .all { vf ->
                     PsiFileUtil.convertToHaskellFileDispatchThread(project, vf)
                         .exists { file -> HaskellReformatService.getInstance().reformat(file) }
                 }
-            if (reformatResult) {
-                performCheckoutAction.run()
-            }
-        } else {
-            performCheckoutAction.run()
         }
+
+        FileDocumentManager.getInstance().saveAllDocuments()
+        return null
     }
 
     private fun disableWhenDumb(project: Project, checkBox: JCheckBox, tooltip: String) {
