@@ -29,7 +29,6 @@ import me.fornever.haskeletor.psi.impl.HaskellDeclarationElementImpl
 import me.fornever.haskeletor.runconfig.console.{HaskellConsoleView, HaskellConsoleViewMap}
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.{HaskellFile, HaskellParserDefinition}
-import org.apache.commons.lang.StringEscapeUtils
 
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
@@ -269,7 +268,7 @@ class HaskellCompletionContributor extends CompletionContributor {
 
     private def createLookupElement(typeSignature: String): Option[LookupElementBuilder] = {
       typeSignature.split("::", 2).toSeq match {
-        case Seq(n, _) => Some(LookupElementBuilder.create(n.trim).withTypeText(StringEscapeUtils.unescapeHtml(typeSignature)))
+        case Seq(n, _) => Some(LookupElementBuilder.create(n.trim).withTypeText(typeSignature))
         case _ => None
       }
     }
