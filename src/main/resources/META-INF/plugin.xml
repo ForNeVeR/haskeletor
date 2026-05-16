@@ -24,6 +24,8 @@
     <depends optional="true"
              config-file="me.fornever.haskeletor.spellchecker.xml">com.intellij.modules.spellchecker</depends>
 
+    <resource-bundle>messages.HaskeletorBundle</resource-bundle>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- File types -->
         <fileType name="Alex"
@@ -207,9 +209,16 @@
         <!-- Runner -->
         <actionPromoter implementation="me.fornever.haskeletor.runconfig.console.HaskellConsoleActionPromoter"/>
         <configurationType implementation="me.fornever.haskeletor.runconfig.HaskellStackConfigurationType"/>
-        <!-- Notification -->
+        <!-- Notifications -->
         <editorNotificationProvider
                 implementation="me.fornever.haskeletor.notification.ConfigFileWatcherNotificationProvider"/>
+
+        <notificationGroup id="HaskellLog" isLogByDefault="false"
+                           displayType="NONE" key="notification-group.haskell-log.name"/>
+        <notificationGroup id="HaskellWarnings" isLogByDefault="true"
+                           displayType="NONE" key="notification-group.haskell-warnings.name"/>
+        <notificationGroup id="HaskellBalloon" isLogByDefault="true"
+                           displayType="NONE" key="notification-group.haskell-balloon.name"/>
 
         <!-- Mover -->
         <!--<statementUpDownMover implementation="me.fornever.haskeletor.editor.HaskellStatementMover"/>-->

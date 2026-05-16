@@ -9,19 +9,16 @@
 package me.fornever.haskeletor.core.notifications
 
 import com.intellij.notification._
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.MessageType._
-import com.intellij.openapi.vfs.LocalFileSystem
-
-import javax.swing.event.HyperlinkEvent
 
 object HaskellNotificationGroup {
 
-  private val LogOnlyGroup = new NotificationGroup("Haskell Log", NotificationDisplayType.NONE, false)
-  private val WarningGroup = new NotificationGroup("Haskell Warning", NotificationDisplayType.NONE, true)
-  private val BalloonGroup = new NotificationGroup("Haskell Balloon", NotificationDisplayType.BALLOON, true)
+  private val groupManager = NotificationGroupManager.getInstance()
+  private val LogOnlyGroup = groupManager.getNotificationGroup("HaskellLog")
+  private val WarningGroup = groupManager.getNotificationGroup("HaskellWarnings")
+  private val BalloonGroup = groupManager.getNotificationGroup("HaskellBalloon")
 
   def logErrorEvent(project: Option[Project], message: String): Unit = {
     logEvent(project, message, ERROR, LogOnlyGroup.createNotification)
@@ -67,10 +64,6 @@ object HaskellNotificationGroup {
     balloonEvent(Option(project), message, ERROR)
   }
 
-  def logErrorBalloonEvent(project: Project, message: String, listener: NotificationListener): Unit = {
-    BalloonGroup.createNotification("", message, ERROR.toNotificationType, listener).notify(project)
-  }
-
   def logErrorBalloonEvent(message: String): Unit = {
     balloonEvent(None, message, ERROR)
   }
@@ -93,21 +86,6 @@ object HaskellNotificationGroup {
 
   def logInfoBalloonEvent(message: String): Unit = {
     balloonEvent(None, message, INFO)
-  }
-
-  def logInfoBalloonEvent(project: Project, message: String, listener: NotificationListener): Unit = {
-    BalloonGroup.createNotification("", message, INFO.toNotificationType, listener).notify(project)
-  }
-
-  def logErrorBalloonEventWithLink(project: Project, filePath: String, errorMessage: String, lineNr: Int, columnNr: Int): Unit = {
-    Option(LocalFileSystem.getInstance().findFileByPath(filePath)) match {
-      case Some(file) => HaskellNotificationGroup.logErrorBalloonEvent(project, s"$errorMessage at <a href='#'>$filePath:$lineNr:$columnNr</a>",
-        (_: Notification, _: HyperlinkEvent) => {
-          new OpenFileDescriptor(project, file, lineNr - 1, columnNr - 1).navigate(true)
-        }
-      )
-      case _ => HaskellNotificationGroup.logErrorBalloonEvent(project, errorMessage)
-    }
   }
 
   private def logEvent(project: Option[Project], message: String, messageType: MessageType, notification: (String, MessageType) => Notification): Unit = {
