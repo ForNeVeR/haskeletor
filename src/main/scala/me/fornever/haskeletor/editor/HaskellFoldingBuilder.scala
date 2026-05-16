@@ -26,7 +26,7 @@ class HaskellFoldingBuilder extends FoldingBuilderEx with DumbAware {
         HaskellPsiUtil.findImportDeclarationsBlock(file).map(createFoldingDescriptor).getOrElse(Array()) ++
           HaskellPsiUtil.findFileHeader(file).map(createFoldingDescriptor).getOrElse(Array()) ++
           HaskellPsiUtil.findTopLevelExpressions(file).flatMap(createFoldingDescriptor)
-      case _ => FoldingDescriptor.EMPTY
+      case _ => FoldingDescriptor.EMPTY_ARRAY
     }
   }
 
