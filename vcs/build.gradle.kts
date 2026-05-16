@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("scala")
+    alias(libs.plugins.kotlin.jvm)
     id("org.jetbrains.intellij.platform.module")
 }
 
@@ -16,24 +16,11 @@ repositories {
     }
 }
 
-scala {
-    scalaVersion = libs.versions.scala
-}
-
 dependencies {
-    implementation(libs.scala.library)
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
     }
 
     implementation(project(":projectModel"))
     implementation(project(":settings"))
-}
-
-tasks {
-    withType<ScalaCompile> {
-        scalaCompileOptions.additionalParameters = listOf(
-            "-deprecation", "-feature", "-unchecked"
-        )
-    }
 }

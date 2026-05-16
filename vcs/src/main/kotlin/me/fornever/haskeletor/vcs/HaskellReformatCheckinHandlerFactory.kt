@@ -10,15 +10,16 @@ package me.fornever.haskeletor.vcs
 
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
-import com.intellij.openapi.vcs.checkin.{CheckinHandler, CheckinHandlerFactory}
+import com.intellij.openapi.vcs.checkin.CheckinHandler
+import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory
 import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 
-class HaskellOptimizeImportsCheckinHandlerFactory extends CheckinHandlerFactory {
-  override def createHandler(panel: CheckinProjectPanel, commitContext: CommitContext): CheckinHandler = {
-    if (HaskellProjectManager.getInstance(panel.getProject).isHaskellProject.getValueOrNull == true) {
-      new HaskellOptimizeImportsBeforeCheckinHandler(panel.getProject, panel)
-    } else {
-      CheckinHandler.DUMMY
+class HaskellReformatCheckinHandlerFactory : CheckinHandlerFactory() {
+    override fun createHandler(panel: CheckinProjectPanel, commitContext: CommitContext): CheckinHandler {
+        return if (HaskellProjectManager.getInstance(panel.project).isHaskellProject.valueOrNull == true) {
+            HaskellReformatBeforeCheckinHandler(panel.project, panel)
+        } else {
+            CheckinHandler.DUMMY
+        }
     }
-  }
 }
