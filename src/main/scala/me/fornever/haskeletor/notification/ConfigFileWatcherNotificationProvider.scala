@@ -48,7 +48,7 @@ class ConfigFileWatcherNotificationProvider extends EditorNotificationProvider {
     panel.createActionLabel("Update Settings and restart REPLs", () => {
       ConfigFileWatcherNotificationProvider.showNotificationsByProject.put(project, false)
       notifications.updateAllNotifications()
-      StackProjectManager.restart(project)
+      StackProjectManager.getInstance(project).restart()
     })
     panel.createActionLabel("Ignore", () => {
       ConfigFileWatcherNotificationProvider.showNotificationsByProject.put(project, false)

@@ -14,12 +14,13 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.rd.LifetimeDisposableExKt
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.ui.EditorNotifications
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rd.util.lifetime.{Lifetime, LifetimeDefinition, SequentialLifetimes}
 import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.core.HaskeletorBundle
@@ -81,11 +82,11 @@ object StackProjectManager {
     getStackProjectManager(project).exists(_.preloadingAllLibraryIdentifiers)
   }
 
-  private def start(project: Project, workingDirectory: Path): Unit = {
-    init(project, workingDirectory)
+  private def start(project: Project, workingDirectory: Path, lifetime: Lifetime): Unit = {
+    init(project, workingDirectory, lifetime)
   }
 
-  def restart(project: Project): Unit = {
+  private def restart(project: Project, lifetime: Lifetime): Unit = {
     HaskellFileUtil.saveFiles(project)
 
     val workingDirectory = findWorkingDirectory(project)
@@ -93,7 +94,7 @@ object StackProjectManager {
       logger.error("Stack working directory cannot be determined for project " + project.getName)
       return
     }
-    init(project, workingDirectory.get, restart = true)
+    init(project, workingDirectory.get, lifetime, restart = true)
   }
 
   def getStackProjectManager(project: Project): Option[StackProjectManager] = {
@@ -150,7 +151,7 @@ object StackProjectManager {
     }
   }
 
-  private def init(project: Project, workingDirectory: Path, restart: Boolean = false): Unit = {
+  private def init(project: Project, workingDirectory: Path, lifetime: Lifetime, restart: Boolean = false): Unit = {
     val haskellProjectManager = HaskellProjectManager.getInstance(project)
     if (haskellProjectManager.isHaskellProject.getValueOrNull == true) {
       if (isInitializing(project)) {
@@ -313,7 +314,10 @@ object StackProjectManager {
                 override def childRemoved(event: PsiTreeChangeEvent): Unit = {
                   invalidateInfo(event)
                 }
-              })
+              }, LifetimeDisposableExKt.createNestedDisposable(
+                lifetime,
+                "Haskeletor StackProjectManager PSI listener"
+              ))
 
               progressIndicator.setText("Busy preloading caches")
               if (!preloadStackComponentInfoCache.isDone || !preloadLibraryIdentifiersCacheFuture.isDone || !replsLoad.isDone) {
@@ -404,6 +408,7 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
 
   private val lifetimeDefinition = new LifetimeDefinition()
   private def lifetime = lifetimeDefinition.getLifetime
+  private val currentSessionLifetime = new SequentialLifetimes(lifetime)
 
   def getStackReplsManager: Option[StackReplsManager] = {
     replsManager
@@ -427,6 +432,10 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
     })
   }
 
+  def restart(): Unit = {
+    StackProjectManager.restart(project, currentSessionLifetime.next().getLifetime)
+  }
+
   private def initializeOnce(): Unit = {
     disableDefaultReformatAction()
 
@@ -440,7 +449,7 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
             "Can't start project"
           )
         } else {
-          StackProjectManager.start(project, workingDirectory)
+          StackProjectManager.start(project, workingDirectory, currentSessionLifetime.next().getLifetime)
         }
       case None =>
     }
