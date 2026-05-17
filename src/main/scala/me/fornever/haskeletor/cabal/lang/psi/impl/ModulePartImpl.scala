@@ -8,7 +8,8 @@
 
 package me.fornever.haskeletor.cabal.lang.psi.impl
 
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiFileFactory, PsiReference}
@@ -58,14 +59,17 @@ trait ModulePartImpl extends CabalNamedElementImpl {
       case s if s.isEmpty => ""
       case s => s + "."
     }
-    DumbService.getInstance(getProject).tryRunReadActionInSmartMode(ScalaUtil.computable(HaskellFileIndex.findProjectHaskellFiles(getProject)), "Finding modules is not available until indices are ready").flatMap { file =>
-      HaskellPsiUtil.findModuleDeclaration(file).flatMap(decl => Option(decl.getModid)).map(_.getText) match {
-        case None => None
-        case Some(name) if name.startsWith(text) =>
-          DotRegex.split(name).take(numParts + 1).lastOption
-        case _ => None
-      }
-    }.toArray[AnyRef]
+    ReadAction.nonBlocking(ScalaUtil.callable(HaskellFileIndex.findProjectHaskellFiles(getProject)))
+      .inSmartMode(getProject)
+      .executeSynchronously()
+      .flatMap { file =>
+        HaskellPsiUtil.findModuleDeclaration(file).flatMap(decl => Option(decl.getModid)).map(_.getText) match {
+          case None => None
+          case Some(name) if name.startsWith(text) =>
+            DotRegex.split(name).take(numParts + 1).lastOption
+          case _ => None
+        }
+      }.toArray[AnyRef]
   }
 
   override def resolve(): Option[PsiElement] = {
