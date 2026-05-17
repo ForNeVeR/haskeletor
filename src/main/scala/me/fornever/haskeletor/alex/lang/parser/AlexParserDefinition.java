@@ -6,55 +6,62 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor.alex.lang.parser
+package me.fornever.haskeletor.alex.lang.parser;
 
-import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
-import com.intellij.lexer.Lexer
-import com.intellij.openapi.project.Project
-import com.intellij.psi.tree.{IFileElementType, TokenSet}
-import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import me.fornever.haskeletor.alex.lang.lexer.AlexLexer
-import me.fornever.haskeletor.alex.lang.psi.AlexTypes
-import me.fornever.haskeletor.alex.{AlexFile, AlexLanguage}
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.PsiParser;
+import com.intellij.lexer.Lexer;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.tree.IFileElementType;
+import com.intellij.psi.tree.TokenSet;
+import me.fornever.haskeletor.alex.AlexFile;
+import me.fornever.haskeletor.alex.AlexLanguage;
+import me.fornever.haskeletor.alex.lang.lexer.AlexLexer;
+import me.fornever.haskeletor.alex.lang.psi.AlexTypes;
+import org.jetbrains.annotations.NotNull;
 
-/**
-  * @author ice1000
-  */
-object AlexParserDefinition {
-  final val FILE = new IFileElementType(AlexLanguage.Instance)
+public class AlexParserDefinition implements ParserDefinition {
 
-  final val STRINGS = TokenSet.create(AlexTypes.ALEX_STRING)
-}
+    public static final IFileElementType FILE = new IFileElementType(AlexLanguage.Instance);
 
-/**
-  * @author ice1000
-  */
-class AlexParserDefinition extends ParserDefinition {
-  override def createLexer(project: Project): Lexer = {
-    new AlexLexer
-  }
+    public static final TokenSet STRINGS = TokenSet.create(AlexTypes.ALEX_STRING);
 
-  override def createParser(project: Project): PsiParser = {
-    new AlexParser
-  }
+    @Override
+    public @NotNull Lexer createLexer(Project project) {
+        return new AlexLexer();
+    }
 
-  override def getFileNodeType: IFileElementType = {
-    AlexParserDefinition.FILE
-  }
+    @Override
+    public @NotNull PsiParser createParser(Project project) {
+        return new AlexParser();
+    }
 
-  override def getCommentTokens: TokenSet = {
-    TokenSet.EMPTY
-  }
+    @Override
+    public @NotNull IFileElementType getFileNodeType() {
+        return AlexParserDefinition.FILE;
+    }
 
-  override def getStringLiteralElements: TokenSet = {
-    AlexParserDefinition.STRINGS
-  }
+    @Override
+    public @NotNull TokenSet getCommentTokens() {
+        return TokenSet.EMPTY;
+    }
 
-  override def createElement(astNode: ASTNode): PsiElement = {
-    AlexTypes.Factory.createElement(astNode)
-  }
+    @Override
+    public @NotNull TokenSet getStringLiteralElements() {
+        return AlexParserDefinition.STRINGS;
+    }
 
-  override def createFile(fileViewProvider: FileViewProvider): PsiFile = {
-    new AlexFile(fileViewProvider)
-  }
+    @Override
+    public @NotNull PsiElement createElement(ASTNode astNode) {
+        return AlexTypes.Factory.createElement(astNode);
+    }
+
+    @Override
+    public @NotNull PsiFile createFile(@NotNull FileViewProvider fileViewProvider) {
+        return new AlexFile(fileViewProvider);
+    }
 }
