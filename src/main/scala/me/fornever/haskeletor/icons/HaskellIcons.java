@@ -14,23 +14,23 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 public interface HaskellIcons {
-  @NotNull Icon HaskellLogo = IconLoader.getIcon("/icons/haskell@16.png");
-  @NotNull Icon HaskellFileLogo = IconLoader.getIcon("/icons/hs.png");
-  @NotNull Icon HaskellSmallBlueLogo = IconLoader.getIcon("/icons/haskell-blue@16.png");
+  @NotNull Icon HaskellLogo = IconLoader.getIcon("/icons/haskell@16.png", HaskellIcons.class);
+  @NotNull Icon HaskellFileLogo = IconLoader.getIcon("/icons/hs.png", HaskellIcons.class);
+  @NotNull Icon HaskellSmallBlueLogo = IconLoader.getIcon("/icons/haskell-blue@16.png", HaskellIcons.class);
 
-  @NotNull Icon Module = IconLoader.getIcon("/icons/module.png");
-  @NotNull Icon Data = IconLoader.getIcon("/icons/data.png");
-  @NotNull Icon NewType = IconLoader.getIcon("/icons/newtype.png");
-  @NotNull Icon Type = IconLoader.getIcon("/icons/type.png");
-  @NotNull Icon Class = IconLoader.getIcon("/icons/class.png");
-  @NotNull Icon Default = IconLoader.getIcon("/icons/default_declaration.png");
-  @NotNull Icon TypeFamily = IconLoader.getIcon("/icons/type_family.png");
-  @NotNull Icon TypeInstance = IconLoader.getIcon("/icons/type_instance.png");
-  @NotNull Icon TypeSignature = IconLoader.getIcon("/icons/type_signature.png");
-  @NotNull Icon Instance = IconLoader.getIcon("/icons/instance.png");
-  @NotNull Icon Foreign = IconLoader.getIcon("/icons/foreign.png");
+  @NotNull Icon Module = IconLoader.getIcon("/icons/module.png", HaskellIcons.class);
+  @NotNull Icon Data = IconLoader.getIcon("/icons/data.png", HaskellIcons.class);
+  @NotNull Icon NewType = IconLoader.getIcon("/icons/newtype.png", HaskellIcons.class);
+  @NotNull Icon Type = IconLoader.getIcon("/icons/type.png", HaskellIcons.class);
+  @NotNull Icon Class = IconLoader.getIcon("/icons/class.png", HaskellIcons.class);
+  @NotNull Icon Default = IconLoader.getIcon("/icons/default_declaration.png", HaskellIcons.class);
+  @NotNull Icon TypeFamily = IconLoader.getIcon("/icons/type_family.png", HaskellIcons.class);
+  @NotNull Icon TypeInstance = IconLoader.getIcon("/icons/type_instance.png", HaskellIcons.class);
+  @NotNull Icon TypeSignature = IconLoader.getIcon("/icons/type_signature.png", HaskellIcons.class);
+  @NotNull Icon Instance = IconLoader.getIcon("/icons/instance.png", HaskellIcons.class);
+  @NotNull Icon Foreign = IconLoader.getIcon("/icons/foreign.png", HaskellIcons.class);
 
-  @NotNull Icon CabalLogo = IconLoader.getIcon("/icons/cabal.png");
+  @NotNull Icon CabalLogo = IconLoader.getIcon("/icons/cabal.png", HaskellIcons.class);
 
-  @NotNull Icon AlexLogo = IconLoader.getIcon("/icons/alex.png");
+  @NotNull Icon AlexLogo = IconLoader.getIcon("/icons/alex.png", HaskellIcons.class);
 }
