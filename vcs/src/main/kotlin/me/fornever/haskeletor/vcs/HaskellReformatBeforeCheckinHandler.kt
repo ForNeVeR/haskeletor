@@ -35,25 +35,28 @@ class HaskellReformatBeforeCheckinHandler(
     private val checkinProjectPanel: CheckinProjectPanel
 ) : CheckinHandler(), CommitCheck {
 
-    override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent {
+    override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent =
+        ConfigurationPanel()
+
+    private inner class ConfigurationPanel : RefreshableOnComponent {
+
         val reformatBox = NonFocusableCheckBox("Haskell reformat code")
-        disableWhenDumb(project, reformatBox, "Impossible until indices are up-to-date")
-        return object : RefreshableOnComponent {
-            override fun getComponent(): JComponent {
-                val panel = JPanel(GridLayout(1, 0))
-                panel.add(reformatBox)
-                return panel
-            }
+        init {
+            disableWhenDumb(project, reformatBox, "Impossible until indices are up-to-date")
+        }
 
-            override fun refresh() = Unit
+        override fun getComponent(): JComponent {
+            val panel = JPanel(GridLayout(1, 0))
+            panel.add(reformatBox)
+            return panel
+        }
 
-            override fun saveState() {
-                HaskellSettingsState.setReformatCodeBeforeCommit(reformatBox.isSelected)
-            }
+        override fun saveState() {
+            HaskellSettingsState.setReformatCodeBeforeCommit(reformatBox.isSelected)
+        }
 
-            override fun restoreState() {
-                reformatBox.isSelected = HaskellSettingsState.isReformatCodeBeforeCommit()
-            }
+        override fun restoreState() {
+            reformatBox.isSelected = HaskellSettingsState.isReformatCodeBeforeCommit()
         }
     }
 
@@ -84,3 +87,4 @@ class HaskellReformatBeforeCheckinHandler(
         checkBox.toolTipText = if (dumb) tooltip else ""
     }
 }
+

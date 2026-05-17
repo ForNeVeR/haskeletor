@@ -35,25 +35,27 @@ class HaskellOptimizeImportsBeforeCheckinHandler(
     private val checkinProjectPanel: CheckinProjectPanel
 ) : CheckinHandler(), CommitCheck {
 
-    override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent {
+    override fun getBeforeCheckinConfigurationPanel(): RefreshableOnComponent = ConfigurationPanel()
+
+    private inner class ConfigurationPanel : RefreshableOnComponent {
+
         val optimizeBox = NonFocusableCheckBox("Haskell optimize imports")
-        disableWhenDumb(project, optimizeBox, "Impossible until indices are up-to-date")
-        return object : RefreshableOnComponent {
-            override fun getComponent(): JComponent {
-                val panel = JPanel(GridLayout(1, 0))
-                panel.add(optimizeBox)
-                return panel
-            }
+        init {
+            disableWhenDumb(project, optimizeBox, "Impossible until indices are up-to-date")
+        }
 
-            override fun refresh() = Unit
+        override fun getComponent(): JComponent {
+            val panel = JPanel(GridLayout(1, 0))
+            panel.add(optimizeBox)
+            return panel
+        }
 
-            override fun saveState() {
-                HaskellSettingsState.setOptimizeImportsBeforeCommit(optimizeBox.isSelected)
-            }
+        override fun saveState() {
+            HaskellSettingsState.setOptimizeImportsBeforeCommit(optimizeBox.isSelected)
+        }
 
-            override fun restoreState() {
-                optimizeBox.isSelected = HaskellSettingsState.isOptmizeImportsBeforeCommit()
-            }
+        override fun restoreState() {
+            optimizeBox.isSelected = HaskellSettingsState.isOptmizeImportsBeforeCommit()
         }
     }
 
