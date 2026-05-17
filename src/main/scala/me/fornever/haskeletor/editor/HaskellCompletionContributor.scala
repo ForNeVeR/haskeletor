@@ -12,7 +12,6 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
@@ -29,6 +28,7 @@ import me.fornever.haskeletor.psi.impl.HaskellDeclarationElementImpl
 import me.fornever.haskeletor.runconfig.console.{HaskellConsoleView, HaskellConsoleViewMap}
 import me.fornever.haskeletor.util._
 import me.fornever.haskeletor.{HaskellFile, HaskellParserDefinition}
+import org.apache.commons.text.StringEscapeUtils
 
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
@@ -69,6 +69,8 @@ class HaskellCompletionContributor extends CompletionContributor {
   private final val HaddockIds = LazyList("{-|", "-- |", "-- ^")
 
   private final val TypeWildcard: Regex = """.*Found.type.wildcard.[`|‘][^'’]+['|’].standing.for.[`|‘]([^'’]+)['|’].*""".r
+
+  private def unescapeCompletionText(text: String): String = StringEscapeUtils.unescapeHtml4(text)
 
   private def findQualifiedNamedElementToComplete(element: PsiElement): Option[HaskellQualifiedNameElement] = {
     val elementType = Option(element.getNode.getElementType)
@@ -268,7 +270,9 @@ class HaskellCompletionContributor extends CompletionContributor {
 
     private def createLookupElement(typeSignature: String): Option[LookupElementBuilder] = {
       typeSignature.split("::", 2).toSeq match {
-        case Seq(n, _) => Some(LookupElementBuilder.create(n.trim).withTypeText(typeSignature))
+        case Seq(n, _) =>
+          val unescapedTypeSignature = unescapeCompletionText(typeSignature)
+          Some(LookupElementBuilder.create(unescapeCompletionText(n.trim)).withTypeText(unescapedTypeSignature))
         case _ => None
       }
     }
@@ -466,7 +470,7 @@ class HaskellCompletionContributor extends CompletionContributor {
   def createLocalLookupElement(namedElement: HaskellNamedElement): LookupElementBuilder = {
     ProgressManager.checkCanceled()
 
-    def typeSignature = HaskellComponentsManager.findTypeInfoForElement(namedElement).map(_.typeSignature).map(StringUtil.unescapeXmlEntities).getOrElse("")
+    def typeSignature = HaskellComponentsManager.findTypeInfoForElement(namedElement).map(_.typeSignature).map(unescapeCompletionText).getOrElse("")
 
     LookupElementBuilder.create(namedElement.getName).withIcon(HaskellIcons.HaskellSmallBlueLogo).withRenderer((_: LookupElement, presentation: LookupElementPresentation) => {
       presentation.setTypeText(typeSignature)
