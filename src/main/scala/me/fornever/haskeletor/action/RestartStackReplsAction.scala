@@ -23,7 +23,9 @@ class RestartStackReplsAction extends AnAction {
   }
 
   override def actionPerformed(actionEvent: AnActionEvent): Unit = {
-    ProjectLibraryBuilder.resetBuildStatus(actionEvent.getProject)
-    StackProjectManager.restart(actionEvent.getProject)
+    Option(actionEvent.getProject).foreach(project => {
+      ProjectLibraryBuilder.resetBuildStatus(project)
+      StackProjectManager.getInstance(project).restart()
+    })
   }
 }
