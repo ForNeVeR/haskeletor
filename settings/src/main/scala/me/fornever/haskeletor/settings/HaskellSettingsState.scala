@@ -23,14 +23,6 @@ object HaskellSettingsState {
     state.useSystemGhc
   }
 
-  def getNewProjectTemplateName: String = {
-    state.newProjectTemplateName
-  }
-
-  def getCachePath: String = {
-    state.cachePath
-  }
-
   def isReformatCodeBeforeCommit: Boolean = {
     state.reformatCodeBeforeCommit
   }

@@ -49,8 +49,6 @@ public final class HaskellSettingsPersistentStateComponent implements Persistent
         public Boolean useSystemGhc = false;
         public Boolean reformatCodeBeforeCommit = false;
         public Boolean optimizeImportsBeforeCommit = false;
-        public String newProjectTemplateName = "new-template";
-        public String cachePath = GlobalInfo.DefaultCachePath();
         public String hlintPath = "";
         public String hooglePath = "";
         public String ormoluPath = "";
