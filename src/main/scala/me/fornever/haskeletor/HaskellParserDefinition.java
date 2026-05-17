@@ -6,80 +6,94 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package me.fornever.haskeletor
+package me.fornever.haskeletor;
 
-import com.intellij.lang.ParserDefinition.SpaceRequirements
-import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
-import com.intellij.lexer.Lexer
-import com.intellij.openapi.project.Project
-import com.intellij.psi._
-import com.intellij.psi.tree.{IFileElementType, TokenSet}
-import me.fornever.haskeletor.parser.HaskellParser
-import me.fornever.haskeletor.psi.HaskellTypes._
-import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
-import org.jetbrains.annotations.NotNull
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.PsiParser;
+import com.intellij.lexer.Lexer;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.TokenType;
+import com.intellij.psi.tree.IFileElementType;
+import com.intellij.psi.tree.TokenSet;
+import me.fornever.haskeletor.parser.HaskellParser;
+import me.fornever.haskeletor.psi.HaskellTypes;
+import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType$;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
-//noinspection TypeAnnotation
-object HaskellParserDefinition {
-  final val WhiteSpaces = TokenSet.create(TokenType.WHITE_SPACE)
-  final val Comments = TokenSet.create(HS_COMMENT, HS_NCOMMENT, HS_HADDOCK, HS_NHADDOCK)
-  final val PragmaStartEndIds = TokenSet.create(HS_PRAGMA_START, HS_PRAGMA_END)
-  final val ReservedIdS = TokenSet.create(HS_CASE, HS_CLASS, HS_DATA, HS_DEFAULT, HS_DERIVING, HS_DO, HS_ELSE, HS_IF, HS_IMPORT,
-    HS_IN, HS_INFIX, HS_INFIXL, HS_INFIXR, HS_INSTANCE, HS_LET, HS_MODULE, HS_NEWTYPE, HS_OF, HS_THEN, HS_TYPE, HS_WHERE, HS_UNDERSCORE)
-  final val SpecialReservedIds = TokenSet.create(HS_TYPE_FAMILY, HS_FOREIGN_IMPORT, HS_FOREIGN_EXPORT, HS_TYPE_INSTANCE)
-  final val AllReservedIds = TokenSet.orSet(ReservedIdS, SpecialReservedIds)
-  final val ReservedOperators = TokenSet.create(HS_COLON_COLON, HS_EQUAL, HS_BACKSLASH, HS_VERTICAL_BAR, HS_LEFT_ARROW,
-    HS_RIGHT_ARROW, HS_AT, HS_TILDE, HS_DOUBLE_RIGHT_ARROW, HS_DOT_DOT)
-  final val Operators = TokenSet.orSet(ReservedOperators, TokenSet.create(HS_VARSYM_ID, HS_CONSYM_ID), TokenSet.create(HS_DOT))
-  final val NumberLiterals = TokenSet.create(HS_DECIMAL, HS_FLOAT, HS_HEXADECIMAL, HS_OCTAL)
-  final val SymbolsResOp = TokenSet.create(HS_EQUAL, HS_AT, HS_BACKSLASH, HS_VERTICAL_BAR, HS_TILDE)
-  final val StringLiterals = TokenSet.create(HS_CHARACTER_LITERAL, HS_STRING_LITERAL)
-  final val Literals = TokenSet.orSet(StringLiterals, NumberLiterals, TokenSet.create(HS_QUASIQUOTE))
-  final val HaskellParser = new HaskellParser
-  final val Ids = TokenSet.create(HS_VAR_ID, HS_CON_ID, HS_VARSYM_ID, HS_CONSYM_ID)
-}
+import static me.fornever.haskeletor.psi.HaskellTypes.*;
 
-class HaskellParserDefinition extends ParserDefinition {
-
-  @NotNull
-  def createLexer(project: Project): Lexer = {
-    new HaskellLexerAdapter
-  }
-
-  def createParser(project: Project): PsiParser = {
-    HaskellParserDefinition.HaskellParser
-  }
-
-  def getFileNodeType: IFileElementType = {
-    HaskellFileElementType.Instance
-  }
+public class HaskellParserDefinition implements ParserDefinition {
+  private static final IFileElementType FILE = HaskellFileElementType$.MODULE$.Instance();
+  public static final TokenSet WhiteSpaces = TokenSet.create(TokenType.WHITE_SPACE);
+  public static final TokenSet Comments = TokenSet.create(HS_COMMENT, HS_NCOMMENT, HS_HADDOCK, HS_NHADDOCK);
+  public static final TokenSet PragmaStartEndIds = TokenSet.create(HS_PRAGMA_START, HS_PRAGMA_END);
+  public static final TokenSet ReservedIdS = TokenSet.create(HS_CASE, HS_CLASS, HS_DATA, HS_DEFAULT, HS_DERIVING, HS_DO, HS_ELSE, HS_IF, HS_IMPORT,
+    HS_IN, HS_INFIX, HS_INFIXL, HS_INFIXR, HS_INSTANCE, HS_LET, HS_MODULE, HS_NEWTYPE, HS_OF, HS_THEN, HS_TYPE, HS_WHERE, HS_UNDERSCORE);
+  public static final TokenSet SpecialReservedIds = TokenSet.create(HS_TYPE_FAMILY, HS_FOREIGN_IMPORT, HS_FOREIGN_EXPORT, HS_TYPE_INSTANCE);
+  public static final TokenSet AllReservedIds = TokenSet.orSet(ReservedIdS, SpecialReservedIds);
+  public static final TokenSet ReservedOperators = TokenSet.create(HS_COLON_COLON, HS_EQUAL, HS_BACKSLASH, HS_VERTICAL_BAR, HS_LEFT_ARROW,
+    HS_RIGHT_ARROW, HS_AT, HS_TILDE, HS_DOUBLE_RIGHT_ARROW, HS_DOT_DOT);
+  public static final TokenSet Operators = TokenSet.orSet(ReservedOperators, TokenSet.create(HS_VARSYM_ID, HS_CONSYM_ID), TokenSet.create(HS_DOT));
+  public static final TokenSet NumberLiterals = TokenSet.create(HS_DECIMAL, HS_FLOAT, HS_HEXADECIMAL, HS_OCTAL);
+  public static final TokenSet SymbolsResOp = TokenSet.create(HS_EQUAL, HS_AT, HS_BACKSLASH, HS_VERTICAL_BAR, HS_TILDE);
+  public static final TokenSet StringLiterals = TokenSet.create(HS_CHARACTER_LITERAL, HS_STRING_LITERAL);
+  public static final TokenSet Literals = TokenSet.orSet(StringLiterals, NumberLiterals, TokenSet.create(HS_QUASIQUOTE));
+  private static final HaskellParser HaskellParser = new HaskellParser();
+  public static final TokenSet Ids = TokenSet.create(HS_VAR_ID, HS_CON_ID, HS_VARSYM_ID, HS_CONSYM_ID);
 
   @NotNull
-  override def getWhitespaceTokens: TokenSet = {
-    HaskellParserDefinition.WhiteSpaces
+  @Override
+  public Lexer createLexer(Project project) {
+    return new HaskellLexerAdapter();
   }
 
-  @NotNull
-  def getCommentTokens: TokenSet = {
-    HaskellParserDefinition.Comments
+  @Override
+  public @NonNull PsiParser createParser(Project project) {
+    return HaskellParserDefinition.HaskellParser;
+  }
+
+  @Override
+  public @NonNull IFileElementType getFileNodeType() {
+    return FILE;
   }
 
   @NotNull
-  def getStringLiteralElements: TokenSet = {
-    HaskellParserDefinition.StringLiterals
+  @Override
+  public TokenSet getWhitespaceTokens() {
+    return HaskellParserDefinition.WhiteSpaces;
   }
 
   @NotNull
-  def createElement(node: ASTNode): PsiElement = {
-    Factory.createElement(node)
+  @Override
+  public TokenSet getCommentTokens() {
+    return HaskellParserDefinition.Comments;
   }
 
   @NotNull
-  def createFile(viewProvider: FileViewProvider): PsiFile = {
-    new HaskellFile(viewProvider)
+  @Override
+  public TokenSet getStringLiteralElements() {
+    return HaskellParserDefinition.StringLiterals;
   }
 
-  override def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): ParserDefinition.SpaceRequirements = {
-    SpaceRequirements.MAY
+  @NotNull
+  @Override
+  public PsiElement createElement(ASTNode node) {
+    return HaskellTypes.Factory.createElement(node);
+  }
+
+  @NotNull
+  @Override
+  public PsiFile createFile(@NonNull FileViewProvider viewProvider) {
+    return new HaskellFile(viewProvider);
+  }
+
+  @Override
+  public @NonNull SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
+    return SpaceRequirements.MAY;
   }
 }
