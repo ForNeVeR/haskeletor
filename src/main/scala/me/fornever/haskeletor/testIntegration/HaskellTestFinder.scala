@@ -8,9 +8,9 @@
 
 package me.fornever.haskeletor.testIntegration
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testIntegration.TestFinder
 import me.fornever.haskeletor.HaskellFile
 
@@ -34,7 +34,11 @@ class HaskellTestFinder extends TestFinder {
     */
   override def findTestsForClass(psiElement: PsiElement): util.Collection[PsiElement] = {
     val testFileName = psiElement.getContainingFile.getName.replace(".hs", "Spec.hs")
-    val testFiles: Seq[PsiElement] = FilenameIndex.getFilesByName(psiElement.getProject, testFileName, GlobalSearchScope.projectScope(psiElement.getProject)).toIndexedSeq
+    val psiManager = PsiManager.getInstance(psiElement.getProject)
+    val testFiles = FilenameIndex.getVirtualFilesByName(
+      testFileName,
+      GlobalSearchScope.projectScope(psiElement.getProject)
+    ).asScala.toSeq.flatMap(vf => Option(psiManager.findFile(vf))).map(_.asInstanceOf[PsiElement])
     testFiles.asJavaCollection
   }
 
