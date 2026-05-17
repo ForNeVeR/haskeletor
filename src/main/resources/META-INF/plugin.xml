@@ -224,7 +224,7 @@
         <notificationGroup id="HaskellWarnings" isLogByDefault="true"
                            displayType="NONE" key="notification-group.haskell-warnings.name"/>
         <notificationGroup id="HaskellBalloon" isLogByDefault="true"
-                           displayType="NONE" key="notification-group.haskell-balloon.name"/>
+                           displayType="BALLOON" key="notification-group.haskell-balloon.name"/>
 
         <!-- Mover -->
         <!--<statementUpDownMover implementation="me.fornever.haskeletor.editor.HaskellStatementMover"/>-->

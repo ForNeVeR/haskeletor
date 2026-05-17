@@ -45,6 +45,7 @@ scala {
 }
 
 dependencies {
+    implementation(libs.commons.text)
     implementation(libs.spray.json)
     implementation(libs.snakeyaml)
     implementation(libs.scaffeine)
