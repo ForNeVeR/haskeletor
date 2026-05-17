@@ -79,7 +79,7 @@ object HaskellSettingsState {
       .asJava
   }
 
-  def getDefaultGhcOptions: Seq[String] = {
-    state.defaultGhcOptions.split(" ").map(_.trim)
+  def getDefaultGhcOptions: IndexedSeq[String] = {
+    state.defaultGhcOptions.split(" ").toIndexedSeq.map(_.trim)
   }
 }
