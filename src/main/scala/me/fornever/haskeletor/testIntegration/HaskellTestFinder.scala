@@ -8,6 +8,7 @@
 
 package me.fornever.haskeletor.testIntegration
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiManager}
@@ -29,16 +30,22 @@ class HaskellTestFinder extends TestFinder {
     PsiTreeUtil.getParentOfType(psiElement, classOf[HaskellFile])
   }
 
+  private def findFilesInIndex(project: Project, name: String): Seq[PsiElement] = {
+    FilenameIndex.getVirtualFilesByName(
+      name,
+      GlobalSearchScope.projectScope(project)
+    ).asScala
+      .toSeq
+      .flatMap(vf => Option(PsiManager.getInstance(project).findFile(vf)))
+      .map(_.asInstanceOf[PsiElement])
+  }
+
   /**
     * Given a source PSI element, find all test files this element could be a source of.
     */
   override def findTestsForClass(psiElement: PsiElement): util.Collection[PsiElement] = {
     val testFileName = psiElement.getContainingFile.getName.replace(".hs", "Spec.hs")
-    val psiManager = PsiManager.getInstance(psiElement.getProject)
-    val testFiles = FilenameIndex.getVirtualFilesByName(
-      testFileName,
-      GlobalSearchScope.projectScope(psiElement.getProject)
-    ).asScala.toSeq.flatMap(vf => Option(psiManager.findFile(vf))).map(_.asInstanceOf[PsiElement])
+    val testFiles = findFilesInIndex(psiElement.getProject, testFileName)
     testFiles.asJavaCollection
   }
 
@@ -47,7 +54,7 @@ class HaskellTestFinder extends TestFinder {
     */
   override def findClassesForTest(psiElement: PsiElement): util.Collection[PsiElement] = {
     val sourceFileName = psiElement.getContainingFile.getName.replace("Spec.hs", ".hs")
-    val sourceFiles: Seq[PsiElement] = FilenameIndex.getFilesByName(psiElement.getProject, sourceFileName, GlobalSearchScope.projectScope(psiElement.getProject)).toIndexedSeq
+    val sourceFiles = findFilesInIndex(psiElement.getProject, sourceFileName)
     sourceFiles.asJavaCollection
   }
 
