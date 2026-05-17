@@ -8,9 +8,9 @@
 
 package me.fornever.haskeletor.external.component
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
@@ -27,7 +27,7 @@ import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.notification.ConfigFileWatcher
-import me.fornever.haskeletor.projectmodel.HaskellProjectManager
+import me.fornever.haskeletor.projectmodel.{HaskellProjectInitializer, HaskellProjectManager}
 import me.fornever.haskeletor.psi.HaskellPsiExtensions._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
@@ -43,6 +43,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object StackProjectManager {
+
+  def getInstance(project: Project): StackProjectManager =
+    project.getService(classOf[HaskellProjectInitializer]).asInstanceOf[StackProjectManager]
 
   import me.fornever.haskeletor.util.ScalaUtil._
 
@@ -94,11 +97,7 @@ object StackProjectManager {
   }
 
   def getStackProjectManager(project: Project): Option[StackProjectManager] = {
-    project.isDisposed.optionNot(project.getComponent(classOf[StackProjectManager]))
-  }
-
-  def getProjectLibraryFileWatcher(project: Project): Option[ProjectLibraryFileWatcher] = {
-    getStackProjectManager(project).map(_.projectLibraryFileWatcher)
+    project.isDisposed.optionNot(getInstance(project))
   }
 
   def launchInstallHaskellTools(project: Project, update: Boolean): Unit = {
@@ -375,9 +374,7 @@ object StackProjectManager {
   private val logger = Logger.getInstance(this.getClass)
 }
 
-class StackProjectManager(project: Project) extends ProjectComponent {
-
-  override def getComponentName: String = "stack-project-manager"
+final class StackProjectManager(project: Project) extends HaskellProjectInitializer with Disposable {
 
   @volatile
   private var initializing = false
@@ -416,17 +413,6 @@ class StackProjectManager(project: Project) extends ProjectComponent {
     replsManager = Option(new StackReplsManager(project, workingDirectory))
   }
 
-  override def projectClosed(): Unit = {
-    if (initialized.get()) {
-      replsManager.foreach(_.getGlobalRepl.exit())
-      replsManager.foreach(_.getGlobalRepl2.exit())
-      replsManager.foreach(_.getRunningProjectRepls.foreach(_.exit()))
-      HaskellComponentsManager.invalidateGlobalCaches(project)
-    }
-  }
-
-  override def initComponent(): Unit = {}
-
   private val initialized = new AtomicBoolean()
 
   override def projectOpened(): Unit = {
@@ -460,8 +446,14 @@ class StackProjectManager(project: Project) extends ProjectComponent {
     }
   }
 
-  override def disposeComponent(): Unit = {
+  override def dispose(): Unit = {
     lifetimeDefinition.terminate(true)
+    if (initialized.get()) {
+      replsManager.foreach(_.getGlobalRepl.exit())
+      replsManager.foreach(_.getGlobalRepl2.exit())
+      replsManager.foreach(_.getRunningProjectRepls.foreach(_.exit()))
+      HaskellComponentsManager.invalidateGlobalCaches(project)
+    }
   }
 
   private def disableDefaultReformatAction(): Unit = {

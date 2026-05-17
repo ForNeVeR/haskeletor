@@ -27,6 +27,12 @@
     <resource-bundle>messages.HaskeletorBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+
+        <!-- Startup -->
+        <postStartupActivity implementation="me.fornever.haskeletor.projectmodel.HaskellProjectActivity" />
+        <projectService serviceInterface="me.fornever.haskeletor.projectmodel.HaskellProjectInitializer"
+                       serviceImplementation="me.fornever.haskeletor.external.component.StackProjectManager"/>
+
         <!-- File types -->
         <fileType name="Alex"
                   language="Alex"
@@ -239,7 +245,9 @@
                             serviceImplementation="me.fornever.haskeletor.language.HaskellReformatServiceImpl"/>
     </extensions>
 
-    <project-components><component><implementation-class>me.fornever.haskeletor.external.component.StackProjectManager</implementation-class></component><component><implementation-class>me.fornever.haskeletor.external.component.HaskellDocumentationProvider</implementation-class></component></project-components>
+    <project-components>
+        <component><implementation-class>me.fornever.haskeletor.external.component.HaskellDocumentationProvider</implementation-class></component>
+    </project-components>
 
     <actions>
         <action id="Haskell.HaskellFile" class="me.fornever.haskeletor.action.CreateHaskellFileAction"
