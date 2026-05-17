@@ -14,7 +14,6 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.gotoByName.{CustomMatcherModel, FilteringGotoByModel, LanguageRef}
 import com.intellij.navigation.{ChooseByNameContributor, NavigationItem}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.presentation.java.SymbolPresentationUtil
 import me.fornever.haskeletor.core.HaskeletorBundle
@@ -44,12 +43,6 @@ class GotoByHoogleModel(val project: Project, val contributors: Array[ChooseByNa
 
   def getNotFoundMessage: String = {
     IdeBundle.message("label.no.matches.found")
-  }
-
-  override def getCheckBoxMnemonic: Char = {
-    // Some combination like Alt+N, Ant+O, etc are a dead symbols, therefore
-    // we have to change mnemonics for Mac users.
-    if (SystemInfo.isMac) 'P' else 'n'
   }
 
   def loadInitialCheckBoxState: Boolean = {
