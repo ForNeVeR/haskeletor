@@ -30,7 +30,7 @@ dependencies {
 tasks {
     withType<ScalaCompile> {
         scalaCompileOptions.additionalParameters = listOf(
-            "-deprecation", "-feature", "-unchecked"
+            "-deprecation", "-feature", "-unchecked", "-Werror"
         )
     }
 }

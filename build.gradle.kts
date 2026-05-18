@@ -180,7 +180,7 @@ tasks {
             generateHaskellParser
         )
         scalaCompileOptions.additionalParameters = listOf(
-            "-deprecation", "-feature", "-unchecked"
+            "-deprecation", "-feature", "-unchecked", "-Werror"
         )
     }
     named<PrepareSandboxTask>("prepareSandbox") {
