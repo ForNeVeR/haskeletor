@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Build System
+.gradle/
+
 /.bsp/
-/.gradle/
 /.intellijPlatform/
 
 # Gradle Kotlin daemon
-/.kotlin/
-
+.kotlin/
 build/
 
 # IDE

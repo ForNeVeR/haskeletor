@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("scala")
+    id("scalaModuleBase")
     id("org.jetbrains.intellij.platform.module")
 }
 
@@ -26,13 +26,5 @@ dependencies {
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
         bundledModule("intellij.spellchecker")
-    }
-}
-
-tasks {
-    withType<ScalaCompile> {
-        scalaCompileOptions.additionalParameters = listOf(
-            "-deprecation", "-feature", "-unchecked", "-Werror"
-        )
     }
 }

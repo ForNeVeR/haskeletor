@@ -15,7 +15,7 @@ import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 
 plugins {
-    id("scala")
+    id("scalaModuleBase")
     alias(libs.plugins.changelog)
     alias(libs.plugins.gradle.jvm.wrapper)
     alias(libs.plugins.intellij.grammar.kit)
@@ -178,9 +178,6 @@ tasks {
             generateCabalSyntaxHighlightingLexer,
             generateHaskellLexer,
             generateHaskellParser
-        )
-        scalaCompileOptions.additionalParameters = listOf(
-            "-deprecation", "-feature", "-unchecked", "-Werror"
         )
     }
     named<PrepareSandboxTask>("prepareSandbox") {

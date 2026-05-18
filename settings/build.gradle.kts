@@ -5,7 +5,7 @@
  */
 
 plugins {
-    id("scala")
+    id("scalaModuleBase")
     id("org.jetbrains.intellij.platform.module")
 }
 
@@ -29,12 +29,4 @@ dependencies {
     implementation(libs.scala.library)
 
     implementation(project(":core"))
-}
-
-tasks {
-    withType<ScalaCompile> {
-        scalaCompileOptions.additionalParameters = listOf(
-            "-deprecation", "-feature", "-unchecked"
-        )
-    }
 }
