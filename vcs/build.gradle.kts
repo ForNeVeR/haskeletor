@@ -5,7 +5,7 @@
  */
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    id("kotlinModuleBase")
     id("org.jetbrains.intellij.platform.module")
 }
 

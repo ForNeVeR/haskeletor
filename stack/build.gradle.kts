@@ -7,7 +7,7 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    id("kotlinModuleBase")
     id("org.jetbrains.intellij.platform.module")
 }
 
@@ -41,4 +41,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-
