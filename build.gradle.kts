@@ -140,22 +140,22 @@ intellijPlatform {
 tasks {
     val generateAlexLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_AlexLexer.flex")
-        targetOutputDir = generatedAlexLexerSourceBase.map { it.dir("me/fornever/haskeletor/alex/lang/lexer") }
+        targetRootOutputDir = generatedAlexLexerSourceBase.map { it.dir("me/fornever/haskeletor/alex/lang/lexer") }
         purgeOldFiles = true
     }
     val generateCabalParsingLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_CabalParsingLexer.flex")
-        targetOutputDir = generatedCabalParsingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/lang/lexer") }
+        targetRootOutputDir = generatedCabalParsingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/lang/lexer") }
         purgeOldFiles = true
     }
     val generateCabalSyntaxHighlightingLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_CabalSyntaxHighlightingLexer.flex")
-        targetOutputDir = generatedCabalSyntaxHighlightingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/highlighting") }
+        targetRootOutputDir = generatedCabalSyntaxHighlightingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/highlighting") }
         purgeOldFiles = true
     }
     val generateHaskellLexer by registering(GenerateLexerTask::class) {
         sourceFile = file("src/main/flex/_HaskellLexer.flex")
-        targetOutputDir = generatedHaskellLexerSourceBase.map { it.dir("me/fornever/haskeletor") }
+        targetRootOutputDir = generatedHaskellLexerSourceBase.map { it.dir("me/fornever/haskeletor") }
         purgeOldFiles = true
     }
 
@@ -163,15 +163,11 @@ tasks {
         sourceFile = file("src/main/bnf/Alex.bnf")
         targetRootOutputDir = generatedAlexParserSourceBase
         purgeOldFiles = true
-        pathToParser = "me/fornever/haskeletor/alex/lang/parser/AlexParser"
-        pathToPsiRoot = "me/fornever/haskeletor/alex/lang/parser/psi"
     }
     val generateHaskellParser by registering(GenerateParserTask::class) {
         sourceFile = file("src/main/bnf/haskell.bnf")
         targetRootOutputDir = generatedHaskellParserSourceBase
         purgeOldFiles = true
-        pathToParser = "me/fornever/haskeletor/HaskellParser"
-        pathToPsiRoot = "me/fornever/haskeletor/psi"
     }
 
     withType<ScalaCompile> {
