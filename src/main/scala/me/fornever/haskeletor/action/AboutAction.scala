@@ -48,16 +48,13 @@ class AboutAction extends AnAction {
           IndexedSeq("--numeric-version").asJava,
           false
         ))
-        versionOutput <- command.map(_.readOutputAsFuture(ProjectScope.get(project)).asScala.map(Some)).getOrElse(Future.successful(None))
+        versionOutput <- command.map(_.readOutputAsFuture(ProjectScope.get(project)).asScala.map(Some.apply)).getOrElse(Future.successful(None))
       } yield versionOutput
 
       futureResult.foreach { versionOutput =>
         ApplicationManager.getApplication.invokeLater(() => {
           val messages = new ArrayBuffer[String]
-          val version = versionOutput.map(_.getStdout.trim) match {
-            case Some(value) if value.nonEmpty => value
-            case None => "-"
-          }
+          val version = versionOutput.map(_.getStdout.trim).filter(_.nonEmpty).getOrElse("-")
           messages.+=(s"${boldToolName("Stack")} version: " + version)
           messages.+=(s"${boldToolName("GHC")}: " + HaskellComponentsManager.getGhcVersion(project).map(_.prettyString).getOrElse("-") + "\n")
           messages.+=(s"${boldToolName("HLint")}: " + HLintComponent.versionInfo(project))

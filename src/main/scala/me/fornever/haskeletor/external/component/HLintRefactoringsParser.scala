@@ -42,34 +42,34 @@ object HLintRefactoringsParser {
   }
 
   @annotation.nowarn
-  private def refactoringParser[_: P]: P[Refactoring] = P("[" ~ (deleteParser | replaceParser | modifyCommentParser | insertCommentParser | removeAsKeywordParser) ~ "]")
+  private def refactoringParser[T: P]: P[Refactoring] = P("[" ~ (deleteParser | replaceParser | modifyCommentParser | insertCommentParser | removeAsKeywordParser) ~ "]")
 
   private[component] def parseSubts(hlintOutput: String): Parsed[Subts] = parse(hlintOutput, subtsParser(_), verboseFailures = true)
 
   private[component] def parsePos(hlintOutput: String): Parsed[SrcSpan] = parse(hlintOutput, posParser(_), verboseFailures = true)
 
   @annotation.nowarn
-  private def deleteParser[_: P]: P[Delete] = P("Delete" ~ keyRtypePosParser(Pass)).map({ case (x, y, _) => Delete(x, y) })
+  private def deleteParser[T: P]: P[Delete] = P("Delete" ~ keyRtypePosParser(Pass)).map({ case (x, y, _) => Delete(x, y) })
 
-  private def replaceParser[_: P]: P[Replace] = P("Replace" ~ keyRtypePosParser(commaParser ~ "subts =" ~ subtsParser ~ commaParser ~ keyValueParser("orig", string)) ~ (commaParser ~ deleteParser).rep)
+  private def replaceParser[T: P]: P[Replace] = P("Replace" ~ keyRtypePosParser(commaParser ~ "subts =" ~ subtsParser ~ commaParser ~ keyValueParser("orig", string)) ~ (commaParser ~ deleteParser).rep)
     .map({ case (x, y, (w, z), q) => Replace(x, y, w, z, q) })
 
-  private def modifyCommentParser[_: P]: P[ModifyComment] = P("ModifyComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
+  private def modifyCommentParser[T: P]: P[ModifyComment] = P("ModifyComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
     map({ case (x, y) => ModifyComment(x, y) })
 
-  private def insertCommentParser[_: P]: P[InsertComment] = P("InsertComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
+  private def insertCommentParser[T: P]: P[InsertComment] = P("InsertComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
     map({ case (x, y) => InsertComment(x, y) })
 
-  private def removeAsKeywordParser[_: P]: P[RemoveAsKeyword] = P("RemoveAsKeyword" ~ "{" ~ posParser ~ "}").
+  private def removeAsKeywordParser[T: P]: P[RemoveAsKeyword] = P("RemoveAsKeyword" ~ "{" ~ posParser ~ "}").
     map({ case (x) => RemoveAsKeyword(x) })
 
-  private def keyRtypePosParser[_: P, A](rest: => P[A]) = "{" ~ keyRtypeParser ~ commaParser ~ posParser ~ rest ~ "}"
+  private def keyRtypePosParser[T: P, A](rest: => P[A]) = "{" ~ keyRtypeParser ~ commaParser ~ posParser ~ rest ~ "}"
 
-  private def subtsParser[_: P] = P("[" ~ (subtParser ~ commaParser.?).rep ~ "]")
+  private def subtsParser[T: P] = P("[" ~ (subtParser ~ commaParser.?).rep ~ "]")
 
-  private def subtParser[_: P] = P("(" ~ string ~ commaParser ~ srcSpanParser ~ ")")
+  private def subtParser[T: P] = P("(" ~ string ~ commaParser ~ srcSpanParser ~ ")")
 
-  private def rtypeParser[_: P]: P[RType] = {
+  private def rtypeParser[T: P]: P[RType] = {
     P(IgnoreCase("Expr")).map(_ => Expr) |
       P(IgnoreCase("Decl")).map(_ => Decl) |
       P(IgnoreCase("Type")).map(_ => Type) |
@@ -83,31 +83,31 @@ object HLintRefactoringsParser {
 
   private def stringChars(c: Char) = c != '\"' && c != '\\'
 
-  private def strChars[_: P] = P(CharsWhile(stringChars))
+  private def strChars[T: P] = P(CharsWhile(stringChars))
 
-  private def hexDigit[_: P] = P(CharIn("0-9a-fA-F"))
+  private def hexDigit[T: P] = P(CharIn("0-9a-fA-F"))
 
-  private def unicodeEscape[_: P] = P("u" ~ hexDigit ~ hexDigit ~ hexDigit ~ hexDigit)
+  private def unicodeEscape[T: P] = P("u" ~ hexDigit ~ hexDigit ~ hexDigit ~ hexDigit)
 
-  private def escape[_: P] = P("\\" ~ (CharIn("\"/\\\\bfnrt") | unicodeEscape))
+  private def escape[T: P] = P("\\" ~ (CharIn("\"/\\\\bfnrt") | unicodeEscape))
 
-  private def string[_: P] = P("\"" ~/ (strChars | escape).rep.! ~ "\"")
-
-  @annotation.nowarn
-  private def digits[_: P] = P(CharsWhileIn("0-9"))
+  private def string[T: P] = P("\"" ~/ (strChars | escape).rep.! ~ "\"")
 
   @annotation.nowarn
-  private def keyValueParser[_: P, A](keyName: String, valueParser: => P[A]) = s"$keyName" ~ "=" ~ valueParser
+  private def digits[T: P] = P(CharsWhileIn("0-9"))
+
+  @annotation.nowarn
+  private def keyValueParser[T: P, A](keyName: String, valueParser: => P[A]) = s"$keyName" ~ "=" ~ valueParser
 
   private def keyDigitsParser[p: P](keyName: String) = keyValueParser[p, String](keyName, digits.!).map(_.toInt)
 
-  private def keyRtypeParser[_: P] = keyValueParser("rtype", rtypeParser)
+  private def keyRtypeParser[T: P] = keyValueParser("rtype", rtypeParser)
 
-  private def commaParser[_: P] = ","
+  private def commaParser[T: P] = ","
 
-  private def posParser[_: P] = "pos" ~ "=" ~ srcSpanParser
+  private def posParser[T: P] = "pos" ~ "=" ~ srcSpanParser
 
-  private def srcSpanParser[_: P] = "SrcSpan" ~
+  private def srcSpanParser[T: P] = "SrcSpan" ~
     ("{" ~
       keyDigitsParser("startLine") ~ commaParser ~
       keyDigitsParser("startCol") ~ commaParser ~

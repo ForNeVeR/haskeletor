@@ -26,7 +26,6 @@ class HaskellImplementationTextSelectioner extends ImplementationTextSelectioner
     HaskellPsiUtil.findTopDeclarationParent(element) match {
       case Some(dp) => Option(dp.getNextSibling) match {
         case Some(e: HaskellTopDeclaration) => (dp.getTextRange.getStartOffset, e.getTextRange.getEndOffset)
-        case Some(e: HaskellTopDeclaration) => (dp.getTextRange.getStartOffset, e.getTextRange.getEndOffset)
         case _ => Option(dp.getPrevSibling) match {
           case Some(e: HaskellTopDeclaration) => (e.getTextRange.getStartOffset, dp.getTextRange.getEndOffset)
           case _ => (dp.getTextRange.getStartOffset, dp.getTextRange.getEndOffset)
