@@ -5,7 +5,7 @@
 [versions]
 intellij-gradle = "2.16.0"
 intellij-platform = "2026.1"
-junit = "6.0.3"
+junit = "6.1.0"
 kotlin = "2.3.21"
 scala = "2.13.18"
 
