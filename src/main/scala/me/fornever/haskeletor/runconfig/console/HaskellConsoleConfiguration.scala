@@ -24,7 +24,7 @@ class HaskellConsoleConfiguration(name: String, project: Project, configurationF
   private var stackTarget: String = ""
   val replCommand = "ghci"
 
-  override def getConfigurationEditor = new HaskellConsoleConfigurationForm(getProject)
+  override def getConfigurationEditor = new HaskellConsoleConfigurationForm
 
   override def getState(executor: Executor, environment: ExecutionEnvironment) = new HaskellConsoleState(this, environment)
 
