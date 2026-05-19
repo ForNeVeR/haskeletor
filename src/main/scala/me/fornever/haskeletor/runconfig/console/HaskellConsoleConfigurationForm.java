@@ -42,19 +42,6 @@ public class HaskellConsoleConfigurationForm extends SettingsEditor<HaskellConso
         constraints.insets = JBUI.insetsTop(2);
         contentPanel.add(targetComboBox, constraints);
 
-        final JLabel note = new JLabel("Code completion is working after loading one module");
-        note.setEnabled(true);
-        note.setHorizontalAlignment(SwingConstants.LEADING);
-        note.setHorizontalTextPosition(SwingConstants.LEFT);
-        final Font noteFont = note.getFont();
-        if (noteFont != null) {
-            note.setFont(noteFont.deriveFont(Font.BOLD));
-        }
-        constraints.gridy = 2;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.insets = JBUI.insetsTop(6);
-        contentPanel.add(note, constraints);
-
         myPanel.add(contentPanel, BorderLayout.NORTH);
     }
 
