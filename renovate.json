@@ -10,7 +10,8 @@
             "enabled": false,
             "description": "Kotlin is managed by intellij-updater.",
             "matchPackageNames": [
-                "/org.jetbrains.kotlin.jvm/"
+                "/org.jetbrains.kotlin.jvm/",
+                "/kotlin-gradle-plugin/"
             ]
         }
     ],
