@@ -19,16 +19,11 @@ import java.io.File
 
 object GlobalInfo {
 
-  final val LibrarySourcedDirName = "lib"
-  final val StackWorkDirName = ".stack-work"
+  private final val LibrarySourcedDirName = "lib"
   final val StackageLtsVersion = "lts-19"
   private final val ToolsBinDirName = "bin"
 
-  final lazy val DefaultCachePath = {
-    // Workaround https://github.com/rikvdkleij/intellij-haskell/issues/503
-    if (SystemInfo.isWindows) {
-      System.setProperty("jdk.lang.Process.allowAmbiguousCommands", "true")
-    }
+  private final lazy val DefaultCachePath = {
     ProjectDirectories.from("me.fornever", "", "haskeletor").cacheDir
   }
 
