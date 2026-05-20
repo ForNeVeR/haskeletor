@@ -8,42 +8,38 @@
 
 package me.fornever.haskeletor.runconfig.test;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.RawCommandLineEditor;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class HaskellTestConfigurationForm extends SettingsEditor<HaskellTestConfiguration> {
-    private JPanel myPanel;
-    private RawCommandLineEditor stackArgsEditor;
-    private JComboBox myTestsuiteComboBox;
-    private RawCommandLineEditor myTestFilterTextField;
-    private JButton button;
+    private static final String HSPEC_OPTIONS_URL = "http://hspec.github.io/options.html";
 
-    public HaskellTestConfigurationForm(@NotNull Project project) {
+    private final JPanel myPanel;
+    private final RawCommandLineEditor stackArgsEditor;
+    private final JComboBox<String> myTestsuiteComboBox;
+    private final RawCommandLineEditor myTestFilterTextField;
+    private final JButton button;
+
+    public HaskellTestConfigurationForm() {
+        stackArgsEditor = new RawCommandLineEditor();
+        myTestsuiteComboBox = new ComboBox<>();
+        myTestFilterTextField = new RawCommandLineEditor();
+        button = new JButton();
+        myPanel = createPanel();
         try {
-            final URI uri = new URI("http://hspec.github.io/options.html");
-            class OpenUrlAction implements ActionListener {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    open(uri);
-                }
-            }
-            button.addActionListener(new OpenUrlAction());
-            button.setText("http://hspec.github.io/options.html");
+            final URI uri = new URI(HSPEC_OPTIONS_URL);
+            button.addActionListener(e -> open(uri));
+            button.setText(HSPEC_OPTIONS_URL);
         } catch (URISyntaxException e) {
             Messages.showErrorDialog("Error while creating URI action to hspec site", "Can not create URI action");
         }
@@ -53,7 +49,6 @@ public class HaskellTestConfigurationForm extends SettingsEditor<HaskellTestConf
     protected void resetEditorFrom(@NotNull HaskellTestConfiguration config) {
         myTestsuiteComboBox.removeAllItems();
         for (String executable : config.getTestSuiteTargetNames()) {
-            //noinspection unchecked
             myTestsuiteComboBox.addItem(executable);
         }
         myTestsuiteComboBox.setSelectedItem(config.getTestSuiteTargetName());
@@ -63,7 +58,7 @@ public class HaskellTestConfigurationForm extends SettingsEditor<HaskellTestConf
     }
 
     @Override
-    protected void applyEditorTo(@NotNull HaskellTestConfiguration config) throws ConfigurationException {
+    protected void applyEditorTo(@NotNull HaskellTestConfiguration config) {
         config.setStackArgs(stackArgsEditor.getText());
         config.setTestSuiteTargetName((String) myTestsuiteComboBox.getSelectedItem());
         config.setTestArguments(myTestFilterTextField.getText());
@@ -80,6 +75,55 @@ public class HaskellTestConfigurationForm extends SettingsEditor<HaskellTestConf
         myPanel.setVisible(false);
     }
 
+    private JPanel createPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 2;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 1.0;
+        constraints.insets = JBUI.emptyInsets();
+        panel.add(new JLabel("Stack arguments:"), constraints);
+
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = JBUI.emptyInsets();
+        panel.add(stackArgsEditor, constraints);
+
+        constraints.gridy = 2;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        panel.add(new JLabel("Stack test arguments, see hspec website: "), constraints);
+
+        constraints.gridx = 1;
+        panel.add(button, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(myTestFilterTextField, constraints);
+
+        constraints.gridy = 4;
+        constraints.fill = GridBagConstraints.NONE;
+        panel.add(new JLabel("Testsuite:"), constraints);
+
+        constraints.gridy = 5;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(myTestsuiteComboBox, constraints);
+
+        constraints.gridy = 6;
+        constraints.fill = GridBagConstraints.VERTICAL;
+        constraints.weighty = 1.0;
+        panel.add(Box.createVerticalGlue(), constraints);
+
+        return panel;
+    }
+
     private static void open(URI uri) {
         if (Desktop.isDesktopSupported()) {
             try {
@@ -90,53 +134,5 @@ public class HaskellTestConfigurationForm extends SettingsEditor<HaskellTestConf
         } else {
             Messages.showErrorDialog("Can not open link because Desktop is not supported", "Can not Open Link");
         }
-    }
-
-    {
-// GUI initializer generated by IntelliJ IDEA GUI Designer
-// >>> IMPORTANT!! <<<
-// DO NOT EDIT OR ADD ANY CODE HERE!
-        $$$setupUI$$$();
-    }
-
-    /**
-     * Method generated by IntelliJ IDEA GUI Designer
-     * >>> IMPORTANT!! <<<
-     * DO NOT edit this method OR call it in your code!
-     *
-     * @noinspection ALL
-     */
-    private void $$$setupUI$$$() {
-        myPanel = new JPanel();
-        myPanel.setLayout(new GridLayoutManager(7, 2, new Insets(0, 0, 30, 0), -1, -1));
-        final Spacer spacer1 = new Spacer();
-        myPanel.add(spacer1, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label1 = new JLabel();
-        label1.setText("Stack arguments:");
-        myPanel.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        stackArgsEditor = new RawCommandLineEditor();
-        myPanel.add(stackArgsEditor, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        label2.setText("Testsuite:");
-        myPanel.add(label2, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myTestsuiteComboBox = new JComboBox();
-        myPanel.add(myTestsuiteComboBox, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myTestFilterTextField = new RawCommandLineEditor();
-        myTestFilterTextField.setText("");
-        myPanel.add(myTestFilterTextField, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final JLabel label3 = new JLabel();
-        label3.setText("Stack test arguments, see hspec website: ");
-        myPanel.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        button = new JButton();
-        button.setMargin(new Insets(2, 4, 2, 2));
-        button.setText("Button");
-        myPanel.add(button, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return myPanel;
     }
 }
