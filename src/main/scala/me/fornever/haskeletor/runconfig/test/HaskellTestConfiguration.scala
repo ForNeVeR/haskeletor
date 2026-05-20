@@ -48,7 +48,7 @@ class HaskellTestConfiguration(name: String, project: Project, configurationFact
     testArguments
   }
 
-  override def getConfigurationEditor = new HaskellTestConfigurationForm(getProject)
+  override def getConfigurationEditor = new HaskellTestConfigurationForm
 
   //https://github.com/commercialhaskell/stack/issues/731
   //https://github.com/commercialhaskell/stack/issues/2210
