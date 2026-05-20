@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the REA
 
 ## [1.0.1] - 2026-04-18
 ### Fixed
-- **Show Error** action (and some otheres that relied on PSI access) has been [fixed](https://github.com/ForNeVeR/haskeletor/pull/40).
+- **Show Error** action (and some others that relied on PSI access) has been [fixed](https://github.com/ForNeVeR/haskeletor/pull/40).
 - Fix the action icons.
 - Migrate away from internal IntelliJ API (no longer allowed to be used for the plugins uploaded to the Marketplace).
 

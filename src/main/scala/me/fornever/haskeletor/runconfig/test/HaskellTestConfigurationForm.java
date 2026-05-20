@@ -22,7 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class HaskellTestConfigurationForm extends SettingsEditor<HaskellTestConfiguration> {
-    private static final String HSPEC_OPTIONS_URL = "http://hspec.github.io/options.html";
+    private static final String HSPEC_OPTIONS_URL = "https://hspec.github.io/options.html";
 
     private final JPanel myPanel;
     private final RawCommandLineEditor stackArgsEditor;
