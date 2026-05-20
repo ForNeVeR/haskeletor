@@ -20,6 +20,9 @@ The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the REA
 ### Added
 - Compatibility with many other IntelliJ-based IDEs.
 
+### Changed
+- All the UI forms and components used by the plugin have been adjusted to no more rely on the IntelliJ UI Designer.
+
 ## [1.0.1] - 2026-04-18
 ### Fixed
 - **Show Error** action (and some otheres that relied on PSI access) has been [fixed](https://github.com/ForNeVeR/haskeletor/pull/40).
