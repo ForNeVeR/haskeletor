@@ -229,7 +229,6 @@
         <!-- Mover -->
         <!--<statementUpDownMover implementation="me.fornever.haskeletor.editor.HaskellStatementMover"/>-->
 
-        <checkinHandlerFactory implementation="me.fornever.haskeletor.vcs.HaskellReformatCheckinHandlerFactory"/>
         <checkinHandlerFactory implementation="me.fornever.haskeletor.vcs.HaskellOptimizeImportsCheckinHandlerFactory"/>
 
         <applicationService serviceInterface="com.intellij.codeInsight.TargetElementUtil"
@@ -241,8 +240,6 @@
 
         <applicationService serviceInterface="me.fornever.haskeletor.core.language.HaskellImportOptimizerService"
                             serviceImplementation="me.fornever.haskeletor.language.HaskellImportOptimizerServiceImpl"/>
-        <applicationService serviceInterface="me.fornever.haskeletor.core.language.HaskellReformatService"
-                            serviceImplementation="me.fornever.haskeletor.language.HaskellReformatServiceImpl"/>
         <formattingService implementation="me.fornever.haskeletor.language.HaskellFormattingService"/>
     </extensions>
 
@@ -341,20 +338,6 @@
             <add-to-group group-id="MainMenu" anchor="before" relative-to-action="HelpMenu"/>
             <separator/>
             <reference id="HaskellGhciMenu"/>
-        </group>
-
-
-        <group id="HaskellCodeMenu" text="Haskell" description="Haskell Code Tools" icon="me.fornever.haskeletor.icons.HaskellIcons.HaskellLogo"
-               popup="true">
-
-            <action id="Haskell.ReformatCode"
-                    class="me.fornever.haskeletor.action.OrmoluReformatAction"
-                    text="Reformat Code by Ormolu"
-                    description="Reformat code by Ormolu">
-                <keyboard-shortcut first-keystroke="ctrl alt SEMICOLON" keymap="$default"/>
-            </action>
-
-            <add-to-group group-id="CodeMenu" anchor="last"/>
         </group>
 
         <group id="HaskellGoToMenu" text="Haskell" description="Haskell Goto Tools" icon="me.fornever.haskeletor.icons.HaskellIcons.HaskellLogo"

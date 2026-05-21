@@ -10,13 +10,16 @@ package me.fornever.haskeletor.action
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.SystemInfo
 import me.fornever.haskeletor.core.intellij.ProjectScope
 import me.fornever.haskeletor.external.component.{HLintComponent, HaskellComponentsManager, HoogleComponent, StackProjectManager}
+import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.stack.{StackCommand, StackLocator}
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
+import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -59,10 +62,17 @@ class AboutAction extends AnAction {
           messages.+=(s"${boldToolName("GHC")}: " + HaskellComponentsManager.getGhcVersion(project).map(_.prettyString).getOrElse("-") + "\n")
           messages.+=(s"${boldToolName("HLint")}: " + HLintComponent.versionInfo(project))
           messages.+=(s"${boldToolName("Hoogle")}: " + HoogleComponent.versionInfo(project))
-          messages.+=(s"${boldToolName("Ormolu")}: " + OrmoluReformatAction.versionInfo(project))
+          messages.+=(s"${boldToolName("Ormolu")}: " + ormoluVersion(project))
           Messages.showInfoMessage(project, messages.mkString("\n"), "About Haskell Project")
         })
       }
     })
+  }
+
+  private def ormoluVersion(project: Project): String = {
+    StackProjectManager.isOrmoluAvailable(project) match {
+      case Some(ormoluPath) => CommandLine.run(project, Path.of(ormoluPath), Seq("--version")).getStdout
+      case None => "-"
+    }
   }
 }
