@@ -8,8 +8,7 @@
 
 package me.fornever.haskeletor.util
 
-import com.intellij.openapi.application.{ApplicationManager, WriteAction}
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
@@ -40,7 +39,7 @@ object HaskellFileUtil {
     )
   }
 
-  def saveFileAsIsInDispatchThread(project: Project, virtualFile: VirtualFile): Unit = {
+  def saveFileAsIsInDispatchThread(virtualFile: VirtualFile): Unit = {
     findDocument(virtualFile).foreach(d => {
       WriteAction.runAndWait(() =>
         FileDocManager.saveDocumentAsIs(d)
@@ -164,17 +163,6 @@ object HaskellFileUtil {
     }
   }
 
-  def saveFileWithNewContent(psiFile: PsiFile, sourceCode: String): Unit = {
-    CommandProcessor.getInstance().executeCommand(psiFile.getProject, () => {
-      ApplicationManager.getApplication.runWriteAction(new Runnable {
-        override def run(): Unit = {
-          val document = findDocument(psiFile)
-          document.foreach(_.setText(sourceCode))
-        }
-      })
-    }, null, null)
-  }
-
   def copyStreamToFile(stream: InputStream, file: File): File = {
     try {
       val outputStream = new FileOutputStream(file)
@@ -201,11 +189,6 @@ object HaskellFileUtil {
 
   private def isHaskellFileName(name: String) = {
     name.endsWith(HaskellFileSuffix)
-  }
-
-  def getFileNameWithoutExtension(psiFile: PsiFile): String = {
-    val name = psiFile.getName
-    removeFileExtension(name)
   }
 
   def removeFileExtension(fileName: String): String = {

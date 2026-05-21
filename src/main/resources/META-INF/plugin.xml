@@ -226,10 +226,9 @@
         <notificationGroup id="HaskellBalloon" isLogByDefault="true"
                            displayType="BALLOON" key="notification-group.haskell-balloon.name"/>
 
-        <!-- Mover -->
-        <!--<statementUpDownMover implementation="me.fornever.haskeletor.editor.HaskellStatementMover"/>-->
-
+        <!-- Imports and Formatting -->
         <checkinHandlerFactory implementation="me.fornever.haskeletor.vcs.HaskellOptimizeImportsCheckinHandlerFactory"/>
+        <formattingService implementation="me.fornever.haskeletor.language.HaskellFormattingService"/>
 
         <applicationService serviceInterface="com.intellij.codeInsight.TargetElementUtil"
                             serviceImplementation="me.fornever.haskeletor.navigation.HaskellTargetElementUtil"
@@ -238,9 +237,9 @@
         <targetElementEvaluator language="Haskell"
                                 implementationClass="me.fornever.haskeletor.navigation.HaskellTargetElementUtil2"/>
 
+        <!-- Services -->
         <applicationService serviceInterface="me.fornever.haskeletor.core.language.HaskellImportOptimizerService"
                             serviceImplementation="me.fornever.haskeletor.language.HaskellImportOptimizerServiceImpl"/>
-        <formattingService implementation="me.fornever.haskeletor.language.HaskellFormattingService"/>
     </extensions>
 
     <project-components>

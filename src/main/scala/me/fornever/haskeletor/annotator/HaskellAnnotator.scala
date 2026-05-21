@@ -68,7 +68,7 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult] {
     HaskellFileUtil.findVirtualFile(psiFile) match {
       case Some(virtualFile) =>
         val fileModified = FileDocumentManager.getInstance().isFileModified(virtualFile)
-        HaskellFileUtil.saveFileAsIsInDispatchThread(psiFile.getProject, virtualFile)
+        HaskellFileUtil.saveFileAsIsInDispatchThread(virtualFile)
         HaskellComponentsManager.loadHaskellFile(psiFile, fileModified).orNull
       case None => CompilationResult(Iterable(), Iterable(), failed = false)
     }
@@ -154,7 +154,7 @@ object HaskellAnnotator {
 
   import scala.jdk.FunctionConverters._
 
-  def addNotLoadedFile(psiFile: PsiFile): Set[PsiFile] = {
+  private def addNotLoadedFile(psiFile: PsiFile): Set[PsiFile] = {
     NotLoadedFiles.merge(psiFile.getProject, Set(psiFile), {
       (x1: Set[PsiFile], x2: Set[PsiFile]) => x1 ++ x2
     }.asJavaBiFunction)
