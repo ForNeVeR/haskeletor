@@ -14,7 +14,6 @@ import com.intellij.execution.process
 import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VfsUtil
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.settings.GlobalInfo
 
@@ -33,20 +32,6 @@ object CommandLine {
           notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
           logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
     run3(Some(project), project.getBasePath, commandPath, arguments, timeoutInMillis, notifyBalloonError, ignoreExitCode,
-      logOutput, charset)
-  }
-
-  def runInWorkDir(project: Project, workDir: String, commandPath: Path, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
-                   notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
-                   logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
-    run3(Some(project), workDir, commandPath, arguments, timeoutInMillis, notifyBalloonError, ignoreExitCode,
-      logOutput, charset)
-  }
-
-  def runInHomeDir(commandPath: Path, arguments: Seq[String], timeoutInMillis: Long = DefaultTimeout.toMillis,
-                   notifyBalloonError: Boolean = DefaultNotifyBalloonError, ignoreExitCode: Boolean = DefaultIgnoreExitCode,
-                   logOutput: Boolean = DefaultLogOutput, charset: Option[Charset] = None): ProcessOutput = {
-    run3(None, VfsUtil.getUserHomeDir.getPath, commandPath, arguments, timeoutInMillis, notifyBalloonError, ignoreExitCode,
       logOutput, charset)
   }
 
