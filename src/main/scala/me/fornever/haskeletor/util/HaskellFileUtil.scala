@@ -222,7 +222,7 @@ object HaskellFileUtil {
   }
 
   def normalizeLineEndings(text: String): String = {
-    text.replaceAll("\r\n", "\n").replaceAll("\r", "\n")
+    text.replace("\r\n", "\n").replace("\r", "\n")
   }
 
   private val logger = Logger.getInstance(getClass)

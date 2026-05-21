@@ -42,25 +42,30 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
       override def run(): Unit = {
         val maybeFuture = for {
           ioFile <- Option(formattingRequest.getIOFile)
-          future <- reformatFile(formattingRequest.getContext.getProject, ioFile.toPath)
+          future <- reformatFile(formattingRequest.getContext.getProject, ioFile.toPath, formattingRequest)
         } yield future
 
         maybeFuture match {
           case Some(future) =>
             runningFuture.set(future)
             future.whenComplete((formattedText, throwable) => {
-              Option(formattedText) match {
-                case Some(text) => formattingRequest.onTextReady(HaskellFileUtil.normalizeLineEndings(text))
-                case None =>
-                  val errorMessage =
-                    Option(throwable).flatMap { error =>
-                      Option(error.getLocalizedMessage)
-                        .orElse(Option(error.getMessage))
-                    }.getOrElse(HaskeletorBundle.message("formatting.error-notification.unknown-error"))
-                  formattingRequest.onError(
-                    HaskeletorBundle.message("formatting.error-notification.title"),
-                    errorMessage
-                  )
+              if (future.isCancelled) {
+                // Suppress error notification on user-initiated cancellation
+                () // No-op
+              } else {
+                Option(formattedText) match {
+                  case Some(text) => formattingRequest.onTextReady(HaskellFileUtil.normalizeLineEndings(text))
+                  case None =>
+                    val errorMessage =
+                      Option(throwable).flatMap { error =>
+                        Option(error.getLocalizedMessage)
+                          .orElse(Option(error.getMessage))
+                      }.getOrElse(HaskeletorBundle.message("formatting.error-notification.unknown-error"))
+                    formattingRequest.onError(
+                      HaskeletorBundle.message("formatting.error-notification.title"),
+                      errorMessage
+                    )
+                }
               }
             })
           case None =>
@@ -73,12 +78,17 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
       override def isRunUnderProgress: Boolean = true
     }
 
-  private def reformatFile(project: Project, file: Path): Option[CompletableFuture[String]] = {
+  private def reformatFile(project: Project, file: Path, formattingRequest: AsyncFormattingRequest): Option[CompletableFuture[String]] = {
     StackProjectManager.isOrmoluAvailable(project).map { ormoluPath =>
       val commandLine = new GeneralCommandLine(
         ormoluPath,
         file.toString
       )
+
+      // Set working directory from project
+      StackProjectManager.findWorkingDirectory(project).foreach { workDir =>
+        commandLine.withWorkDirectory(workDir.toFile)
+      }
 
       val processRef = new AtomicReference[Process]()
       val cancelled = new AtomicBoolean(false)
@@ -111,10 +121,10 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
             }
           } else {
             val stdoutFuture = ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.callable[String] {
-              readStream(process.getInputStream)
+              readStream(process.getInputStream, formattingRequest)
             })
             val stderrFuture = ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.callable[String] {
-              readStream(process.getErrorStream)
+              readStream(process.getErrorStream, formattingRequest)
             })
 
             val exitCode = process.waitFor()
@@ -149,8 +159,12 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
 
   private val logger = Logger.getInstance(getClass)
 
-  private def readStream(stream: InputStream): String = {
-    val source = Source.fromInputStream(stream, StandardCharsets.UTF_8.name())
+  private def readStream(stream: InputStream, formattingRequest: AsyncFormattingRequest): String = {
+    val charset = Option(formattingRequest.getIOFile)
+      .flatMap(f => HaskellFileUtil.findVirtualFile(formattingRequest.getContext.getProject, f.getAbsolutePath))
+      .flatMap(vf => Option(vf.getCharset))
+      .getOrElse(StandardCharsets.UTF_8)
+    val source = Source.fromInputStream(stream, charset.name())
     try source.mkString
     finally source.close()
   }

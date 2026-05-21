@@ -353,7 +353,7 @@ object StackProjectManager {
     }
   }
 
-  private def findWorkingDirectory(project: Project): Option[Path] = {
+  def findWorkingDirectory(project: Project): Option[Path] = {
     val stackFiles = HaskellProjectManager.getInstance(project).findStackFiles().asScala
     val workingDirectories = stackFiles
       .flatMap(it => Option(it.getParent))
