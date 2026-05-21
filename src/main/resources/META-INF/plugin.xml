@@ -243,6 +243,7 @@
                             serviceImplementation="me.fornever.haskeletor.language.HaskellImportOptimizerServiceImpl"/>
         <applicationService serviceInterface="me.fornever.haskeletor.core.language.HaskellReformatService"
                             serviceImplementation="me.fornever.haskeletor.language.HaskellReformatServiceImpl"/>
+        <formattingService implementation="me.fornever.haskeletor.language.HaskellFormattingService"/>
     </extensions>
 
     <project-components>

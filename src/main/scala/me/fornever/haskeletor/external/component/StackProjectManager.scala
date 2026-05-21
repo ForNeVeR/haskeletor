@@ -9,7 +9,6 @@
 package me.fornever.haskeletor.external.component
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -21,7 +20,6 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.ui.EditorNotifications
 import com.jetbrains.rd.util.lifetime.{Lifetime, LifetimeDefinition, SequentialLifetimes}
-import me.fornever.haskeletor.action.HaskellReformatAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.core.HaskeletorBundle
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
@@ -437,8 +435,6 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
   }
 
   private def initializeOnce(): Unit = {
-    disableDefaultReformatAction()
-
     StackProjectManager.findWorkingDirectory(project) match {
       case Some(workingDirectory) =>
         initStackReplsManager(workingDirectory)
@@ -465,10 +461,4 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
     }
   }
 
-  private def disableDefaultReformatAction(): Unit = {
-    val actionManager = ActionManager.getInstance
-    // Overriding IntelliJ's default shortcut for formatting
-    actionManager.unregisterAction("ReformatCode")
-    actionManager.registerAction("ReformatCode", new HaskellReformatAction)
-  }
 }

@@ -221,5 +221,9 @@ object HaskellFileUtil {
     VirtualFileManager.constructUrl(LocalFileSystem.getInstance.getProtocol, absolutePath)
   }
 
+  def normalizeLineEndings(text: String): String = {
+    text.replaceAll("\r\n", "\n").replaceAll("\r", "\n")
+  }
+
   private val logger = Logger.getInstance(getClass)
 }
