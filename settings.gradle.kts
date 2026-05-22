@@ -15,6 +15,5 @@ include(
     "projectModel",
     "settings",
     "spellchecker",
-    "stack",
-    "vcs"
+    "stack"
 )

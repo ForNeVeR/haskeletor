@@ -227,7 +227,6 @@
                            displayType="BALLOON" key="notification-group.haskell-balloon.name"/>
 
         <!-- Imports and Formatting -->
-        <checkinHandlerFactory implementation="me.fornever.haskeletor.vcs.HaskellOptimizeImportsCheckinHandlerFactory"/>
         <formattingService implementation="me.fornever.haskeletor.language.HaskellFormattingService"/>
 
         <applicationService serviceInterface="com.intellij.codeInsight.TargetElementUtil"

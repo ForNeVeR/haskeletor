@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the REA
 - Formatting using stylish-haskell: since we are moving towards HLS anyway, there are no plans to support installation of tools not supported by the older LTS.
 - Settings for **Template name for new project** and **Cache path**.
 - Separate utilities for Ormolu formatting — we now rely on an extension for the default formatting service.
+- Separate before-commit action for import optimization — we now rely on an implementation of the import optimizer interface.
 
 ### Added
 - Compatibility with many other IntelliJ-based IDEs.
