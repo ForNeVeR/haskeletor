@@ -10,7 +10,7 @@
 package me.fornever.haskeletor.runconfig.console
 
 import com.intellij.execution.console.{ConsoleHistoryController, ConsoleRootType, LanguageConsoleImpl}
-import com.intellij.execution.filters._
+import com.intellij.execution.filters.*
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.command.WriteCommandAction
@@ -24,6 +24,7 @@ import me.fornever.haskeletor.runconfig.console.HaskellConsoleHighlightingUtil.L
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
 
 import java.io.{IOException, OutputStreamWriter}
+import scala.compiletime.uninitialized
 
 object HaskellConsoleView {
   private val HaskellConsoleKey: Key[HaskellConsoleInfo] = Key.create("HASKELL CONSOLE KEY")
@@ -38,8 +39,8 @@ object HaskellConsoleView {
 class HaskellConsoleView(val project: Project, val configuration: HaskellConsoleConfiguration) extends LanguageConsoleImpl(project, "Haskell Stack REPL", HaskellFileType.INSTANCE.getLanguage) {
 
   private val consoleRootType = new ConsoleRootType("haskell", "Haskell") {}
-  private var historyController: ConsoleHistoryController = _
-  private var outputStreamWriter: OutputStreamWriter = _
+  private var historyController: ConsoleHistoryController = uninitialized
+  private var outputStreamWriter: OutputStreamWriter = uninitialized
   private var lastCommand: Option[String] = None
 
   addMessageFilter(createFileHyperLinkFilter())

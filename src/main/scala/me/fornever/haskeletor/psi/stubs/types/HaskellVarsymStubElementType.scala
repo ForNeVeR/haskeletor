@@ -19,11 +19,11 @@ class HaskellVarsymStubElementType(debugName: String) extends HaskellNamedStubEl
     new HaskellVarsymImpl(stub, this)
   }
 
-  def createStub(psi: HaskellVarsym, parentStub: StubElement[_ <: PsiElement]): HaskellVarsymStub = {
+  def createStub(psi: HaskellVarsym, parentStub: StubElement[? <: PsiElement]): HaskellVarsymStub = {
     new HaskellVarsymStub(parentStub, this, psi.getName)
   }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): HaskellVarsymStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellVarsymStub = {
     new HaskellVarsymStub(parentStub, this, dataStream.readName)
   }
 }

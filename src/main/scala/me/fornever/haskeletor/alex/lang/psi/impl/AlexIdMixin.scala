@@ -10,10 +10,10 @@ package me.fornever.haskeletor.alex.lang.psi.impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import me.fornever.haskeletor.alex.lang.psi._
+import me.fornever.haskeletor.alex.lang.psi.*
 
 import scala.collection.mutable
 
@@ -35,10 +35,10 @@ abstract class AlexIdMixin(node: ASTNode) extends AlexElementImpl(node)
     val variants = mutable.ArrayBuffer[ResolveResult]()
     declarations.getDeclarationList.forEach { decl =>
       val tokenSet = decl.getTokenSetDeclaration
-      if (tokenSet != null && (tokenSet.getTokenSetId.getText equals getText))
+      if (tokenSet != null && tokenSet.getTokenSetId.getText == getText)
         variants += new PsiElementResolveResult(tokenSet.getTokenSetId)
       val rules = decl.getRuleDeclaration
-      if (rules != null && (rules.getRuleId.getText equals getText))
+      if (rules != null && rules.getRuleId.getText == getText)
         variants += new PsiElementResolveResult(rules.getRuleId)
     }
     variants.toArray

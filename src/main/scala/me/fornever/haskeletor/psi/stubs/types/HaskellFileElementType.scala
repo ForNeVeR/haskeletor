@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.psi.stubs.types
 
-import com.intellij.psi.stubs._
+import com.intellij.psi.stubs.*
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, PsiFile, StubBuilder}
 import me.fornever.haskeletor.HaskellFile
@@ -21,7 +21,7 @@ class HaskellFileElementType(language: HaskellLanguage) extends IStubFileElement
   private val Version: Int = 1
 
   override def getBuilder: StubBuilder = new DefaultStubBuilder() {
-    override protected def createStubForFile(file: PsiFile): StubElement[_ <: PsiElement] = {
+    override protected def createStubForFile(file: PsiFile): StubElement[? <: PsiElement] = {
       file match {
         case f: HaskellFile => new HaskellFileStub(f)
         case _ => super.createStubForFile(file)
@@ -34,7 +34,7 @@ class HaskellFileElementType(language: HaskellLanguage) extends IStubFileElement
   override def serialize(stub: HaskellFileStub, dataStream: StubOutputStream): Unit = {
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): HaskellFileStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellFileStub = {
     new HaskellFileStub(null)
   }
 

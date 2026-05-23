@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiFileFactory}
 import me.fornever.haskeletor.cabal.lang.psi
-import me.fornever.haskeletor.cabal.lang.psi._
+import me.fornever.haskeletor.cabal.lang.psi.*
 import me.fornever.haskeletor.cabal.lang.psi.impl.{ExtensionsImpl, MainIsImpl, SourceDirsImpl}
 import me.fornever.haskeletor.core.cabal.CabalLanguage
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
@@ -119,7 +119,7 @@ sealed trait CabalStanza {
   def sourceDirs: Seq[String]
 
   protected def findSourceDirs: Seq[String] = ApplicationUtil.runReadAction {
-    HaskellPsiUtil.getChildOfType(sectionRootElement, classOf[SourceDirsImpl]).map(_.getValue).getOrElse(Array()).map(p => HaskellFileUtil.makeFilePathAbsolute(p, modulePath)).toSeq
+    HaskellPsiUtil.getChildOfType(sectionRootElement, classOf[SourceDirsImpl]).map(_.getValue).getOrElse(Array.empty[String]).map(p => HaskellFileUtil.makeFilePathAbsolute(p, modulePath)).toSeq
   }
 
   lazy val buildDepends: Seq[String] = ApplicationUtil.runReadAction {
@@ -158,9 +158,9 @@ case class LibraryCabalStanza(sectionRootElement: PsiElement, packageName: Strin
 
   val targetName: String = s"$packageName:lib"
 
-  lazy val sourceDirs: Seq[String] = findSourceDirsOrElseModuleDir
+  val sourceDirs: Seq[String] = findSourceDirsOrElseModuleDir
 
-  lazy val exposedModuleNames: Seq[String] = findExposedModuleNames
+  val exposedModuleNames: Seq[String] = findExposedModuleNames
 
   private def findExposedModuleNames: Seq[String] = ApplicationUtil.runReadAction {
     HaskellPsiUtil.getChildOfType(sectionRootElement, classOf[ExposedModules]).map(_.getModuleNames.toSeq).getOrElse(Seq())
@@ -168,31 +168,31 @@ case class LibraryCabalStanza(sectionRootElement: PsiElement, packageName: Strin
 }
 
 case class ExecutableCabalStanza(sectionRootElement: PsiElement, packageName: String, modulePath: String) extends CabalStanza {
-  lazy val nameElementType: Option[IElementType] = Some(CabalTypes.EXECUTABLE_NAME)
+  val nameElementType: Option[IElementType] = Some(CabalTypes.EXECUTABLE_NAME)
 
-  lazy val targetName: String = name.map(n => s"$packageName:exe:$n").getOrElse(throw new IllegalStateException(s"Executable should have name in package $packageName"))
+  val targetName: String = name.map(n => s"$packageName:exe:$n").getOrElse(throw new IllegalStateException(s"Executable should have name in package $packageName"))
 
-  lazy val mainIs: Option[String] = findMainIs
+  val mainIs: Option[String] = findMainIs
 
-  lazy val sourceDirs: Seq[String] = findSourceDirsOrElseModuleDir
+  val sourceDirs: Seq[String] = findSourceDirsOrElseModuleDir
 }
 
 case class TestSuiteCabalStanza(sectionRootElement: PsiElement, packageName: String, modulePath: String) extends CabalStanza {
-  lazy val nameElementType: Option[IElementType] = Some(CabalTypes.TEST_SUITE_NAME)
+  val nameElementType: Option[IElementType] = Some(CabalTypes.TEST_SUITE_NAME)
 
-  lazy val targetName: String = name.map(n => s"$packageName:test:$n").getOrElse(throw new IllegalStateException(s"Test-suite should have name in package $packageName"))
+  val targetName: String = name.map(n => s"$packageName:test:$n").getOrElse(throw new IllegalStateException(s"Test-suite should have name in package $packageName"))
 
-  lazy val mainIs: Option[String] = findMainIs
+  val mainIs: Option[String] = findMainIs
 
-  lazy val sourceDirs: Seq[String] = findSourceDirs
+  val sourceDirs: Seq[String] = findSourceDirs
 }
 
 case class BenchmarkCabalStanza(sectionRootElement: PsiElement, packageName: String, modulePath: String) extends CabalStanza {
-  lazy val nameElementType: Option[IElementType] = Some(CabalTypes.BENCHMARK_NAME)
+  val nameElementType: Option[IElementType] = Some(CabalTypes.BENCHMARK_NAME)
 
-  lazy val targetName: String = name.map(n => s"$packageName:bench:$n").getOrElse(throw new IllegalStateException(s"Benchmark should have name in package $packageName"))
+  val targetName: String = name.map(n => s"$packageName:bench:$n").getOrElse(throw new IllegalStateException(s"Benchmark should have name in package $packageName"))
 
-  lazy val mainIs: Option[String] = findMainIs
+  val mainIs: Option[String] = findMainIs
 
-  lazy val sourceDirs: Seq[String] = findSourceDirs
+  val sourceDirs: Seq[String] = findSourceDirs
 }

@@ -19,11 +19,11 @@ class HaskellConsymStubElementType(debugName: String) extends HaskellNamedStubEl
     new HaskellConsymImpl(stub, this)
   }
 
-  def createStub(psi: HaskellConsym, parentStub: StubElement[_ <: PsiElement]): HaskellConsymStub = {
+  def createStub(psi: HaskellConsym, parentStub: StubElement[? <: PsiElement]): HaskellConsymStub = {
     new HaskellConsymStub(parentStub, this, psi.getName)
   }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): HaskellConsymStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellConsymStub = {
     new HaskellConsymStub(parentStub, this, dataStream.readName)
   }
 }

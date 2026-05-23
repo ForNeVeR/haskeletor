@@ -18,14 +18,14 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
-import me.fornever.haskeletor.psi.HaskellElementCondition._
-import me.fornever.haskeletor.psi.HaskellTypes._
+import me.fornever.haskeletor.psi.HaskellElementCondition.*
+import me.fornever.haskeletor.psi.HaskellTypes.*
 import me.fornever.haskeletor.psi.impl.{HaskellDeclarationElementImpl, HaskellModuleDeclarationImpl}
 import me.fornever.haskeletor.util.ApplicationUtil
 
 import scala.annotation.tailrec
 import scala.concurrent.TimeoutException
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object HaskellPsiUtil {
 
@@ -259,7 +259,7 @@ object HaskellPsiUtil {
   }
 
   def getChildNodes(psiElement: PsiElement, elementTypes: IElementType*): Array[ASTNode] = {
-    psiElement.getNode.getChildren(TokenSet.create(elementTypes: _*))
+    psiElement.getNode.getChildren(TokenSet.create(elementTypes*))
   }
 
   def streamChildren[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Iterable[T] = {

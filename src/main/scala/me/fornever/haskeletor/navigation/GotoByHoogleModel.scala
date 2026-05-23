@@ -23,7 +23,7 @@ import javax.swing.ListCellRenderer
 class GotoByHoogleModel(val project: Project, val contributors: Array[ChooseByNameContributor]) extends FilteringGotoByModel[LanguageRef](project, contributors) with CustomMatcherModel {
 
   // Helping the Scala compiler to see that ListCellRenderer is parameterized by AnyRef
-  override def getListCellRenderer: ListCellRenderer[_] = super.getListCellRenderer
+  override def getListCellRenderer: ListCellRenderer[?] = super.getListCellRenderer
 
   protected def filterValueFor(item: NavigationItem): LanguageRef = {
     null

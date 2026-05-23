@@ -13,8 +13,8 @@ import com.intellij.lang.findUsages.FindUsagesProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.util.Processor
-import me.fornever.haskeletor.psi.HaskellTypes._
-import me.fornever.haskeletor.psi._
+import me.fornever.haskeletor.psi.*
+import me.fornever.haskeletor.psi.HaskellTypes.*
 import me.fornever.haskeletor.{HaskellFile, HaskellLexer, HaskellParserDefinition}
 
 import scala.annotation.tailrec
@@ -23,7 +23,7 @@ import scala.collection.mutable.ListBuffer
 class HaskellFindUsagesProvider extends FindUsagesProvider {
 
   override def getWordsScanner: WordsScanner = {
-    (fileText: CharSequence, processor: Processor[_ >: WordOccurrence]) => {
+    (fileText: CharSequence, processor: Processor[? >: WordOccurrence]) => {
       val lexer = new HaskellLexer
       lexer.start(fileText)
       processTokens(lexer, fileText, processor, ListBuffer.empty)
@@ -31,7 +31,7 @@ class HaskellFindUsagesProvider extends FindUsagesProvider {
   }
 
   @tailrec
-  private def processTokens(lexer: HaskellLexer, fileText: CharSequence, processor: Processor[_ >: WordOccurrence], prevDots: ListBuffer[IElementType]): Unit = {
+  private def processTokens(lexer: HaskellLexer, fileText: CharSequence, processor: Processor[? >: WordOccurrence], prevDots: ListBuffer[IElementType]): Unit = {
     val tokenType = lexer.getTokenType
     if (tokenType != null) {
       if (HaskellParserDefinition.Ids.contains(tokenType) || tokenType == HS_DOT) {

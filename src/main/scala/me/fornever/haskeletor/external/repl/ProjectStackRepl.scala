@@ -20,7 +20,7 @@ import me.fornever.haskeletor.util.{HaskellFileUtil, ScalaFutureUtil}
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.{Future, blocking}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 case class ProjectStackRepl(project: Project,
                             workingDirectory: Path,
@@ -35,7 +35,7 @@ case class ProjectStackRepl(project: Project,
     HaskellSettingsState.getDefaultGhcOptions
   ) {
 
-  import me.fornever.haskeletor.external.repl.ProjectStackRepl._
+  import me.fornever.haskeletor.external.repl.ProjectStackRepl.*
 
   val target: String = projectReplTargets.targetsName
 
@@ -54,13 +54,13 @@ case class ProjectStackRepl(project: Project,
   private case class ModuleInfo(psiFile: PsiFile, loadFailed: Boolean)
 
   @volatile
-  private[this] var loadedFile: Option[ModuleInfo] = None
+  private var loadedFile: Option[ModuleInfo] = None
 
   private case class DependentModuleInfo()
 
   private type ModuleName = String
-  private[this] val loadedDependentModules = new ConcurrentHashMap[ModuleName, DependentModuleInfo]().asScala
-  private[this] val everLoadedDependentModules = new ConcurrentHashMap[ModuleName, DependentModuleInfo]().asScala
+  private val loadedDependentModules = new ConcurrentHashMap[ModuleName, DependentModuleInfo]().asScala
+  private val everLoadedDependentModules = new ConcurrentHashMap[ModuleName, DependentModuleInfo]().asScala
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

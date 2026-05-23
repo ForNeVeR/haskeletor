@@ -35,7 +35,7 @@ object ScalaUtil {
   }
 
   def condition[A](f: A => Boolean): Condition[A] = {
-    t: A => f(t)
+    (t: A) => f(t)
   }
 
   def maxsBy[A, B](xs: Iterable[A])(f: A => B)(implicit cmp: Ordering[B]): Iterable[A] = {

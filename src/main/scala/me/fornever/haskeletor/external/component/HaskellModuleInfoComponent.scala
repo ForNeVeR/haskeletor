@@ -106,8 +106,9 @@ private[component] object HaskellModuleInfoComponent {
           case None =>
             componentTargets.find(info => info.stanzaType == LibType) match {
               case Some(target) => (Some(target), None)
-              case None => val message = Some(s"Could not determine Stack target for file `$filePath` because no accompanying `hs-source-dirs` or `main-is` can be found in Cabal file(s)")
-                (None, message)
+              case None =>
+                val fallbackMessage = Some(s"Could not determine Stack target for file `$filePath` because no accompanying `hs-source-dirs` or `main-is` can be found in Cabal file(s)")
+                (None, fallbackMessage)
             }
         }
     }

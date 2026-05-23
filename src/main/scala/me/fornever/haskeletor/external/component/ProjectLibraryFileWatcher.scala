@@ -15,13 +15,13 @@ import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ProjectLibraryFileWatcher(project: Project) extends BulkFileListener {
 
-  override def before(events: util.List[_ <: VFileEvent]): Unit = {}
+  override def before(events: util.List[? <: VFileEvent]): Unit = {}
 
-  override def after(events: util.List[_ <: VFileEvent]): Unit = {
+  override def after(events: util.List[? <: VFileEvent]): Unit = {
     if (!project.isDisposed) {
       val componentTargets = (for {
         virtualFile <- events.asScala.filter(e => e.isInstanceOf[VFileContentChangeEvent] && HaskellFileUtil.isHaskellFile(e.getFile) && HaskellProjectUtil.isSourceFile(project, e.getFile)).map(_.getFile)

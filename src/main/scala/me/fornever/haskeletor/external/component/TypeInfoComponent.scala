@@ -14,14 +14,14 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.external.repl.{ProjectStackRepl, StackReplsManager}
-import me.fornever.haskeletor.psi._
+import me.fornever.haskeletor.psi.*
 import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil, LineColumnPosition}
 
 import scala.concurrent.TimeoutException
 
 private[component] object TypeInfoComponent {
 
-  import me.fornever.haskeletor.external.component.TypeInfoComponentResult._
+  import me.fornever.haskeletor.external.component.TypeInfoComponentResult.*
 
   private case class Key(psiFile: PsiFile, qualifiedNameElement: HaskellQualifiedNameElement)
 
@@ -88,7 +88,7 @@ private[component] object TypeInfoComponent {
       if element.isValid
     } yield {
       ProgressManager.checkCanceled()
-      repl: ProjectStackRepl => repl.findTypeInfo(mn, psiFile, sp.lineNr, sp.columnNr, ep.lineNr, ep.columnNr, t)
+      (repl: ProjectStackRepl) => repl.findTypeInfo(mn, psiFile, sp.lineNr, sp.columnNr, ep.lineNr, ep.columnNr, t)
     }
 
     findTypeInfo match {

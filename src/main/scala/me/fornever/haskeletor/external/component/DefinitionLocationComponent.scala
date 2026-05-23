@@ -14,9 +14,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.external.repl.{ProjectStackRepl, StackReplsManager}
 import me.fornever.haskeletor.navigation.HaskellReference
-import me.fornever.haskeletor.psi._
-import me.fornever.haskeletor.util._
-import me.fornever.haskeletor.util.index.HaskellModuleNameIndex._
+import me.fornever.haskeletor.psi.*
+import me.fornever.haskeletor.util.*
+import me.fornever.haskeletor.util.index.HaskellModuleNameIndex.*
 
 import scala.concurrent.TimeoutException
 
@@ -200,7 +200,7 @@ private[component] object DefinitionLocationComponent {
       sp <- LineColumnPosition.fromOffset(vf, qualifiedNameElement.getTextRange.getStartOffset)
       ep <- LineColumnPosition.fromOffset(vf, qualifiedNameElement.getTextRange.getEndOffset)
     } yield {
-      repl: ProjectStackRepl => repl.findLocationInfo(moduleName, psiFile, sp.lineNr, sp.columnNr, ep.lineNr, ep.columnNr, name)
+      (repl: ProjectStackRepl) => repl.findLocationInfo(moduleName, psiFile, sp.lineNr, sp.columnNr, ep.lineNr, ep.columnNr, name)
     }
 
     ProgressManager.checkCanceled()

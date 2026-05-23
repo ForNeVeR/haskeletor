@@ -14,7 +14,7 @@ import org.yaml.snakeyaml.Yaml
 
 import java.io.{File, FileInputStream, FileNotFoundException}
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object StackYamlComponent {
 
@@ -36,7 +36,7 @@ object StackYamlComponent {
   def getResolver(project: Project): Option[String] = {
     val resolver = getYamlItems(project).flatMap(_.get("resolver"))
     resolver.flatMap {
-      case m: util.Map[_, _] => m.asScala.headOption.map(_._2.asInstanceOf[String])
+      case m: util.Map[?, ?] => m.asScala.headOption.map(_._2.asInstanceOf[String])
       case s: String => Some(s)
       case _ => None
     }
@@ -48,10 +48,10 @@ object StackYamlComponent {
       packages <- getPackages(project, items)
     } yield {
       packages match {
-        case p: util.ArrayList[_] =>
+        case p: util.ArrayList[?] =>
           p.asScala.toSeq.flatMap {
             case s: String if isNotURL(s) => Seq(s)
-            case m: util.Map[_, _] =>
+            case m: util.Map[?, ?] =>
               val map = m.asInstanceOf[util.Map[String, Any]].asScala.toMap
               val location = getLocation(project, map)
               if (location.isDefined) {
@@ -90,7 +90,7 @@ object StackYamlComponent {
 
   private def getSubdirs(project: Project, items: Map[String, Any]): Option[Seq[String]] = {
     items.get("subdirs") match {
-      case Some(sd: util.ArrayList[_]) => Some(sd.asInstanceOf[util.ArrayList[String]].asScala.toSeq)
+      case Some(sd: util.ArrayList[?]) => Some(sd.asInstanceOf[util.ArrayList[String]].asScala.toSeq)
       case _ => None
     }
   }

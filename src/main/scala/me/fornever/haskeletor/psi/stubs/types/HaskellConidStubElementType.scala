@@ -19,11 +19,11 @@ class HaskellConidStubElementType(debugName: String) extends HaskellNamedStubEle
     new HaskellConidImpl(stub, this)
   }
 
-  def createStub(psi: HaskellConid, parentStub: StubElement[_ <: PsiElement]): HaskellConidStub = {
+  def createStub(psi: HaskellConid, parentStub: StubElement[? <: PsiElement]): HaskellConidStub = {
     new HaskellConidStub(parentStub, this, psi.getName)
   }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): HaskellConidStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellConidStub = {
     new HaskellConidStub(parentStub, this, dataStream.readName)
   }
 }

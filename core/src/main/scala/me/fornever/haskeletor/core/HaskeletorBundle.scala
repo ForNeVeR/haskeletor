@@ -26,7 +26,7 @@ object HaskeletorBundle {
   @Nls
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): String =
     //noinspection ReferencePassedToNls
-    instance.getMessage(key, params: _*)
+    instance.getMessage(key, params*)
 }
 
 class HaskeletorBundle extends DynamicBundle(HaskeletorBundle.BUNDLE)

@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.function
 import javax.swing.JComponent
 import scala.collection.concurrent
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object ConfigFileWatcherNotificationProvider {
   val showNotificationsByProject: concurrent.Map[Project, Boolean] = new ConcurrentHashMap[Project, Boolean]().asScala
@@ -32,7 +32,7 @@ object ConfigFileWatcherNotificationProvider {
 class ConfigFileWatcherNotificationProvider extends EditorNotificationProvider {
 
   override def collectNotificationData(project: Project,
-                                       virtualFile: VirtualFile): function.Function[_ >: FileEditor, _ <: JComponent] = { _ =>
+                                       virtualFile: VirtualFile): function.Function[? >: FileEditor, ? <: JComponent] = { _ =>
     if (HaskellProjectUtil.isHaskellProject(project) && ConfigFileWatcherNotificationProvider.showNotificationsByProject.get(project).contains(true)) {
       createPanel(project, virtualFile)
     } else {
@@ -63,9 +63,9 @@ class ConfigFileWatcher(project: Project, notifications: EditorNotifications) ex
   private val watchFileNames = IndexedSeq("stack.yaml", "package.yaml")
   private val watchFileExtensions = IndexedSeq("cabal")
 
-  override def before(events: util.List[_ <: VFileEvent]): Unit = {}
+  override def before(events: util.List[? <: VFileEvent]): Unit = {}
 
-  override def after(events: util.List[_ <: VFileEvent]): Unit = {
+  override def after(events: util.List[? <: VFileEvent]): Unit = {
     if (!StackProjectManager.isInitializing(project)) {
       if (events.asScala.exists(e =>
         e.isInstanceOf[VFileContentChangeEvent]

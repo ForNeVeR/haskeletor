@@ -43,7 +43,7 @@ class OutputToProgressIndicator(@Nls title: String,
     kotlin.Unit.INSTANCE
   })
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
     if (ProcessOutputType.isStderr(outputType)) {
       parser.addText(event.getText)
     }

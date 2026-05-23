@@ -12,7 +12,7 @@ import com.github.blemale.scaffeine.{LoadingCache, Scaffeine}
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import com.intellij.util.indexing._
+import com.intellij.util.indexing.*
 import com.intellij.util.io.{EnumeratorStringDescriptor, KeyDescriptor}
 import me.fornever.haskeletor.HaskellFileType
 import me.fornever.haskeletor.core.language.PsiFileUtil
@@ -21,7 +21,7 @@ import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.{ApplicationUtil, HaskellFileUtil, HaskellProjectUtil}
 
 import java.util.Collections
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /**
   * Notice that Haskell modules in libraries can be found which are not exposed
@@ -92,7 +92,6 @@ object HaskellModuleNameIndex {
         // No invalidate here to prevent UI becomes unresponsive after many calls for same module name which module does not exists
         // In LoadComponent the "not found" entries will be invalidated eventually
         result
-      case _ => result
     }
   }
 

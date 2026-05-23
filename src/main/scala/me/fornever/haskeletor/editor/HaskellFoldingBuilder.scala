@@ -16,15 +16,15 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.HaskellFile
-import me.fornever.haskeletor.psi._
+import me.fornever.haskeletor.psi.*
 
 class HaskellFoldingBuilder extends FoldingBuilderEx with DumbAware {
 
   override def buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array[FoldingDescriptor] = {
     root match {
       case file: HaskellFile =>
-        HaskellPsiUtil.findImportDeclarationsBlock(file).map(createFoldingDescriptor).getOrElse(Array()) ++
-          HaskellPsiUtil.findFileHeader(file).map(createFoldingDescriptor).getOrElse(Array()) ++
+        HaskellPsiUtil.findImportDeclarationsBlock(file).map(createFoldingDescriptor).getOrElse(Array.empty[FoldingDescriptor]) ++
+          HaskellPsiUtil.findFileHeader(file).map(createFoldingDescriptor).getOrElse(Array.empty[FoldingDescriptor]) ++
           HaskellPsiUtil.findTopLevelExpressions(file).flatMap(createFoldingDescriptor)
       case _ => FoldingDescriptor.EMPTY_ARRAY
     }

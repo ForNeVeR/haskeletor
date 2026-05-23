@@ -11,7 +11,7 @@ package me.fornever.haskeletor.external.execution
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process
-import com.intellij.execution.process._
+import com.intellij.execution.process.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
@@ -19,8 +19,8 @@ import me.fornever.haskeletor.settings.GlobalInfo
 
 import java.nio.charset.Charset
 import java.nio.file.Path
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 object CommandLine {
   val DefaultTimeout: FiniteDuration = 60.seconds
@@ -102,7 +102,7 @@ object CommandLine {
 
 private class CapturingProcessToLog(val project: Option[Project], val cmd: GeneralCommandLine, val output: ProcessOutput) extends CapturingProcessAdapter(output) {
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
     super.onTextAvailable(event, outputType)
     addToLog(event.getText)
   }

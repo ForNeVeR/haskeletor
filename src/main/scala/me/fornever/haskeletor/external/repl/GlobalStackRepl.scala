@@ -13,8 +13,8 @@ import me.fornever.haskeletor.external.repl.StackRepl.StackReplOutput
 import me.fornever.haskeletor.util.ScalaFutureUtil
 
 import java.nio.file.Path
+import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
 
 case class GlobalStackRepl(project: Project,
                            workingDirectory: Path,
@@ -28,7 +28,7 @@ case class GlobalStackRepl(project: Project,
   ) {
 
   @volatile
-  private[this] var loadedModuleName: Option[String] = None
+  private var loadedModuleName: Option[String] = None
 
   def clearLoadedModules(): Unit = {
     loadedModuleName = None

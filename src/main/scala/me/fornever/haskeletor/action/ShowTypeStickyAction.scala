@@ -35,7 +35,6 @@ class ShowTypeStickyAction extends AnAction {
         case Some(sm) => HaskellComponentsManager.findTypeInfoForSelection(psiFile, sm) match {
           case Right(info) => HaskellEditorUtil.showHint(editor, StringUtil.escapeString(info.typeSignature), sticky = true)
           case Left(info) => HaskellEditorUtil.showHint(editor, info.message)
-          case _ => HaskellEditorUtil.showHint(editor, "Could not determine type for selection")
         }
         case _ =>
           for {

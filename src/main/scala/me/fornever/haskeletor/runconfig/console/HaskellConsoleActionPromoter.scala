@@ -28,7 +28,7 @@ class HaskellConsoleActionPromoter extends ActionPromoter {
     private def notEnter(o: AnAction) = !o.isInstanceOf[EnterAction]
   }
 
-  override def promote(actions: util.List[_ <: AnAction], context: DataContext): util.List[AnAction] = {
+  override def promote(actions: util.List[? <: AnAction], context: DataContext): util.List[AnAction] = {
     val result = new util.ArrayList[AnAction](actions)
     ContainerUtil.sort(result, Comparator)
     result

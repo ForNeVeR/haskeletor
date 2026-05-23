@@ -19,11 +19,11 @@ class HaskellModidStubElementType(debugName: String) extends HaskellNamedStubEle
     new HaskellModidImpl(stub, this)
   }
 
-  def createStub(psi: HaskellModid, parentStub: StubElement[_ <: PsiElement]): HaskellModidStub = {
+  def createStub(psi: HaskellModid, parentStub: StubElement[? <: PsiElement]): HaskellModidStub = {
     new HaskellModidStub(parentStub, this, psi.getName)
   }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): HaskellModidStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellModidStub = {
     new HaskellModidStub(parentStub, this, dataStream.readName)
   }
 }

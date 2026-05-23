@@ -14,8 +14,8 @@ import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.settings.{HTool, HaskellSettingsState}
 import me.fornever.haskeletor.util.HaskellFileUtil
+import spray.json.*
 import spray.json.JsonParser.ParsingException
-import spray.json._
 
 import java.nio.file.Path
 
@@ -35,7 +35,7 @@ object HLintComponent {
             } else {
               parseHLintOutput(project, output.getStdout)
             }
-          case None => ()
+          case None =>
             HaskellNotificationGroup.logWarningBalloonEvent(psiFile.getProject, s"Can not display HLint suggestions because can not determine path for file `${psiFile.getName}`. File exists only in memory")
             Seq()
         }
@@ -57,10 +57,10 @@ object HLintComponent {
   }
 
   private object HlintJsonProtocol extends DefaultJsonProtocol {
-    implicit val hlintInfoFormat: RootJsonFormat[HLintInfo] = jsonFormat13(HLintInfo)
+    implicit val hlintInfoFormat: RootJsonFormat[HLintInfo] = jsonFormat13(HLintInfo.apply)
   }
 
-  import me.fornever.haskeletor.external.component.HLintComponent.HlintJsonProtocol._
+  import me.fornever.haskeletor.external.component.HLintComponent.HlintJsonProtocol.*
 
   private[external] def parseHLintOutput(project: Project, hlintOutput: String) = {
     if (hlintOutput.trim.isEmpty || hlintOutput == "[]") {

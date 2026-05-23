@@ -14,8 +14,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
 import me.fornever.haskeletor.core.util.StringUtil
 import me.fornever.haskeletor.external.component.{FileModuleIdentifiers, HaskellComponentsManager, StackProjectManager}
+import me.fornever.haskeletor.psi.*
 import me.fornever.haskeletor.psi.HaskellTypes.HS_NEWLINE
-import me.fornever.haskeletor.psi._
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
 class ShowTypeAction extends AnAction {
@@ -37,7 +37,7 @@ class ShowTypeAction extends AnAction {
             case Right(info) => HaskellEditorUtil.showHint(editor, StringUtil.escapeString(info.typeSignature))
             case _ => HaskellEditorUtil.showHint(editor, "Could not determine type for selection")
           }
-          case _ => ()
+          case _ =>
             Option(psiFile.findElementAt(editor.getCaretModel.getOffset)).filterNot(e => e.getNode.getElementType == HS_NEWLINE || e.getNode.getElementType == TokenType.WHITE_SPACE).orElse(Option(psiFile.findElementAt(editor.getCaretModel.getOffset - 1))).foreach { psiElement =>
               ShowTypeAction.showTypeAsHint(actionContext.project, editor, psiElement, psiFile)
             }

@@ -17,14 +17,14 @@ import me.fornever.haskeletor.settings.GlobalInfo
 import me.fornever.haskeletor.stack.StackLocator
 import me.fornever.haskeletor.util.{HaskellEditorUtil, HaskellProjectUtil}
 
-import java.io._
+import java.io.*
 import java.nio.file.Path
 import java.util.concurrent.LinkedBlockingQueue
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration._
-import scala.io._
-import scala.jdk.CollectionConverters._
-import scala.sys.process._
+import scala.concurrent.duration.*
+import scala.io.*
+import scala.jdk.CollectionConverters.*
+import scala.sys.process.*
 
 abstract class StackRepl(project: Project,
                          workingDirectory: Path,
@@ -61,11 +61,11 @@ abstract class StackRepl(project: Project,
   @volatile
   private[external] var starting = false
 
-  private[this] val outputStreamQueue = new LinkedBlockingQueue[OutputStream]
+  private val outputStreamQueue = new LinkedBlockingQueue[OutputStream]
 
-  private[this] val stdoutQueue = new LinkedBlockingQueue[String]
+  private val stdoutQueue = new LinkedBlockingQueue[String]
 
-  private[this] val stderrQueue = new LinkedBlockingQueue[String]
+  private val stderrQueue = new LinkedBlockingQueue[String]
 
   private final val LoadTimeout = 60.seconds
 
@@ -233,7 +233,7 @@ abstract class StackRepl(project: Project,
 
           logInfo(s"REPL will be started with command: $command")
 
-          val processBuilder = Process(command, workingDirectory.toFile, GlobalInfo.pathVariables.asScala.toSeq: _*)
+          val processBuilder = Process(command, workingDirectory.toFile, GlobalInfo.pathVariables.asScala.toSeq*)
 
           stdoutQueue.clear()
           stderrQueue.clear()
