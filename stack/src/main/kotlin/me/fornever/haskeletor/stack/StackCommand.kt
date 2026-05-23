@@ -55,28 +55,30 @@ class StackCommand(
             .withExePath(executable.pathString)
             .withWorkDirectory(workingDirectory.pathString)
             .withParameters(fullArguments)
-        return withContext(Dispatchers.IO) {
-            suspendCancellableCoroutine { continuation ->
-                OSProcessHandler(commandLine).apply {
-                    for (listener in listeners) {
-                        addProcessListener(listener)
-                    }
-
-                    addProcessListener(object : ProcessListener {
-                        override fun processNotStarted() {
-                            continuation.resumeWith(Result.failure(RuntimeException("Process not started")))
+        return StackCommandRunner.getInstance().executeInQueue(commandLine.commandLineString) {
+            withContext(Dispatchers.IO) {
+                suspendCancellableCoroutine { continuation ->
+                    OSProcessHandler(commandLine).apply {
+                        for (listener in listeners) {
+                            addProcessListener(listener)
                         }
 
-                        override fun processTerminated(event: ProcessEvent) {
-                            continuation.resumeWith(Result.success(event.exitCode))
+                        addProcessListener(object : ProcessListener {
+                            override fun processNotStarted() {
+                                continuation.resumeWith(Result.failure(RuntimeException("Process not started")))
+                            }
+
+                            override fun processTerminated(event: ProcessEvent) {
+                                continuation.resumeWith(Result.success(event.exitCode))
+                            }
+                        })
+
+                        continuation.invokeOnCancellation {
+                            destroyProcess()
                         }
-                    })
 
-                    continuation.invokeOnCancellation {
-                        destroyProcess()
+                        startNotify()
                     }
-
-                    startNotify()
                 }
             }
         }
