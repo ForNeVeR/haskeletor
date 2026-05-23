@@ -79,7 +79,9 @@ class HaskellProjectManager(private val project: Project) {
                 }
             })
         }
-        launchInitialCheck()
+        if (!project.isDefault) {
+            launchInitialCheck()
+        }
     }
 
     private fun launchInitialCheck() {
