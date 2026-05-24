@@ -46,10 +46,18 @@ scala {
 
 dependencies {
     implementation(libs.commons.text)
-    implementation(libs.spray.json)
-    implementation(libs.snakeyaml)
-    implementation(libs.scaffeine)
     implementation(libs.fastparse)
+    implementation(libs.scaffeine)
+    implementation(libs.snakeyaml)
+    implementation(libs.spray.json)
+
+    // To consolidate the Scala version used across all the dependencies, we need to list the Scala version here.
+    //
+    // Otherwise, build might encounter issues like this:
+    // > [Warn] : package scala contains object and package with same name: caps.
+    // > This indicates that there are several versions of the Scala standard library on the classpath.
+    // > The build should be reconfigured so that only one version of the standard library is on the classpath.
+    implementation(libs.scala3.library)
 
     testImplementation(libs.scalatest)
     testImplementation(libs.scalatestplus.junit)

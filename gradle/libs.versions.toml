@@ -20,6 +20,7 @@ junit4 = "junit:junit:4.13.2"
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 scaffeine = { module = "com.github.blemale:scaffeine_3", version = "5.3.0" }
 scala-library = { module = "org.scala-lang:scala-library", version.ref = "scala" }
+scala3-library = { module = "org.scala-lang:scala3-library_3", version.ref = "scala" }
 scalatest = { module = "org.scalatest:scalatest_3", version = "3.2.18" }
 scalatestplus-junit = { module = "org.scalatestplus:junit-4-13_3", version = "3.2.18.0" }
 snakeyaml = { module = "org.yaml:snakeyaml", version = "2.6" }
