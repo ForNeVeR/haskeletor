@@ -22,7 +22,17 @@ scala {
 
 dependencies {
     implementation(libs.scala.library)
+    testImplementation(libs.scalatest)
+    testImplementation(libs.scalatestplus.junit)
+    testRuntimeOnly(libs.junit4)
+
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
+    }
+}
+
+tasks {
+    test {
+        useJUnit()
     }
 }

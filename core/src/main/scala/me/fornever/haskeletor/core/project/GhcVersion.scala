@@ -10,7 +10,7 @@ package me.fornever.haskeletor.core.project
 
 
 case class GhcVersion(major: Int, minor: Int, patch: Int) extends Ordered[GhcVersion] {
-  def compare(that: GhcVersion): Int = GhcVersion.asc.compare(this, that)
+  def compare(that: GhcVersion): Int = GhcVersion.versionOrdering.compare((major, minor, patch), (that.major, that.minor, that.patch))
 
   def prettyString: String = {
     s"$major.$minor.$patch"
@@ -18,7 +18,7 @@ case class GhcVersion(major: Int, minor: Int, patch: Int) extends Ordered[GhcVer
 }
 
 object GhcVersion {
-  val asc: Ordering[GhcVersion] = Ordering.by(unapply)
+  private val versionOrdering: Ordering[(Int, Int, Int)] = Ordering.Tuple3[Int, Int, Int]
 
   def parse(version: String): GhcVersion = {
     val parts = version.split('.')
