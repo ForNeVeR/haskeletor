@@ -172,9 +172,9 @@ case class ExecutableCabalStanza(sectionRootElement: PsiElement, packageName: St
 
   val targetName: String = name.map(n => s"$packageName:exe:$n").getOrElse(throw new IllegalStateException(s"Executable should have name in package $packageName"))
 
-  val mainIs: Option[String] = findMainIs
-
   val sourceDirs: Seq[String] = findSourceDirsOrElseModuleDir
+
+  val mainIs: Option[String] = findMainIs
 }
 
 case class TestSuiteCabalStanza(sectionRootElement: PsiElement, packageName: String, modulePath: String) extends CabalStanza {
@@ -182,9 +182,9 @@ case class TestSuiteCabalStanza(sectionRootElement: PsiElement, packageName: Str
 
   val targetName: String = name.map(n => s"$packageName:test:$n").getOrElse(throw new IllegalStateException(s"Test-suite should have name in package $packageName"))
 
-  val mainIs: Option[String] = findMainIs
-
   val sourceDirs: Seq[String] = findSourceDirs
+
+  val mainIs: Option[String] = findMainIs
 }
 
 case class BenchmarkCabalStanza(sectionRootElement: PsiElement, packageName: String, modulePath: String) extends CabalStanza {
@@ -192,7 +192,7 @@ case class BenchmarkCabalStanza(sectionRootElement: PsiElement, packageName: Str
 
   val targetName: String = name.map(n => s"$packageName:bench:$n").getOrElse(throw new IllegalStateException(s"Benchmark should have name in package $packageName"))
 
-  val mainIs: Option[String] = findMainIs
-
   val sourceDirs: Seq[String] = findSourceDirs
+
+  val mainIs: Option[String] = findMainIs
 }
