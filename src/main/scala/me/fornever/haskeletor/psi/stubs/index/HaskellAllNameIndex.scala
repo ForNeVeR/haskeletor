@@ -11,19 +11,15 @@ package me.fornever.haskeletor.psi.stubs.index
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
 import me.fornever.haskeletor.psi.HaskellNamedElement
 
-object HaskellAllNameIndex {
+object HaskellAllNameIndex:
 
   val Key: StubIndexKey[String, HaskellNamedElement] = StubIndexKey.createIndexKey("haskell.all.name")
   val Version = 1
-}
 
-class HaskellAllNameIndex extends StringStubIndexExtension[HaskellNamedElement] {
+class HaskellAllNameIndex extends StringStubIndexExtension[HaskellNamedElement]:
 
-  override def getVersion: Int = {
+  override def getVersion: Int =
     super.getVersion + HaskellAllNameIndex.Version
-  }
 
-  def getKey: StubIndexKey[String, HaskellNamedElement] = {
+  def getKey: StubIndexKey[String, HaskellNamedElement] =
     HaskellAllNameIndex.Key
-  }
-}

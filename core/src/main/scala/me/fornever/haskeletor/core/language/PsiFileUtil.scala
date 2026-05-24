@@ -14,23 +14,18 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.{PsiFile, PsiManager}
 
-object PsiFileUtil {
+object PsiFileUtil:
 
-  def convertToHaskellFileDispatchThread(project: Project, virtualFile: VirtualFile): Option[PsiFile] = {
-    findCachedPsiFile(project, virtualFile) match {
+  def convertToHaskellFileDispatchThread(project: Project, virtualFile: VirtualFile): Option[PsiFile] =
+    findCachedPsiFile(project, virtualFile) match
       case pf@Some(_) => pf
       case None => findPsiFile(project, virtualFile)
-    }
-  }
 
-  def findCachedPsiFile(project: Project, virtualFile: VirtualFile): Option[PsiFile] = {
+  def findCachedPsiFile(project: Project, virtualFile: VirtualFile): Option[PsiFile] =
     val manager = PsiManagerEx.getInstanceEx(project)
     val fileManager = manager.getFileManager
     ProgressManager.checkCanceled()
     Option(fileManager.getCachedPsiFile(virtualFile))
-  }
 
-  def findPsiFile(project: Project, virtualFile: VirtualFile): Option[PsiFile] = {
+  def findPsiFile(project: Project, virtualFile: VirtualFile): Option[PsiFile] =
     Option(PsiManager.getInstance(project).findFile(virtualFile))
-  }
-}

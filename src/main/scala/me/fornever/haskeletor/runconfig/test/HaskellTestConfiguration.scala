@@ -16,44 +16,36 @@ import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.runconfig.{HaskellStackConfigurationBase, HaskellStackStateBase}
 
 import java.lang
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class HaskellTestConfiguration(name: String, project: Project, configurationFactory: ConfigurationFactory)
-  extends HaskellStackConfigurationBase(name, project, configurationFactory) {
+  extends HaskellStackConfigurationBase(name, project, configurationFactory):
 
   private var testSuiteTargetName: String = ""
   private var testArguments: String = "--color"
 
-  def getTestSuiteTargetNames: lang.Iterable[String] = {
+  def getTestSuiteTargetNames: lang.Iterable[String] =
     HaskellComponentsManager.findCabalInfos(project).flatMap(_.testSuites.map(_.targetName)).asJava
-  }
 
-  def setTestSuiteTargetName(targetName: String): Unit = {
+  def setTestSuiteTargetName(targetName: String): Unit =
     testSuiteTargetName = targetName
-  }
 
-  def getTestSuiteTargetName: String = {
-    if (testSuiteTargetName.isEmpty) {
+  def getTestSuiteTargetName: String =
+    if testSuiteTargetName.isEmpty then
       getTestSuiteTargetNames.asScala.headOption.getOrElse("")
-    } else {
+    else
       testSuiteTargetName
-    }
-  }
 
-  def setTestArguments(testPattern: String): Unit = {
+  def setTestArguments(testPattern: String): Unit =
     this.testArguments = testPattern
-  }
 
-  def getTestArguments: String = {
+  def getTestArguments: String =
     testArguments
-  }
 
   override def getConfigurationEditor = new HaskellTestConfigurationForm
 
   //https://github.com/commercialhaskell/stack/issues/731
   //https://github.com/commercialhaskell/stack/issues/2210
-  override def getState(executor: Executor, environment: ExecutionEnvironment): HaskellStackStateBase = {
+  override def getState(executor: Executor, environment: ExecutionEnvironment): HaskellStackStateBase =
     val parameters = List("test", s"$testSuiteTargetName") ++ List("--test-arguments", getTestArguments)
     new HaskellStackStateBase(this, environment, parameters)
-  }
-}

@@ -16,21 +16,19 @@ import java.util
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-object DaemonUtil {
+object DaemonUtil:
   private def getHighlights(project: Project,
                             document: Document,
                             minSeverity: HighlightSeverity,
                             filter: Option[HighlightInfo => Boolean]
-                           ): mutable.Buffer[HighlightInfo] = {
+                           ): mutable.Buffer[HighlightInfo] =
     val collection = new util.ArrayList[HighlightInfo]
     val collector = Processors.cancelableCollectProcessor(collection)
-    val filteredCollector = filter match {
+    val filteredCollector = filter match
       case None => collector
       case Some(filter) => Processors.filter(collector, { info => filter(info) })
-    }
     DaemonCodeAnalyzerEx.processHighlights(document, project, minSeverity, 0, document.getTextLength, filteredCollector)
     collection.asScala
-  }
 
   def getDocumentHighlights(project: Project,
                             document: Document,
@@ -42,9 +40,7 @@ object DaemonUtil {
                             document: Document,
                             minSeverity: HighlightSeverity,
                             offset: Int
-                           ): mutable.Buffer[HighlightInfo] = {
+                           ): mutable.Buffer[HighlightInfo] =
     // To get data about a particular offset, collect every highlighting and filter by "contains": replicates the
     // approach used in com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl.processHighlightsNearOffset.
     getHighlights(project, document, minSeverity, Some(info => info.contains(offset)))
-  }
-}

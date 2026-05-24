@@ -9,20 +9,19 @@
 package me.fornever.haskeletor.action
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
-import me.fornever.haskeletor.external.component.NameInfoComponentResult._
-import me.fornever.haskeletor.external.component._
+import me.fornever.haskeletor.external.component.*
+import me.fornever.haskeletor.external.component.NameInfoComponentResult.*
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class ShowNameInfoAction extends AnAction {
+class ShowNameInfoAction extends AnAction:
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableAction(onlyForSourceFile = false, actionEvent)
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
-    if (!StackProjectManager.isInitializing(actionEvent.getProject)) {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
+    if !StackProjectManager.isInitializing(actionEvent.getProject) then
       ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
         val editor = actionContext.editor
         val psiFile = actionContext.psiFile
@@ -35,17 +34,12 @@ class ShowNameInfoAction extends AnAction {
           }
         })
       })
-    } else {
+    else
       HaskellEditorUtil.showHaskellSupportIsNotAvailableWhileInitializing(actionEvent.getProject)
-    }
-  }
 
-  private def createInfoText(nameInfo: NameInfo): String = {
-    nameInfo match {
+  private def createInfoText(nameInfo: NameInfo): String =
+    nameInfo match
       case pi: ProjectNameInfo => s"${pi.declaration}   -- ${pi.filePath}"
       case li: LibraryNameInfo => s"${li.shortenedDeclaration}   -- ${li.moduleName}    ${li.packageName.getOrElse("")}"
       case ii: InfixInfo => ii.declaration
-    }
-  }
 
-}

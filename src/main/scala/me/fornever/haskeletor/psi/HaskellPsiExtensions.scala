@@ -12,9 +12,7 @@ import me.fornever.haskeletor.psi.impl.HaskellPsiImplUtil
  * Extension methods for generated PSI interfaces that lack psiImplUtilClass support.
  * Import `HaskellPsiExtensions._` at call sites that need these methods.
  */
-object HaskellPsiExtensions {
+object HaskellPsiExtensions:
 
-  implicit class HaskellImportDeclarationOps(val decl: HaskellImportDeclaration) extends AnyVal {
+  implicit class HaskellImportDeclarationOps(val decl: HaskellImportDeclaration) extends AnyVal:
     def getModuleName: Option[String] = HaskellPsiImplUtil.getModuleName(decl)
-  }
-}

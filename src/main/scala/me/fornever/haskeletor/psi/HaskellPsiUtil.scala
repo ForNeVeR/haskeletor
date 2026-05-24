@@ -27,92 +27,70 @@ import scala.annotation.tailrec
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
 
-object HaskellPsiUtil {
+object HaskellPsiUtil:
 
-  def findImportDeclarations(psiFile: PsiFile): Iterable[HaskellImportDeclaration] = {
+  def findImportDeclarations(psiFile: PsiFile): Iterable[HaskellImportDeclaration] =
     PsiTreeUtil.findChildrenOfType(psiFile.getOriginalFile, classOf[HaskellImportDeclaration]).asScala
-  }
 
-  def findImportDeclarationsBlock(psiFile: PsiFile): Option[HaskellImportDeclarations] = {
+  def findImportDeclarationsBlock(psiFile: PsiFile): Option[HaskellImportDeclarations] =
     Option(PsiTreeUtil.findChildOfType(psiFile.getOriginalFile, classOf[HaskellImportDeclarations]))
-  }
 
-  def findFileHeader(psiFile: PsiFile): Option[HaskellFileHeader] = {
+  def findFileHeader(psiFile: PsiFile): Option[HaskellFileHeader] =
     Option(PsiTreeUtil.findChildOfType(psiFile.getOriginalFile, classOf[HaskellFileHeader])).filter(_.getPragmaList.size > 0)
-  }
 
-  def findLanguageExtensions(psiFile: PsiFile): Iterable[HaskellPragma] = {
-    Option(PsiTreeUtil.findChildOfType(psiFile, classOf[HaskellFileHeader])) match {
+  def findLanguageExtensions(psiFile: PsiFile): Iterable[HaskellPragma] =
+    Option(PsiTreeUtil.findChildOfType(psiFile, classOf[HaskellFileHeader])) match
       case Some(e) => PsiTreeUtil.findChildrenOfType(e, classOf[HaskellPragma]).asScala
       case None => Iterable()
-    }
-  }
 
-  def findNamedElement(psiElement: PsiElement): Option[HaskellNamedElement] = {
-    psiElement match {
+  def findNamedElement(psiElement: PsiElement): Option[HaskellNamedElement] =
+    psiElement match
       case e: HaskellNamedElement => Some(e)
       case e => Option(PsiTreeUtil.findFirstParent(e, NamedElementCondition)).map(_.asInstanceOf[HaskellNamedElement])
-    }
-  }
 
-  def findModIdElement(psiElement: PsiElement): Option[HaskellModid] = {
-    psiElement match {
+  def findModIdElement(psiElement: PsiElement): Option[HaskellModid] =
+    psiElement match
       case e: HaskellModid => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_MODID)).map(_.getPsi.asInstanceOf[HaskellModid])
-    }
-  }
 
-  def findQualifierElement(psiElement: PsiElement): Option[HaskellQualifier] = {
-    psiElement match {
+  def findQualifierElement(psiElement: PsiElement): Option[HaskellQualifier] =
+    psiElement match
       case e: HaskellQualifier => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_QUALIFIER)).map(_.getPsi.asInstanceOf[HaskellQualifier])
-    }
-  }
 
-  def findDataConstr(psiElement: PsiElement): Option[HaskellConstr] = {
-    psiElement match {
+  def findDataConstr(psiElement: PsiElement): Option[HaskellConstr] =
+    psiElement match
       case e: HaskellConstr => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_CONSTR)).map(_.getPsi.asInstanceOf[HaskellConstr])
-    }
-  }
 
-  def findDataFieldDecl(psiElement: PsiElement): Option[HaskellFielddecl] = {
-    psiElement match {
+  def findDataFieldDecl(psiElement: PsiElement): Option[HaskellFielddecl] =
+    psiElement match
       case e: HaskellFielddecl => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_FIELDDECL)).map(_.getPsi.asInstanceOf[HaskellFielddecl])
-    }
-  }
 
-  def findNamedElements(psiElement: PsiElement): Iterable[HaskellNamedElement] = {
+  def findNamedElements(psiElement: PsiElement): Iterable[HaskellNamedElement] =
     PsiTreeUtil.findChildrenOfType(psiElement, classOf[HaskellNamedElement]).asScala
-  }
 
-  def findQNameElements(psiElement: PsiElement): Iterable[HaskellQName] = {
+  def findQNameElements(psiElement: PsiElement): Iterable[HaskellQName] =
     PsiTreeUtil.findChildrenOfType(psiElement, classOf[HaskellQName]).asScala
-  }
 
-  def findQualifiedNamedElements(psiElement: PsiElement): Iterable[HaskellQualifiedNameElement] = {
+  def findQualifiedNamedElements(psiElement: PsiElement): Iterable[HaskellQualifiedNameElement] =
     PsiTreeUtil.findChildrenOfType(psiElement, classOf[HaskellQualifiedNameElement]).asScala
-  }
 
-  def findHaskellDeclarationElements(psiElement: PsiElement): Iterable[HaskellDeclarationElementImpl] = {
+  def findHaskellDeclarationElements(psiElement: PsiElement): Iterable[HaskellDeclarationElementImpl] =
     ProgressManager.checkCanceled()
     val declarations = ApplicationUtil.runReadAction(PsiTreeUtil.findChildrenOfType(psiElement, classOf[HaskellDeclarationElementImpl]).asScala, Some(psiElement.getProject))
     ProgressManager.checkCanceled()
     declarations.filter(e => e.getParent.getNode.getElementType == HS_TOP_DECLARATION || e.getNode.getElementType == HS_MODULE_DECLARATION)
-  }
 
-  def findTopLevelDeclarations(psiFile: PsiFile): Iterable[HaskellDeclarationElementImpl] = {
+  def findTopLevelDeclarations(psiFile: PsiFile): Iterable[HaskellDeclarationElementImpl] =
     findHaskellDeclarationElements(psiFile).filterNot(e => Seq(HS_IMPORT_DECLARATION, HS_MODULE_DECLARATION).contains(e.getNode.getElementType))
-  }
 
-  def findModuleDeclaration(psiFile: PsiFile): Option[HaskellModuleDeclaration] = {
+  def findModuleDeclaration(psiFile: PsiFile): Option[HaskellModuleDeclaration] =
     Option(PsiTreeUtil.findChildOfType(psiFile.getOriginalFile, classOf[HaskellModuleDeclarationImpl]))
-  }
 
-  def findModuleNameInPsiTree(psiFile: PsiFile): Option[String] = {
+  def findModuleNameInPsiTree(psiFile: PsiFile): Option[String] =
     Option(PsiTreeUtil.findChildOfType(psiFile.getOriginalFile, classOf[HaskellModuleDeclarationImpl])).flatMap(_.getModuleName)
-  }
 
   private final val ModuleNameCache: LoadingCache[PsiFile, Option[String]] = Scaffeine().build((psiFile: PsiFile) => {
     try {
@@ -124,151 +102,112 @@ object HaskellPsiUtil {
     }
   })
 
-  def findModuleName(psiFile: PsiFile): Option[String] = {
-    ModuleNameCache.get(psiFile.getOriginalFile) match {
+  def findModuleName(psiFile: PsiFile): Option[String] =
+    ModuleNameCache.get(psiFile.getOriginalFile) match
       case mn@Some(_) => mn
       case None =>
         ModuleNameCache.invalidate(psiFile)
         None
-    }
-  }
 
-  def invalidateModuleName(psiFile: PsiFile): Unit = {
+  def invalidateModuleName(psiFile: PsiFile): Unit =
     ModuleNameCache.invalidate(psiFile)
-  }
 
-  def invalidateAllModuleNames(project: Project): Unit = {
+  def invalidateAllModuleNames(project: Project): Unit =
     ModuleNameCache.asMap().keys.filter(_.getProject == project).foreach(ModuleNameCache.invalidate)
-  }
 
-  def findTopDeclarationParent(psiElement: PsiElement): Option[HaskellTopDeclaration] = {
-    psiElement match {
+  def findTopDeclarationParent(psiElement: PsiElement): Option[HaskellTopDeclaration] =
+    psiElement match
       case e: HaskellTopDeclaration => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_TOP_DECLARATION)).map(_.getPsi.asInstanceOf[HaskellTopDeclaration])
-    }
-  }
 
-  def findQualifiedName(psiElement: PsiElement): Option[HaskellQualifiedNameElement] = {
-    psiElement match {
+  def findQualifiedName(psiElement: PsiElement): Option[HaskellQualifiedNameElement] =
+    psiElement match
       case e: HaskellQualifiedNameElement => Some(e)
       case e => Option(PsiTreeUtil.findFirstParent(e, QualifiedNameElementCondition)).map(_.asInstanceOf[HaskellQualifiedNameElement])
-    }
-  }
 
-  def findQName(psiElement: PsiElement): Option[HaskellQName] = {
-    psiElement match {
+  def findQName(psiElement: PsiElement): Option[HaskellQName] =
+    psiElement match
       case e: HaskellQName => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_Q_NAME)).map(_.getPsi.asInstanceOf[HaskellQName])
-    }
-  }
 
-  def findTtype(psiElement: PsiElement): Option[HaskellTtype] = {
-    psiElement match {
+  def findTtype(psiElement: PsiElement): Option[HaskellTtype] =
+    psiElement match
       case e: HaskellTtype => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_TTYPE)).map(_.getPsi.asInstanceOf[HaskellTtype])
-    }
-  }
 
-  def findImportDeclarations(psiElement: PsiElement): Option[HaskellImportDeclarations] = {
-    psiElement match {
+  def findImportDeclarations(psiElement: PsiElement): Option[HaskellImportDeclarations] =
+    psiElement match
       case e: HaskellImportDeclarations => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_IMPORT_DECLARATIONS)).map(_.getPsi.asInstanceOf[HaskellImportDeclarations])
-    }
-  }
 
-  def findImportDeclaration(psiElement: PsiElement): Option[HaskellImportDeclaration] = {
-    psiElement match {
+  def findImportDeclaration(psiElement: PsiElement): Option[HaskellImportDeclaration] =
+    psiElement match
       case e: HaskellImportDeclaration => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_IMPORT_DECLARATION)).map(_.getPsi.asInstanceOf[HaskellImportDeclaration])
-    }
-  }
 
-  def findHighestDeclarationElement(psiElement: PsiElement): Option[HaskellDeclarationElementImpl] = {
-    psiElement match {
+  def findHighestDeclarationElement(psiElement: PsiElement): Option[HaskellDeclarationElementImpl] =
+    psiElement match
       case e: HaskellDeclarationElementImpl => Some(e)
       case e => Option(PsiTreeUtil.findFirstParent(e, HighestDeclarationElementCondition)).map(_.asInstanceOf[HaskellDeclarationElementImpl])
-    }
-  }
 
-  def findDeclarationElement(psiElement: PsiElement): Option[HaskellDeclarationElementImpl] = {
-    psiElement match {
+  def findDeclarationElement(psiElement: PsiElement): Option[HaskellDeclarationElementImpl] =
+    psiElement match
       case e: HaskellDeclarationElementImpl => Some(e)
       case e => Option(PsiTreeUtil.findFirstParent(e, DeclarationElementCondition)).map(_.asInstanceOf[HaskellDeclarationElementImpl])
-    }
-  }
 
-  def findTopLevelExpressions(psiFile: PsiFile): Iterable[HaskellExpression] = {
+  def findTopLevelExpressions(psiFile: PsiFile): Iterable[HaskellExpression] =
     PsiTreeUtil.findChildrenOfType(psiFile, classOf[HaskellExpression]).asScala
-  }
 
-  def findTypeSignatureDeclaration(psiElement: PsiElement): Option[HaskellTypeSignature] = {
-    psiElement match {
+  def findTypeSignatureDeclaration(psiElement: PsiElement): Option[HaskellTypeSignature] =
+    psiElement match
       case e: HaskellTypeSignature => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_TYPE_SIGNATURE)).map(_.getPsi.asInstanceOf[HaskellTypeSignature])
-    }
-  }
 
-  def findDataDeclaration(psiElement: PsiElement): Option[HaskellDataDeclaration] = {
-    psiElement match {
+  def findDataDeclaration(psiElement: PsiElement): Option[HaskellDataDeclaration] =
+    psiElement match
       case e: HaskellDataDeclaration => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_DATA_DECLARATION)).map(_.getPsi.asInstanceOf[HaskellDataDeclaration])
-    }
-  }
 
-  def findNewTypeDeclaration(psiElement: PsiElement): Option[HaskellNewtypeDeclaration] = {
-    psiElement match {
+  def findNewTypeDeclaration(psiElement: PsiElement): Option[HaskellNewtypeDeclaration] =
+    psiElement match
       case e: HaskellNewtypeDeclaration => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_NEWTYPE_DECLARATION)).map(_.getPsi.asInstanceOf[HaskellNewtypeDeclaration])
-    }
-  }
 
-  def findExpression(psiElement: PsiElement): Option[HaskellExpression] = {
-    psiElement match {
+  def findExpression(psiElement: PsiElement): Option[HaskellExpression] =
+    psiElement match
       case e: HaskellExpression => Some(e)
       case e => Option(TreeUtil.findParent(e.getNode, HaskellTypes.HS_EXPRESSION)).map(_.getPsi.asInstanceOf[HaskellExpression])
-    }
-  }
 
-  def getSelectionStartEnd(psiElement: PsiElement, editor: Editor): Option[(PsiElement, PsiElement)] = {
+  def getSelectionStartEnd(psiElement: PsiElement, editor: Editor): Option[(PsiElement, PsiElement)] =
     val psiFile = psiElement.getContainingFile.getOriginalFile
-    if (Option(editor.getSelectionModel.getSelectedText).isDefined) {
-      for {
+    if Option(editor.getSelectionModel.getSelectedText).isDefined then
+      for
         start <- Option(psiFile.findElementAt(editor.getSelectionModel.getSelectionStart))
-        end <- Option(psiFile.findElementAt(editor.getSelectionModel.getSelectionEnd - (if (Option(editor.getSelectionModel.getSelectedText).exists(_.length > 1)) 1 else 0)))
-      } yield (start, end)
-    } else {
+        end <- Option(psiFile.findElementAt(editor.getSelectionModel.getSelectionEnd - (if Option(editor.getSelectionModel.getSelectedText).exists(_.length > 1) then 1 else 0)))
+      yield (start, end)
+    else
       None
-    }
-  }
 
   @tailrec
-  def untilNonWhitespaceBackwards(element: Option[PsiElement]): Option[PsiElement] = {
-    element match {
+  def untilNonWhitespaceBackwards(element: Option[PsiElement]): Option[PsiElement] =
+    element match
       case Some(e) if e.getNode.getElementType == HaskellTypes.HS_NEWLINE || e.getNode.getElementType == TokenType.WHITE_SPACE =>
         untilNonWhitespaceBackwards(Option(e.getPrevSibling))
       case e => e
-    }
-  }
 
-  def getChildOfType[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Option[T] = {
+  def getChildOfType[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Option[T] =
     Option(PsiTreeUtil.getChildOfType(psiElement, cls))
-  }
 
-  def getChildrenOfType[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Iterable[T] = {
+  def getChildrenOfType[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Iterable[T] =
     PsiTreeUtil.findChildrenOfAnyType(psiElement, cls).asScala
-  }
 
-  def getChildNodes(psiElement: PsiElement, elementTypes: IElementType*): Array[ASTNode] = {
+  def getChildNodes(psiElement: PsiElement, elementTypes: IElementType*): Array[ASTNode] =
     psiElement.getNode.getChildren(TokenSet.create(elementTypes*))
-  }
 
-  def streamChildren[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Iterable[T] = {
+  def streamChildren[T <: PsiElement](psiElement: PsiElement, cls: Class[T]): Iterable[T] =
     PsiTreeUtil.collectElementsOfType(psiElement, cls).asScala
-  }
 
   /** Analogous to PsiTreeUtil.findFirstParent */
-  def collectFirstParent[A](psiElement: PsiElement)(f: PartialFunction[PsiElement, A]): Option[A] = {
+  def collectFirstParent[A](psiElement: PsiElement)(f: PartialFunction[PsiElement, A]): Option[A] =
     LazyList.iterate(psiElement.getParent)(_.getParent).takeWhile(_ != null).collectFirst(f)
-  }
 
-}

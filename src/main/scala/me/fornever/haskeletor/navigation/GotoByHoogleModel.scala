@@ -20,61 +20,48 @@ import me.fornever.haskeletor.core.HaskeletorBundle
 
 import javax.swing.ListCellRenderer
 
-class GotoByHoogleModel(val project: Project, val contributors: Array[ChooseByNameContributor]) extends FilteringGotoByModel[LanguageRef](project, contributors) with CustomMatcherModel {
+class GotoByHoogleModel(val project: Project, val contributors: Array[ChooseByNameContributor]) extends FilteringGotoByModel[LanguageRef](project, contributors) with CustomMatcherModel:
 
   // Helping the Scala compiler to see that ListCellRenderer is parameterized by AnyRef
   override def getListCellRenderer: ListCellRenderer[?] = super.getListCellRenderer
 
-  protected def filterValueFor(item: NavigationItem): LanguageRef = {
+  protected def filterValueFor(item: NavigationItem): LanguageRef =
     null
-  }
 
-  def getPromptText: String = {
+  def getPromptText: String =
     "Hoogle for it"
-  }
 
-  def getCheckBoxName: String = {
+  def getCheckBoxName: String =
     BundleBase.replaceMnemonicAmpersand("Include &non-&&project identifiers")
-  }
 
-  def getNotInMessage: String = {
+  def getNotInMessage: String =
     HaskeletorBundle.message("action.goto.no-matches-found", project.getName)
-  }
 
-  def getNotFoundMessage: String = {
+  def getNotFoundMessage: String =
     IdeBundle.message("label.no.matches.found")
-  }
 
-  def loadInitialCheckBoxState: Boolean = {
+  def loadInitialCheckBoxState: Boolean =
     val propertiesComponent: PropertiesComponent = PropertiesComponent.getInstance(myProject)
     true.toString == propertiesComponent.getValue("GoToClass.toSaveIncludeLibraries") && true.toString == propertiesComponent.getValue("GoToSymbol.includeLibraries")
-  }
 
-  def saveInitialCheckBoxState(state: Boolean): Unit = {
+  def saveInitialCheckBoxState(state: Boolean): Unit =
     val propertiesComponent: PropertiesComponent = PropertiesComponent.getInstance(myProject)
-    if (true.toString == propertiesComponent.getValue("GoToClass.toSaveIncludeLibraries")) {
+    if true.toString == propertiesComponent.getValue("GoToClass.toSaveIncludeLibraries") then
       propertiesComponent.setValue("GoToSymbol.includeLibraries", state.toString)
-    }
-  }
 
-  def getFullName(element: Any): String = {
+  def getFullName(element: Any): String =
     Option(getElementName(element)).map(name => {
       element match {
         case e: PsiElement => SymbolPresentationUtil.getSymbolContainerText(e) + "." + name
         case _ => name
       }
     }).orNull
-  }
 
-  def getSeparators: Array[String] = {
+  def getSeparators: Array[String] =
     new Array[String](0)
-  }
 
-  def willOpenEditor: Boolean = {
+  def willOpenEditor: Boolean =
     true
-  }
 
-  def matches(popupItem: String, userPattern: String): Boolean = {
+  def matches(popupItem: String, userPattern: String): Boolean =
     true
-  }
-}

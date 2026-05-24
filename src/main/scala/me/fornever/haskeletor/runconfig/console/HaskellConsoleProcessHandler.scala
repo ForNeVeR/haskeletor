@@ -13,7 +13,6 @@ import com.intellij.execution.process.ColoredProcessHandler
 
 import java.nio.charset.Charset
 
-class HaskellConsoleProcessHandler private[runconfig](val process: Process, val commandLine: String, val console: HaskellConsoleView) extends ColoredProcessHandler(process, commandLine, Charset.forName("UTF-8")) {
+class HaskellConsoleProcessHandler private[runconfig](val process: Process, val commandLine: String, val console: HaskellConsoleView) extends ColoredProcessHandler(process, commandLine, Charset.forName("UTF-8")):
 
   def getLanguageConsole: LanguageConsoleImpl = console
-}

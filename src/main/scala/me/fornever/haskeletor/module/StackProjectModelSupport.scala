@@ -11,11 +11,9 @@ package me.fornever.haskeletor.module
 import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
 
-object StackProjectModelSupport {
+object StackProjectModelSupport:
 
   private final val projectRootRelativePath = "."
 
-  def getPackagePaths(project: Project): Seq[String] = {
+  def getPackagePaths(project: Project): Seq[String] =
     StackYamlComponent.getPackagePaths(project).getOrElse(Seq(projectRootRelativePath))
-  }
-}

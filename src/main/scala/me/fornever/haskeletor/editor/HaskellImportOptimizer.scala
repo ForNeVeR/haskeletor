@@ -16,28 +16,26 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import me.fornever.haskeletor.HaskellFile
 import me.fornever.haskeletor.highlighter.DaemonUtil
-import me.fornever.haskeletor.psi.HaskellPsiExtensions._
+import me.fornever.haskeletor.psi.HaskellPsiExtensions.*
 import me.fornever.haskeletor.psi.HaskellPsiUtil
-import me.fornever.haskeletor.psi.HaskellTypes._
+import me.fornever.haskeletor.psi.HaskellTypes.*
 import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil, LineColumnPosition, ScalaUtil}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.matching.Regex
 
-class HaskellImportOptimizer extends ImportOptimizer {
+class HaskellImportOptimizer extends ImportOptimizer:
 
   override def supports(psiFile: PsiFile): Boolean = psiFile.isInstanceOf[HaskellFile] && HaskellProjectUtil.isSourceFile(psiFile)
 
-  override def processFile(psiFile: PsiFile): Runnable = {
+  override def processFile(psiFile: PsiFile): Runnable =
     () => HaskellImportOptimizer.removeRedundantImports(psiFile)
-  }
-}
 
-object HaskellImportOptimizer {
+object HaskellImportOptimizer:
   final val WarningRedundantImport: Regex = """.*The (?:qualified )?import of [`|‘]([^'’]+)['|’] is redundant.*""".r
   final val WarningRedundant2Import: Regex = """.*The (?:qualified )?import of [`|‘]([^'’]+)['|’] from module [`|‘]([^'’]+)['|’] is redundant.*""".r
 
-  def removeRedundantImports(psiFile: PsiFile): Boolean = {
+  def removeRedundantImports(psiFile: PsiFile): Boolean =
     val document = HaskellFileUtil.findDocument(psiFile)
     val warnings = document
       .map(d => DaemonUtil.getDocumentHighlights(psiFile.getProject, d, HighlightSeverity.WARNING).toSeq)
@@ -49,18 +47,15 @@ object HaskellImportOptimizer {
       case _ => ()
     })
     true
-  }
 
-  private def getLineNr(psiFile: PsiFile, element: PsiElement) = {
+  private def getLineNr(psiFile: PsiFile, element: PsiElement) =
     val offset = element.getTextRange.getStartOffset
     LineColumnPosition.fromOffset(psiFile.getVirtualFile, offset).map(_.lineNr)
-  }
 
-  private def getLineNr(psiFile: PsiFile, offset: Int) = {
+  private def getLineNr(psiFile: PsiFile, offset: Int) =
     LineColumnPosition.fromOffset(psiFile.getVirtualFile, offset).map(_.lineNr)
-  }
 
-  def removeRedundantImport(psiFile: PsiFile, moduleName: String, lineNr: Option[Int]): Unit = {
+  def removeRedundantImport(psiFile: PsiFile, moduleName: String, lineNr: Option[Int]): Unit =
     HaskellPsiUtil.findImportDeclarations(psiFile).find(d => d.getModuleName.contains(moduleName) && getLineNr(psiFile, d) == lineNr).foreach { importDeclaration =>
 
       val spaces = Option(PsiTreeUtil.findSiblingForward(importDeclaration, WHITE_SPACE, true, null))
@@ -71,11 +66,10 @@ object HaskellImportOptimizer {
         importDeclaration.delete()
       })
     }
-  }
 
-  import me.fornever.haskeletor.psi.HaskellTypes._
+  import me.fornever.haskeletor.psi.HaskellTypes.*
 
-  def removeRedundantImportIds(psiFile: PsiFile, moduleName: String, idNames: Seq[String], lineNr: Option[Int]): Unit = {
+  def removeRedundantImportIds(psiFile: PsiFile, moduleName: String, idNames: Seq[String], lineNr: Option[Int]): Unit =
     HaskellPsiUtil.findImportDeclarations(psiFile).find(d => d.getModuleName.contains(moduleName) && getLineNr(psiFile, d) == lineNr).foreach { importDeclaration =>
       val prefix = Option(importDeclaration.getImportQualifiedAs).map(_.getQualifier.getName).orElse(importDeclaration.getModuleName)
       val idsToRemove = importDeclaration.getImportSpec.getImportIdsSpec.getImportIdList.asScala.filter(qn => idNames.exists(idn => idn == qn.getText || prefix.exists(p => idn == p + "." + qn.getText)))
@@ -91,5 +85,3 @@ object HaskellImportOptimizer {
         })
       }
     }
-  }
-}

@@ -14,11 +14,11 @@ import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
 import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaFutureUtil}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, blocking}
 
 @Service(Array(Service.Level.PROJECT))
-final class StackComponentGlobalInfoComponent(project: Project) {
+final class StackComponentGlobalInfoComponent(project: Project):
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -28,51 +28,41 @@ final class StackComponentGlobalInfoComponent(project: Project) {
 
   private val Cache: AsyncLoadingCache[Key, Result] = Scaffeine().buildAsync((k: Key) => createStackInfo(k))
 
-  def findStackComponentGlobalInfo(stackComponentInfo: ComponentTarget): Option[StackComponentGlobalInfo] = {
+  def findStackComponentGlobalInfo(stackComponentInfo: ComponentTarget): Option[StackComponentGlobalInfo] =
     val key = Key(stackComponentInfo)
-    ScalaFutureUtil.waitForValue(project, Cache.get(key), "Getting global info").flatten match {
+    ScalaFutureUtil.waitForValue(project, Cache.get(key), "Getting global info").flatten match
       case result@Some(_) => result
       case _ =>
         Cache.synchronous().invalidate(key)
         None
-    }
-  }
 
-  private def createStackInfo(key: Key): Result = {
+  private def createStackInfo(key: Key): Result =
     val stackComponentInfo = key.stackComponentInfo
     findAvailableLibraryModuleNames(stackComponentInfo)
-  }
 
-  private def findAvailableLibraryModuleNames(componentInfo: ComponentTarget): Result = {
+  private def findAvailableLibraryModuleNames(componentInfo: ComponentTarget): Result =
     val projectPackageNames = HaskellProjectUtil.findProjectPackageNames(project)
     val buildDependsLibraryPackages = componentInfo.buildDepends.filterNot(projectPackageNames.contains) ++ Seq("ghc-prim")
 
     val libraryModuleNamesFutures = buildDependsLibraryPackages.grouped(5).map { packageNames =>
-      Future {
-        blocking {
+      Future:
+        blocking:
           packageNames.flatMap { packageName =>
-            if (project.isDisposed) {
+            if project.isDisposed then
               None
-            } else {
+            else
               LibraryPackageInfoComponent.findLibraryPackageInfo(project, packageName)
-            }
           }
-        }
-      }
     }
 
     val libraryModuleNames = Await.result(Future.sequence(libraryModuleNamesFutures), 60.second).flatten.toSeq
 
     Some(StackComponentGlobalInfo(componentInfo, libraryModuleNames))
-  }
 
-  def invalidate(): Unit = {
+  def invalidate(): Unit =
     Cache.synchronous().invalidateAll()
-  }
-}
 
-object StackComponentGlobalInfoComponent {
+object StackComponentGlobalInfoComponent:
   def getInstance(project: Project): StackComponentGlobalInfoComponent = project.getService(classOf[StackComponentGlobalInfoComponent])
-}
 
 case class StackComponentGlobalInfo(stackComponentInfo: ComponentTarget, packageInfos: Seq[LibraryPackageInfo])

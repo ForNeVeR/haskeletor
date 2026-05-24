@@ -16,10 +16,10 @@ import com.intellij.ui.components.JBLabel
 import me.fornever.haskeletor.core.HaskeletorBundle
 
 import java.awt.{BorderLayout, GridBagConstraints, GridBagLayout, Insets}
-import javax.swing._
+import javax.swing.*
 import javax.swing.event.DocumentEvent
 
-class HaskellConfigurable extends HaskellConfigurableBase {
+class HaskellConfigurable extends HaskellConfigurableBase:
   private var isModifiedByUser = false
   private val hlintOptionsField = new JTextField
   private val useSystemGhcToggle = new JCheckBox
@@ -37,16 +37,15 @@ class HaskellConfigurable extends HaskellConfigurableBase {
 
   override def isModified: Boolean = this.isModifiedByUser
 
-  import HaskellConfigurable._
+  import HaskellConfigurable.*
 
-  override def createComponent: JComponent = {
+  override def createComponent: JComponent =
 
-    def toggleToolPathsVisibility(): Unit = {
+    def toggleToolPathsVisibility(): Unit =
       val visible = useCustomToolsToggle.isSelected
       hlintPathField.setVisible(visible)
       hooglePathField.setVisible(visible)
       ormoluPathField.setVisible(visible)
-    }
 
     toggleToolPathsVisibility()
 
@@ -73,9 +72,9 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     defaultGhcOptionsField.getDocument.addDocumentListener(docListener)
     stackPathField.getDocument.addDocumentListener(docListener)
 
-    class SettingsGridBagConstraints extends GridBagConstraints {
+    class SettingsGridBagConstraints extends GridBagConstraints:
 
-      def setConstraints(anchor: Int = GridBagConstraints.CENTER, gridx: Int, gridy: Int, weightx: Double = 0, weighty: Double = 0, fill: Int = GridBagConstraints.NONE): SettingsGridBagConstraints = {
+      def setConstraints(anchor: Int = GridBagConstraints.CENTER, gridx: Int, gridy: Int, weightx: Double = 0, weighty: Double = 0, fill: Int = GridBagConstraints.NONE): SettingsGridBagConstraints =
         this.anchor = anchor
         this.gridx = gridx
         this.gridy = gridy
@@ -84,12 +83,10 @@ class HaskellConfigurable extends HaskellConfigurableBase {
         this.fill = fill
         this.insets = new Insets(2, 0, 2, 3)
         this
-      }
-    }
 
     val baseGridBagConstraints = new SettingsGridBagConstraints
 
-    def addLabeledControl(row: Int, label: JLabel, component: JComponent): Unit = {
+    def addLabeledControl(row: Int, label: JLabel, component: JComponent): Unit =
       settingsPanel.add(label, baseGridBagConstraints.setConstraints(
         anchor = GridBagConstraints.LINE_START,
         gridx = 0,
@@ -108,7 +105,6 @@ class HaskellConfigurable extends HaskellConfigurableBase {
         gridy = row,
         weightx = 0.1
       ))
-    }
 
     val stackPathHintLabel = new JBLabel(AllIcons.General.Information)
     stackPathHintLabel.setToolTipText(HaskeletorBundle.message("configurable.haskell.stack-path.hint"))
@@ -131,9 +127,8 @@ class HaskellConfigurable extends HaskellConfigurableBase {
       (new JLabel(""), afterRestartLabel)
     )
 
-    labeledControls.zipWithIndex.foreach {
+    labeledControls.zipWithIndex.foreach:
       case ((label, control), row) => addLabeledControl(row, label, control)
-    }
 
     settingsPanel.add(new JPanel(), baseGridBagConstraints.setConstraints(
       gridx = 0,
@@ -148,9 +143,8 @@ class HaskellConfigurable extends HaskellConfigurableBase {
       GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 2, 3), 0, 0))
 
     settingsPanel
-  }
 
-  override def apply(): Unit = {
+  override def apply(): Unit =
     val validREPLTimeout = validateREPLTimeout()
 
     val state = HaskellSettingsPersistentStateComponent.getInstance().getState
@@ -167,48 +161,39 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     state.customTools = useCustomToolsToggle.isSelected
     state.extraStackArguments = extraStackArgumentsField.getText
     state.stackPath = stackPathField.getText
-  }
 
-  private def validateREPLTimeout(): Integer = {
-    val timeout = try {
+  private def validateREPLTimeout(): Integer =
+    val timeout = try
       Integer.valueOf(replTimeoutField.getText)
-    } catch {
+    catch
       case _: NumberFormatException => throw new ConfigurationException(s"Invalid REPL timeout")
-    }
 
-    if (timeout <= 0) {
+    if timeout <= 0 then
       throw new ConfigurationException(s"REPL timeout should be larger than 0")
-    }
     timeout
-  }
 
-  private def checkFileExists(path: String): Unit = {
-    if (FileUtil.isAbsolute(path) && !FileUtil.exists(path)) {
+  private def checkFileExists(path: String): Unit =
+    if FileUtil.isAbsolute(path) && !FileUtil.exists(path) then
       throw new ConfigurationException(s"$path does not exists")
-    }
-  }
 
-  private def validateCustomTools(): Unit = {
-    if (useCustomToolsToggle.isSelected) {
-      if (
+  private def validateCustomTools(): Unit =
+    if useCustomToolsToggle.isSelected then
+      if
         ormoluPathField.getText.trim.isEmpty ||
           hlintPathField.getText.trim.isEmpty ||
-          hooglePathField.getText.trim.isEmpty) {
+          hooglePathField.getText.trim.isEmpty then
         throw new ConfigurationException(s"All Haskell tools paths have to be set")
-      }
 
       checkFileExists(hlintPathField.getText)
       checkFileExists(hooglePathField.getText)
       checkFileExists(ormoluPathField.getText)
-    }
-  }
 
 
   override def disposeUIResources(): Unit = {}
 
   override def getHelpTopic: String = ""
 
-  override def reset(): Unit = {
+  override def reset(): Unit =
     val state = HaskellSettingsPersistentStateComponent.getInstance().getState
     defaultGhcOptionsField.setText(state.defaultGhcOptions)
     hlintOptionsField.setText(state.hlintOptions)
@@ -220,10 +205,8 @@ class HaskellConfigurable extends HaskellConfigurableBase {
     useCustomToolsToggle.setSelected(state.customTools)
     extraStackArgumentsField.setText(state.extraStackArguments)
     stackPathField.setText(state.stackPath)
-  }
-}
 
-object HaskellConfigurable {
+object HaskellConfigurable:
   final val DefaultGhcOptions = "Default REPL GHC options"
   final val ReplTimout = "Background REPL timeout in seconds *"
   final val HlintOptions = "Hlint options"
@@ -241,4 +224,3 @@ object HaskellConfigurable {
       |break, because the API that your tool provide may differ from what the
       |plugin expects.""".stripMargin.replace('\n', ' ')
   final val ExtraStackArguments = "Extra stack arguments"
-}

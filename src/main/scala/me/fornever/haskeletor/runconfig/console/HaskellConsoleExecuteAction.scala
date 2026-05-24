@@ -12,25 +12,20 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKey
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 
-class HaskellConsoleExecuteAction extends AnAction {
+class HaskellConsoleExecuteAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     val presentation = actionEvent.getPresentation
     val editor: Editor = actionEvent.getData(CommonDataKeys.EDITOR)
-    if (!editor.isInstanceOf[EditorEx] || editor.asInstanceOf[EditorEx].isRendererMode) {
+    if !editor.isInstanceOf[EditorEx] || editor.asInstanceOf[EditorEx].isRendererMode then
       presentation.setEnabled(false)
-    } else {
-      HaskellConsoleViewMap.getConsole(editor) match {
+    else
+      HaskellConsoleViewMap.getConsole(editor) match
         case Some(consoleView) => presentation.setEnabledAndVisible(consoleView.isRunning)
         case None => presentation.setEnabled(false)
-      }
-    }
-  }
 
-  override def actionPerformed(actionEvent: AnActionEvent): Unit = {
-    for {
+  override def actionPerformed(actionEvent: AnActionEvent): Unit =
+    for
       editor <- Option(actionEvent.getData(CommonDataKeys.EDITOR))
       consoleView <- HaskellConsoleViewMap.getConsole(editor)
-    } yield consoleView.execute()
-  }
-}
+    yield consoleView.execute()

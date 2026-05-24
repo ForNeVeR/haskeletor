@@ -22,68 +22,61 @@ import java.io.File
 import java.nio.file.Path
 import scala.collection.mutable
 import scala.concurrent.{Future, blocking}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object HoogleComponent {
+object HoogleComponent:
 
   private final val HoogleDbName = "hoogle"
 
-  def runHoogle(project: Project, pattern: String, count: Int = 100): Option[Seq[String]] = {
-    if (isHoogleFeatureAvailable(project)) {
+  def runHoogle(project: Project, pattern: String, count: Int = 100): Option[Seq[String]] =
+    if isHoogleFeatureAvailable(project) then
       ProgressManager.checkCanceled()
 
       runHoogle(project, Seq(s""""$pattern"""", s"--count=$count")).
         map(o =>
-          if (o.getStdoutLines.isEmpty || o.getStdout.contains("No results found"))
+          if o.getStdoutLines.isEmpty || o.getStdout.contains("No results found") then
             Seq()
-          else if (o.getStdoutLines.asScala.last.startsWith("-- ")) {
+          else if o.getStdoutLines.asScala.last.startsWith("-- ") then {
             o.getStdoutLines.asScala.init.toSeq
           } else {
             o.getStdoutLines.asScala.toSeq
           }
         )
-    } else {
+    else
       None
-    }
-  }
 
-  def findDocumentation(project: Project, qualifiedNameElement: HaskellQualifiedNameElement): Option[String] = {
-    if (isHoogleFeatureAvailable(project)) {
+  def findDocumentation(project: Project, qualifiedNameElement: HaskellQualifiedNameElement): Option[String] =
+    if isHoogleFeatureAvailable(project) then
       ProgressManager.checkCanceled()
 
       val name = qualifiedNameElement.getIdentifierElement.getName
       val psiFile = qualifiedNameElement.getContainingFile.getOriginalFile
-      DefinitionLocationComponent.findDefinitionLocation(psiFile, qualifiedNameElement, None) match {
+      DefinitionLocationComponent.findDefinitionLocation(psiFile, qualifiedNameElement, None) match
         case Left(noInfo) =>
           HaskellNotificationGroup.logWarningEvent(project, s"No documentation available as no location info could be found for identifier `$name` due to: ${noInfo.message}")
           None
         case Right(info) =>
-          val locationName = info match {
+          val locationName = info match
             case PackageModuleLocation(_, _, _, pn) => pn
             case LocalModuleLocation(pf, _, _) => HaskellPsiUtil.findModuleName(pf)
-          }
           ProgressManager.checkCanceled()
           HoogleComponent.createDocumentation(project, name, locationName)
-      }
-    } else {
+    else
       Some("No documentation available as Hoogle (database) isn't available")
-    }
-  }
 
-  private def createDocumentation(project: Project, name: String, locationName: Option[String]): Option[String] = {
-    def mkString(lines: mutable.Seq[String]) = {
+  private def createDocumentation(project: Project, name: String, locationName: Option[String]): Option[String] =
+    def mkString(lines: mutable.Seq[String]) =
       lines.mkString("\n").
         replace("<", HtmlElement.Lt).
         replace(">", HtmlElement.Gt).
         replace(" ", HtmlElement.Nbsp).
         replace("\n", HtmlElement.Break)
-    }
 
     ProgressManager.checkCanceled()
 
     runHoogle(project, Seq("-i", "is:exact", name) ++ locationName.map("+" + _).toSeq).
       flatMap(processOutput =>
-        if (processOutput.getStdoutLines.isEmpty || processOutput.getStdout.contains("No results found")) {
+        if processOutput.getStdoutLines.isEmpty || processOutput.getStdout.contains("No results found") then {
           None
         } else {
           val output = processOutput.getStdoutLines(false)
@@ -100,38 +93,31 @@ object HoogleComponent {
           )
         }
       )
-  }
 
-  private def isHoogleFeatureAvailable(project: Project): Boolean = {
-    if (StackProjectManager.isHoogleAvailable(project).isEmpty) {
+  private def isHoogleFeatureAvailable(project: Project): Boolean =
+    if StackProjectManager.isHoogleAvailable(project).isEmpty then
       HaskellNotificationGroup.logInfoEvent(project, s"${HTool.Hoogle.name} isn't (yet) available")
       false
-    } else {
+    else
       doesHoogleDatabaseExist(project)
-    }
-  }
 
-  def doesHoogleDatabaseExist(project: Project): Boolean = {
+  def doesHoogleDatabaseExist(project: Project): Boolean =
     hoogleDbPath(project).exists()
-  }
 
-  def showHoogleDatabaseDoesNotExistNotification(project: Project): Unit = {
+  def showHoogleDatabaseDoesNotExistNotification(project: Project): Unit =
     HaskellNotificationGroup.logInfoBalloonEvent(project, "Hoogle features can be enabled by menu option `Haskell`/`(Re)Build Hoogle database`")
-  }
 
-  def versionInfo(project: Project): String = {
-    StackProjectManager.isHoogleAvailable(project) match {
+  def versionInfo(project: Project): String =
+    StackProjectManager.isHoogleAvailable(project) match
       case Some(hooglePath) => CommandLine.run(project, Path.of(hooglePath), Seq("--version")).getStdout
       case None => "-"
-    }
-  }
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  private def runHoogle(project: Project, arguments: Seq[String]): Option[ProcessOutput] = {
+  private def runHoogle(project: Project, arguments: Seq[String]): Option[ProcessOutput] =
     ProgressManager.checkCanceled()
 
-    StackProjectManager.isHoogleAvailable(project) match {
+    StackProjectManager.isHoogleAvailable(project) match
       case Some(hooglePath) =>
 
         ScalaFutureUtil.waitForValue(project,
@@ -146,10 +132,6 @@ object HoogleComponent {
             }
           }, "runHoogle")
       case None => None
-    }
-  }
 
-  def hoogleDbPath(project: Project) = {
+  def hoogleDbPath(project: Project) =
     new File(GlobalInfo.getIntelliJProjectDirectory(project), HoogleDbName)
-  }
-}

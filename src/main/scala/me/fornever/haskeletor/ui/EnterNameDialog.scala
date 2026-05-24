@@ -13,11 +13,11 @@ import com.intellij.openapi.ui.DialogWrapper
 import java.awt.BorderLayout
 import javax.swing.{JComponent, JLabel, JPanel, JTextField}
 
-class EnterNameDialog(prompt: String, suggestion: String = "") extends DialogWrapper(true) {
-  private val textField = if (suggestion.isEmpty) new JTextField(10) else new JTextField(suggestion)
+class EnterNameDialog(prompt: String, suggestion: String = "") extends DialogWrapper(true):
+  private val textField = if suggestion.isEmpty then new JTextField(10) else new JTextField(suggestion)
   init()
   setTitle(prompt)
-  override def createCenterPanel(): JComponent = {
+  override def createCenterPanel(): JComponent =
     val dialogPanel: JPanel = new JPanel(new BorderLayout)
 
     val label: JLabel = new JLabel(prompt)
@@ -26,10 +26,8 @@ class EnterNameDialog(prompt: String, suggestion: String = "") extends DialogWra
     dialogPanel.add(textField, BorderLayout.SOUTH)
 
     dialogPanel
-  }
 
   override def getPreferredFocusedComponent: JComponent = textField
 
   def getName: String = textField.getText
 
-}

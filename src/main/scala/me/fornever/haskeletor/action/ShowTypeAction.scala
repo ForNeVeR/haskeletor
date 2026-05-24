@@ -18,16 +18,15 @@ import me.fornever.haskeletor.psi.*
 import me.fornever.haskeletor.psi.HaskellTypes.HS_NEWLINE
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class ShowTypeAction extends AnAction {
+class ShowTypeAction extends AnAction:
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableAction(onlyForSourceFile = true, actionEvent)
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
-    if (!StackProjectManager.isInitializing(actionEvent.getProject)) {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
+    if !StackProjectManager.isInitializing(actionEvent.getProject) then
       ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
         val editor = actionContext.editor
         val psiFile = actionContext.psiFile
@@ -43,43 +42,33 @@ class ShowTypeAction extends AnAction {
             }
         }
       })
-    }
-    else {
+    else
       HaskellEditorUtil.showHaskellSupportIsNotAvailableWhileInitializing(actionEvent.getProject)
-    }
-  }
-}
 
-object ShowTypeAction {
+object ShowTypeAction:
 
-  def showTypeAsHint(project: Project, editor: Editor, psiElement: PsiElement, psiFile: PsiFile, sticky: Boolean = false): Unit = {
+  def showTypeAsHint(project: Project, editor: Editor, psiElement: PsiElement, psiFile: PsiFile, sticky: Boolean = false): Unit =
     showTypeInfo(project, editor, psiElement, psiFile, sticky = sticky)
-  }
 
-  private def showTypeInfo(project: Project, editor: Editor, psiElement: PsiElement, psiFile: PsiFile, sticky: Boolean = false): Unit = {
+  private def showTypeInfo(project: Project, editor: Editor, psiElement: PsiElement, psiFile: PsiFile, sticky: Boolean = false): Unit =
     showTypeSignatureAsHint(project, editor, sticky, getTypeInfo(psiFile, psiElement))
-  }
 
-  private def getTypeInfo(psiFile: PsiFile, psiElement: PsiElement): String = {
-    HaskellComponentsManager.findTypeInfoForElement(psiElement) match {
+  private def getTypeInfo(psiFile: PsiFile, psiElement: PsiElement): String =
+    HaskellComponentsManager.findTypeInfoForElement(psiElement) match
       case Right(info) => info.typeSignature
       case Left(noInfo) =>
-        findTypeSignatureFromScope(psiFile, psiElement) match {
+        findTypeSignatureFromScope(psiFile, psiElement) match
           case Some(typeSignature) => typeSignature
           case None => s"Could not determine type for `${psiElement.getText}` | ${noInfo.message}"
-        }
-    }
-  }
 
-  private def showTypeSignatureAsHint(project: Project, editor: Editor, sticky: Boolean, typeSignature: String): Unit = {
+  private def showTypeSignatureAsHint(project: Project, editor: Editor, sticky: Boolean, typeSignature: String): Unit =
     HaskellEditorUtil.showHint(editor, StringUtil.escapeString(typeSignature), sticky)
-  }
 
-  private def findTypeSignatureFromScope(psiFile: PsiFile, psiElement: PsiElement) = {
-    if (HaskellPsiUtil.findExpression(psiElement).isDefined) {
+  private def findTypeSignatureFromScope(psiFile: PsiFile, psiElement: PsiElement) =
+    if HaskellPsiUtil.findExpression(psiElement).isDefined then
       HaskellPsiUtil.findQualifiedName(psiElement).flatMap(qualifiedNameElement => {
         val definedInFile = HaskellComponentsManager.findDefinitionLocation(psiFile, qualifiedNameElement, None).toOption.map(_.namedElement.getContainingFile)
-        if (definedInFile.contains(psiFile)) {
+        if definedInFile.contains(psiFile) then {
           // To prevent stale type info while compilation errors
           None
         } else {
@@ -88,8 +77,5 @@ object ShowTypeAction {
           declaration.orElse(HaskellPsiUtil.findHaskellDeclarationElements(psiFile).find(_.getIdentifierElements.exists(_.getName == name)).map(_.getText.replaceAll("""\s+""", " ")))
         }
       })
-    } else {
+    else
       None
-    }
-  }
-}

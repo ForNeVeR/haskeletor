@@ -17,54 +17,42 @@ import me.fornever.haskeletor.core.util.FileSystemUtil
 
 import java.io.File
 
-object GlobalInfo {
+object GlobalInfo:
 
   private final val LibrarySourcedDirName = "lib"
   final val StackageLtsVersion = "lts-19"
   private final val ToolsBinDirName = "bin"
 
-  private final lazy val DefaultCachePath = {
+  private final lazy val DefaultCachePath =
     ProjectDirectories.from("me.fornever", "", "haskeletor").cacheDir
-  }
 
-  lazy val getHaskeletorDirectory: File = {
+  lazy val getHaskeletorDirectory: File =
     val directory = new File(DefaultCachePath)
-    if (directory.exists()) {
+    if directory.exists() then
       FileSystemUtil.removeGroupWritePermission(directory)
-    } else {
+    else
       FileSystemUtil.createDirectoryIfNotExists(directory, onlyWriteableByOwner = true)
-    }
     directory
-  }
 
-  lazy val getLibrarySourcesPath: File = {
+  lazy val getLibrarySourcesPath: File =
     new File(getHaskeletorDirectory, GlobalInfo.LibrarySourcedDirName)
-  }
 
-  lazy val toolsStackRootPath: File = {
+  lazy val toolsStackRootPath: File =
     new File(getHaskeletorDirectory, StackageLtsVersion)
-  }
 
-  lazy val toolsBinPath: File = {
+  lazy val toolsBinPath: File =
     new File(toolsStackRootPath, ToolsBinDirName)
-  }
 
-  def toolPath(tool: HTool): File = {
-    val name = if (SystemInfo.isWindows) tool.name + ".exe" else tool.name
+  def toolPath(tool: HTool): File =
+    val name = if SystemInfo.isWindows then tool.name + ".exe" else tool.name
     new File(toolsBinPath, name)
-  }
 
-  def getIntelliJProjectDirectory(project: Project): File = {
+  def getIntelliJProjectDirectory(project: Project): File =
     val intelliJProjectDirectory = new File(GlobalInfo.getHaskeletorDirectory, project.getName)
-    synchronized {
-      if (!intelliJProjectDirectory.exists()) {
+    synchronized:
+      if !intelliJProjectDirectory.exists() then
         FileUtil.createDirectory(intelliJProjectDirectory)
-      }
-    }
     intelliJProjectDirectory
-  }
 
-  def pathVariables: java.util.Map[String, String] = {
+  def pathVariables: java.util.Map[String, String] =
     PathMacros.getInstance.getUserMacros
-  }
-}

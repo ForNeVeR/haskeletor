@@ -16,15 +16,14 @@ import me.fornever.haskeletor.navigation.HaskellReference
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class GotoInstanceDeclarationAction extends AnAction {
+class GotoInstanceDeclarationAction extends AnAction:
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableAction(onlyForSourceFile = false, actionEvent)
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
       val editor = actionContext.editor
       val psiFile = actionContext.psiFile
@@ -38,7 +37,7 @@ class GotoInstanceDeclarationAction extends AnAction {
             Seq()
         }
 
-        if (instanceElements.nonEmpty) {
+        if instanceElements.nonEmpty then {
           val popup = NavigationUtil.getPsiElementPopup(instanceElements.toArray, "Goto instance declaration")
           popup.showInBestPositionFor(editor)
         } else {
@@ -46,6 +45,4 @@ class GotoInstanceDeclarationAction extends AnAction {
         }
       })
     })
-  }
 
-}

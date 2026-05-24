@@ -14,39 +14,32 @@ import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 
 abstract class HaskellStackConfigurationBase(name: String, project: Project, configurationFactory: ConfigurationFactory)
-  extends LocatableConfigurationBase[HaskellStackConfigurationBase](project, configurationFactory, name) {
+  extends LocatableConfigurationBase[HaskellStackConfigurationBase](project, configurationFactory, name):
 
   private var workingDirPath: String = ""
   private var stackArgs: String = ""
 
-  override def writeExternal(element: Element): Unit = {
+  override def writeExternal(element: Element): Unit =
     super.writeExternal(element)
     XmlSerializer.serializeInto(this, element)
-  }
 
-  override def readExternal(element: Element): Unit = {
+  override def readExternal(element: Element): Unit =
     super.readExternal(element)
     XmlSerializer.deserializeInto(this, element)
-  }
 
-  def setWorkingDirPath(workingDirPath: String): Unit = {
+  def setWorkingDirPath(workingDirPath: String): Unit =
     this.workingDirPath = workingDirPath
-  }
 
-  def getWorkingDirPath: String = {
-    if (workingDirPath.isEmpty) {
+  def getWorkingDirPath: String =
+    if workingDirPath.isEmpty then
       project.getBasePath
-    } else {
+    else
       workingDirPath
-    }
-  }
 
-  def setStackArgs(stackArgs: String): Unit = {
+  def setStackArgs(stackArgs: String): Unit =
     this.stackArgs = stackArgs
-  }
 
   def getStackArgs: String = stackArgs
 
   override def clone(): HaskellStackConfigurationBase =
     super.clone().asInstanceOf[HaskellStackConfigurationBase]
-}

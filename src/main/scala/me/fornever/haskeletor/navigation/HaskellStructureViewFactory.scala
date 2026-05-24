@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.navigation
 
-import com.intellij.ide.structureView._
+import com.intellij.ide.structureView.*
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.navigation.ItemPresentation
@@ -21,72 +21,54 @@ import me.fornever.haskeletor.psi.{HaskellDeclarationElement, HaskellPsiUtil}
 
 import javax.swing.Icon
 
-class HaskellStructureViewFactory extends PsiStructureViewFactory {
-  def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder = {
-    new TreeBasedStructureViewBuilder {
-      override def createStructureViewModel(editor: Editor): StructureViewModel = {
+class HaskellStructureViewFactory extends PsiStructureViewFactory:
+  def getStructureViewBuilder(psiFile: PsiFile): StructureViewBuilder =
+    new TreeBasedStructureViewBuilder:
+      override def createStructureViewModel(editor: Editor): StructureViewModel =
         new HaskellStructureViewModel(psiFile)
-      }
-    }
-  }
-}
 
-private class HaskellStructureViewModel(psiFile: PsiFile) extends StructureViewModelBase(psiFile, new HaskellStructureViewTreeElement(psiFile, "")) with StructureViewModel.ElementInfoProvider {
+private class HaskellStructureViewModel(psiFile: PsiFile) extends StructureViewModelBase(psiFile, new HaskellStructureViewTreeElement(psiFile, "")) with StructureViewModel.ElementInfoProvider:
 
-  def isAlwaysShowsPlus(structureViewTreeElement: StructureViewTreeElement): Boolean = {
+  def isAlwaysShowsPlus(structureViewTreeElement: StructureViewTreeElement): Boolean =
     false
-  }
 
-  def isAlwaysLeaf(structureViewTreeElement: StructureViewTreeElement): Boolean = {
+  def isAlwaysLeaf(structureViewTreeElement: StructureViewTreeElement): Boolean =
     structureViewTreeElement.isInstanceOf[HaskellFile]
-  }
-}
 
-private class HaskellStructureViewTreeElement(val element: PsiElement, val typeSignature: String) extends StructureViewTreeElement with ItemPresentation {
+private class HaskellStructureViewTreeElement(val element: PsiElement, val typeSignature: String) extends StructureViewTreeElement with ItemPresentation:
 
-  def getValue: AnyRef = {
+  def getValue: AnyRef =
     element
-  }
 
-  override def navigate(requestFocus: Boolean): Unit = {
+  override def navigate(requestFocus: Boolean): Unit =
     element.asInstanceOf[Navigatable].navigate(requestFocus)
-  }
 
-  override def canNavigate: Boolean = {
+  override def canNavigate: Boolean =
     element.asInstanceOf[Navigatable].canNavigate
-  }
 
-  override def canNavigateToSource: Boolean = {
+  override def canNavigateToSource: Boolean =
     element.asInstanceOf[Navigatable].canNavigateToSource
-  }
 
-  def getPresentation: ItemPresentation = {
+  def getPresentation: ItemPresentation =
     this
-  }
 
 
-  def getChildren: Array[TreeElement] = {
+  def getChildren: Array[TreeElement] =
     (element match {
       case hf: HaskellFile => HaskellPsiUtil.findHaskellDeclarationElements(hf)
       case _ => Seq()
     }).map(declarationElement => new HaskellStructureViewTreeElement(declarationElement, declarationElement.getText)).toArray
-  }
 
-  override def getPresentableText: String = {
-    element match {
+  override def getPresentableText: String =
+    element match
       case hde: HaskellDeclarationElement => hde.getPresentation.getPresentableText
       case pf: PsiFile => pf.getName
       case _ => null
-    }
-  }
 
-  override def getIcon(unused: Boolean): Icon = {
-    element match {
+  override def getIcon(unused: Boolean): Icon =
+    element match
       case hde: HaskellDeclarationElement => hde.getPresentation.getIcon(unused)
       case _: PsiFile => HaskellIcons.Module
       case _ => null
-    }
-  }
 
   override def getLocationString: String = null
-}

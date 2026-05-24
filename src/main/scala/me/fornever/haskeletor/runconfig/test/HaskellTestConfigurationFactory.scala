@@ -11,7 +11,7 @@ package me.fornever.haskeletor.runconfig.test
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.Project
 
-class HaskellTestConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez) {
+class HaskellTestConfigurationFactory(val typez: ConfigurationType) extends ConfigurationFactory(typez):
   private val name = "Haskell Stack Tester"
 
   override def createTemplateConfiguration(project: Project) = new HaskellTestConfiguration(name, project, this)
@@ -19,4 +19,3 @@ class HaskellTestConfigurationFactory(val typez: ConfigurationType) extends Conf
   override def getName: String = name
 
   override def getId: String = name
-}

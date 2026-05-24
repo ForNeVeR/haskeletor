@@ -16,46 +16,37 @@ import me.fornever.haskeletor.external.component.HaskellComponentsManager
 import me.fornever.haskeletor.runconfig.{HaskellStackConfigurationBase, HaskellStackStateBase}
 
 import java.lang
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class HaskellRunConfiguration(name: String, project: Project, configurationFactory: ConfigurationFactory)
-  extends HaskellStackConfigurationBase(name, project, configurationFactory) {
+  extends HaskellStackConfigurationBase(name, project, configurationFactory):
 
   private var executableName: Option[String] = None
   private var programArgs: String = ""
 
-  def getExecutableNames: lang.Iterable[String] = {
+  def getExecutableNames: lang.Iterable[String] =
     HaskellComponentsManager.findCabalInfos(project).flatMap(_.executables.flatMap(_.name)).asJava
-  }
 
-  def setExecutableName(executableName: String): Unit = {
+  def setExecutableName(executableName: String): Unit =
     this.executableName = Option(executableName).orElse(getExecutableNames.asScala.headOption)
-  }
 
-  def getExecutableName: String = {
+  def getExecutableName: String =
     executableName.orNull
-  }
 
-  def setProgramArgs(programArgs: String): Unit = {
+  def setProgramArgs(programArgs: String): Unit =
     this.programArgs = programArgs
-  }
 
-  def getProgramArgs: String = {
+  def getProgramArgs: String =
     this.programArgs
-  }
 
   override def getConfigurationEditor = new HaskellRunConfigurationForm()
 
-  override def getState(executor: Executor, environment: ExecutionEnvironment): HaskellStackStateBase = {
-    executableName match {
+  override def getState(executor: Executor, environment: ExecutionEnvironment): HaskellStackStateBase =
+    executableName match
       case Some(name) =>
-        val executableNameWithArgs = if (programArgs.isEmpty) {
+        val executableNameWithArgs = if programArgs.isEmpty then
           name
-        } else {
+        else
           s"$name $programArgs"
-        }
         new HaskellStackStateBase(this, environment, List("build", "--exec", executableNameWithArgs))
       case None => null
-    }
-  }
-}

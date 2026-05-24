@@ -13,31 +13,26 @@ import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.HaskellFileType
 import me.fornever.haskeletor.psi.{HaskellExpression, HaskellFileHeader}
 
-class HaskellTemplateContextType extends TemplateContextType("Haskell") {
+class HaskellTemplateContextType extends TemplateContextType("Haskell"):
   override def isInContext(templateActionContext: TemplateActionContext): Boolean =
     templateActionContext.getFile.getFileType == HaskellFileType.INSTANCE
-}
 
-class HaskellPragmaTemplateContextType extends TemplateContextType("Pragma") {
-  override def isInContext(templateActionContext: TemplateActionContext): Boolean = {
+class HaskellPragmaTemplateContextType extends TemplateContextType("Pragma"):
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean =
     val file = templateActionContext.getFile
     val offset = templateActionContext.getStartOffset
-    if (file.getFileType != HaskellFileType.INSTANCE) return false
-    if (offset < 5) return true
+    if file.getFileType != HaskellFileType.INSTANCE then return false
+    if offset < 5 then return true
     val element = file.findElementAt(offset - 5)
     element != null &&
       PsiTreeUtil.getParentOfType(element, classOf[HaskellFileHeader]) != null
-  }
-}
 
-class HaskellGlobalDefinitionTemplateContextType extends TemplateContextType("Global definition") {
-  override def isInContext(templateActionContext: TemplateActionContext): Boolean = {
+class HaskellGlobalDefinitionTemplateContextType extends TemplateContextType("Global definition"):
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean =
     val file = templateActionContext.getFile
     val offset = templateActionContext.getStartOffset
-    if (file.getFileType != HaskellFileType.INSTANCE) return false
+    if file.getFileType != HaskellFileType.INSTANCE then return false
     var element = file.findElementAt(offset)
-    if (element == null) element = file.findElementAt(offset - 1)
+    if element == null then element = file.findElementAt(offset - 1)
     element != null &&
       PsiTreeUtil.getParentOfType(element, classOf[HaskellExpression]) == null
-  }
-}

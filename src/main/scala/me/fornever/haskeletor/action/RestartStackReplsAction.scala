@@ -13,19 +13,16 @@ import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.external.component.{ProjectLibraryBuilder, StackProjectManager}
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class RestartStackReplsAction extends AnAction {
+class RestartStackReplsAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableExternalAction(actionEvent, (p: Project) => !StackProjectManager.isInitializing(p) &&
       !ProjectLibraryBuilder.isBuilding(p) &&
       !StackProjectManager.isHaddockBuilding(p) &&
       !StackProjectManager.isPreloadingAllLibraryIdentifiers(p))
-  }
 
-  override def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  override def actionPerformed(actionEvent: AnActionEvent): Unit =
     Option(actionEvent.getProject).foreach(project => {
       ProjectLibraryBuilder.resetBuildStatus(project)
       StackProjectManager.getInstance(project).restart()
     })
-  }
-}

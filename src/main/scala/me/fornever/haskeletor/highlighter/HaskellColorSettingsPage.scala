@@ -11,14 +11,14 @@ package me.fornever.haskeletor.highlighter
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorDescriptor, ColorSettingsPage}
-import me.fornever.haskeletor.highlighter.HaskellSyntaxHighlighter._
+import me.fornever.haskeletor.highlighter.HaskellSyntaxHighlighter.*
 import me.fornever.haskeletor.icons.HaskellIcons
 import org.jetbrains.annotations.NotNull
 
-import javax.swing._
-import scala.jdk.CollectionConverters._
+import javax.swing.*
+import scala.jdk.CollectionConverters.*
 
-object HaskellColorSettingsPage {
+object HaskellColorSettingsPage:
   private final val Attrs = Array[AttributesDescriptor](
     new AttributesDescriptor("Illegal character", Illegal),
     new AttributesDescriptor("Comment", Comment),
@@ -44,36 +44,30 @@ object HaskellColorSettingsPage {
     "functionName" -> FunctionName,
     "pragmaContent" -> PragmaContent
   )
-}
 
-class HaskellColorSettingsPage extends ColorSettingsPage {
+class HaskellColorSettingsPage extends ColorSettingsPage:
 
   @NotNull
-  def getDisplayName: String = {
+  def getDisplayName: String =
     "Haskell"
-  }
 
-  def getIcon: Icon = {
+  def getIcon: Icon =
     HaskellIcons.HaskellLogo
-  }
 
   @NotNull
-  def getAttributeDescriptors: Array[AttributesDescriptor] = {
+  def getAttributeDescriptors: Array[AttributesDescriptor] =
     HaskellColorSettingsPage.Attrs
-  }
 
   @NotNull
-  def getColorDescriptors: Array[ColorDescriptor] = {
+  def getColorDescriptors: Array[ColorDescriptor] =
     ColorDescriptor.EMPTY_ARRAY
-  }
 
   @NotNull
-  def getHighlighter: SyntaxHighlighter = {
+  def getHighlighter: SyntaxHighlighter =
     new HaskellSyntaxHighlighter
-  }
 
   @NotNull
-  def getDemoText: String = {
+  def getDemoText: String =
     """{-# LANGUAGE <pragmaContent>CPP</pragmaContent> #-}
       |module ModuleName
       |import <keyword>qualified</keyword> ImportModuleName
@@ -90,10 +84,7 @@ class HaskellColorSettingsPage extends ColorSettingsPage {
       |let two = 1 + 1
       |let f = \_ + 1
       |[t|select * from foo|]""".stripMargin.replaceAll("\r\n", "\n")
-  }
 
   @NotNull
-  def getAdditionalHighlightingTagToDescriptorMap: java.util.Map[String, TextAttributesKey] = {
+  def getAdditionalHighlightingTagToDescriptorMap: java.util.Map[String, TextAttributesKey] =
     HaskellColorSettingsPage.AttributesKeyMap.asJava
-  }
-}

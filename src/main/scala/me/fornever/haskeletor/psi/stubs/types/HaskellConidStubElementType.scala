@@ -14,16 +14,12 @@ import me.fornever.haskeletor.psi.HaskellConid
 import me.fornever.haskeletor.psi.impl.HaskellConidImpl
 import me.fornever.haskeletor.psi.stubs.HaskellConidStub
 
-class HaskellConidStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellConidStub, HaskellConid](debugName) {
-  def createPsi(stub: HaskellConidStub): HaskellConid = {
+class HaskellConidStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellConidStub, HaskellConid](debugName):
+  def createPsi(stub: HaskellConidStub): HaskellConid =
     new HaskellConidImpl(stub, this)
-  }
 
-  def createStub(psi: HaskellConid, parentStub: StubElement[? <: PsiElement]): HaskellConidStub = {
+  def createStub(psi: HaskellConid, parentStub: StubElement[? <: PsiElement]): HaskellConidStub =
     new HaskellConidStub(parentStub, this, psi.getName)
-  }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellConidStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellConidStub =
     new HaskellConidStub(parentStub, this, dataStream.readName)
-  }
-}

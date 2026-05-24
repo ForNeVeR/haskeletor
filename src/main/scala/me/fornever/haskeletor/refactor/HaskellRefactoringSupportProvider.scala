@@ -9,19 +9,15 @@
 package me.fornever.haskeletor.refactor
 
 import com.intellij.lang.refactoring.RefactoringSupportProvider
-import com.intellij.psi._
+import com.intellij.psi.*
 import me.fornever.haskeletor.util.HaskellProjectUtil
 
-class HaskellRefactoringSupportProvider extends RefactoringSupportProvider {
+class HaskellRefactoringSupportProvider extends RefactoringSupportProvider:
 
-  override def isMemberInplaceRenameAvailable(psiElement: PsiElement, context: PsiElement): Boolean = {
+  override def isMemberInplaceRenameAvailable(psiElement: PsiElement, context: PsiElement): Boolean =
     !psiElement.isInstanceOf[PsiFile] && isDefinedInProject(psiElement)
-  }
 
-  private def isDefinedInProject(psiElement: PsiElement) = {
-    Option(psiElement.getReference).flatMap(x => Option(x.resolve)) match {
+  private def isDefinedInProject(psiElement: PsiElement) =
+    Option(psiElement.getReference).flatMap(x => Option(x.resolve)) match
       case Some(e) => Option(e.getContainingFile).map(_.getOriginalFile).exists(pf => HaskellProjectUtil.isSourceFile(pf))
       case _ => false
-    }
-  }
-}

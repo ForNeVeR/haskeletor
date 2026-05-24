@@ -18,47 +18,38 @@ import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.HaskellFile
 import me.fornever.haskeletor.psi.*
 
-class HaskellFoldingBuilder extends FoldingBuilderEx with DumbAware {
+class HaskellFoldingBuilder extends FoldingBuilderEx with DumbAware:
 
-  override def buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array[FoldingDescriptor] = {
-    root match {
+  override def buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array[FoldingDescriptor] =
+    root match
       case file: HaskellFile =>
         HaskellPsiUtil.findImportDeclarationsBlock(file).map(createFoldingDescriptor).getOrElse(Array.empty[FoldingDescriptor]) ++
           HaskellPsiUtil.findFileHeader(file).map(createFoldingDescriptor).getOrElse(Array.empty[FoldingDescriptor]) ++
           HaskellPsiUtil.findTopLevelExpressions(file).flatMap(createFoldingDescriptor)
       case _ => FoldingDescriptor.EMPTY_ARRAY
-    }
-  }
 
-  private def createFoldingDescriptor(element: PsiElement): Array[FoldingDescriptor] = {
+  private def createFoldingDescriptor(element: PsiElement): Array[FoldingDescriptor] =
     Array(new FoldingDescriptor(element, createFoldingTextRange(element)))
-  }
 
-  private def createFoldingTextRange(element: PsiElement) = {
-    if (PsiTreeUtil.lastChild(element).getNode.getElementType == HaskellTypes.HS_NEWLINE) {
+  private def createFoldingTextRange(element: PsiElement) =
+    if PsiTreeUtil.lastChild(element).getNode.getElementType == HaskellTypes.HS_NEWLINE then
       new TextRange(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset - 1)
-    } else {
+    else
       new TextRange(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset)
-    }
-  }
 
-  override def isCollapsedByDefault(node: ASTNode): Boolean = {
+  override def isCollapsedByDefault(node: ASTNode): Boolean =
     val foldingSettings = HaskellFoldingSettings.getInstance()
-    if (node.getElementType == HaskellTypes.HS_IMPORT_DECLARATIONS) {
+    if node.getElementType == HaskellTypes.HS_IMPORT_DECLARATIONS then
       foldingSettings.isCollapseImports
-    } else if (node.getElementType == HaskellTypes.HS_FILE_HEADER) {
+    else if node.getElementType == HaskellTypes.HS_FILE_HEADER then
       foldingSettings.isCollapseImports
-    } else if (node.getElementType == HaskellTypes.HS_EXPRESSION) {
+    else if node.getElementType == HaskellTypes.HS_EXPRESSION then
       foldingSettings.isCollapseTopLevelExpression
-    } else false
-  }
+    else false
 
-  override def getPlaceholderText(node: ASTNode): String = {
-    node.getPsi match {
+  override def getPlaceholderText(node: ASTNode): String =
+    node.getPsi match
       case _: HaskellImportDeclarations => "import ..."
       case _: HaskellFileHeader => "{-# ... #-}"
       case e: HaskellExpression => Option(e.getFirstChild.getText).getOrElse("") + " ..."
       case _ => null
-    }
-  }
-}

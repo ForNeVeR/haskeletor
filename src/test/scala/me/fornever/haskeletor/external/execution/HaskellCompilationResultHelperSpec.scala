@@ -17,11 +17,11 @@ import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with GivenWhenThen with BeforeAndAfterEach {
+class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with GivenWhenThen with BeforeAndAfterEach:
 
-  describe("HaskellCompilationResultHelper") {
-    describe("parseErrorLine") {
-      it("should parse a standard error line") {
+  describe("HaskellCompilationResultHelper"):
+    describe("parseErrorLine"):
+      it("should parse a standard error line"):
         Given("a standard compilation error line")
         val output = "/file/path/HaskellFile.hs:1:11:parse error on input     and so on"
 
@@ -34,9 +34,8 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
         p.lineNr should equal(1)
         p.columnNr should equal(11)
         p.plainMessage should equal(s"parse error on input and so on")
-      }
 
-      it("should reject stack status lines with > operator") {
+      it("should reject stack status lines with > operator"):
         Given("a stack status line like 'StateVar > build with ghc-9.0.2'")
         val output = "StateVar                         > build with ghc-9.0.2"
 
@@ -45,9 +44,8 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
 
         Then("it should return None")
         problem should equal(None)
-      }
 
-      it("should reject stack progress lines") {
+      it("should reject stack progress lines"):
         Given("a stack progress line")
         val output = "Progress 0/67             StateVar                         > configure"
 
@@ -56,10 +54,9 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
 
         Then("it should return None")
         problem should equal(None)
-      }
 
-      it("should handle invalid path characters gracefully") {
-        if (SystemInfo.isWindows) {
+      it("should handle invalid path characters gracefully"):
+        if SystemInfo.isWindows then
           Given("a line with illegal Windows path characters")
           val output = "file<with>chars:1:1:some error"
 
@@ -68,10 +65,8 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
 
           Then("it should return None instead of throwing exception")
           problem should equal(None)
-        }
-      }
 
-      it("should parse Windows paths correctly") {
+      it("should parse Windows paths correctly"):
         Given("a Windows file path")
         val output = "C:\\Users\\project\\src\\Main.hs:5:2:error message"
 
@@ -84,9 +79,8 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
         p.lineNr should equal(5)
         p.columnNr should equal(2)
         p.plainMessage should equal("error message")
-      }
 
-      it("should handle multiple spaces in error message") {
+      it("should handle multiple spaces in error message"):
         Given("an error with multiple consecutive spaces")
         val output = "/path/file.hs:10:20:error with    many    spaces"
 
@@ -96,7 +90,3 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
         Then("it should normalize the spaces")
         problem shouldBe a[Some[?]]
         problem.get.plainMessage should equal("error with many spaces")
-      }
-    }
-  }
-}

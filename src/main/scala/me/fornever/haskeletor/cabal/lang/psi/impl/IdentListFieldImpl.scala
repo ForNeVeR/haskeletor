@@ -12,12 +12,10 @@ import com.intellij.psi.PsiElement
 import me.fornever.haskeletor.cabal.lang.psi.{CabalTypes, IdentList}
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
-trait IdentListFieldImpl extends PsiElement {
+trait IdentListFieldImpl extends PsiElement:
 
   /** Retrieves the extension names as strings. */
-  def getValue: Array[String] = HaskellPsiUtil.getChildOfType(this, classOf[IdentList]) match {
+  def getValue: Array[String] = HaskellPsiUtil.getChildOfType(this, classOf[IdentList]) match
     case None => Array.empty
     case Some(el) => HaskellPsiUtil.getChildNodes(el, CabalTypes.IDENT).map(_.getText)
-  }
-}
 

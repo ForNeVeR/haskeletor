@@ -16,21 +16,20 @@ import com.intellij.testIntegration.TestFinder
 import me.fornever.haskeletor.HaskellFile
 
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /**
   * Triggered when the user uses the "Navigation / Test"  action (= jump to test shortcut)
   */
-class HaskellTestFinder extends TestFinder {
+class HaskellTestFinder extends TestFinder:
 
   /**
     * Return the parent PsiFile of the PsiElement where the cursor was when the test finder was invoked, to handle some magic stuff, like the name displayed in "Choose Test for {file name}".
     */
-  override def findSourceElement(psiElement: PsiElement): PsiElement = {
+  override def findSourceElement(psiElement: PsiElement): PsiElement =
     PsiTreeUtil.getParentOfType(psiElement, classOf[HaskellFile])
-  }
 
-  private def findFilesInIndex(project: Project, name: String): Seq[PsiElement] = {
+  private def findFilesInIndex(project: Project, name: String): Seq[PsiElement] =
     FilenameIndex.getVirtualFilesByName(
       name,
       GlobalSearchScope.projectScope(project)
@@ -38,27 +37,22 @@ class HaskellTestFinder extends TestFinder {
       .toSeq
       .flatMap(vf => Option(PsiManager.getInstance(project).findFile(vf)))
       .map(_.asInstanceOf[PsiElement])
-  }
 
   /**
     * Given a source PSI element, find all test files this element could be a source of.
     */
-  override def findTestsForClass(psiElement: PsiElement): util.Collection[PsiElement] = {
+  override def findTestsForClass(psiElement: PsiElement): util.Collection[PsiElement] =
     val testFileName = psiElement.getContainingFile.getName.replace(".hs", "Spec.hs")
     val testFiles = findFilesInIndex(psiElement.getProject, testFileName)
     testFiles.asJavaCollection
-  }
 
   /**
     * Given a test PSI element, find all source files this element could be a test of.
     */
-  override def findClassesForTest(psiElement: PsiElement): util.Collection[PsiElement] = {
+  override def findClassesForTest(psiElement: PsiElement): util.Collection[PsiElement] =
     val sourceFileName = psiElement.getContainingFile.getName.replace("Spec.hs", ".hs")
     val sourceFiles = findFilesInIndex(psiElement.getProject, sourceFileName)
     sourceFiles.asJavaCollection
-  }
 
-  override def isTest(psiElement: PsiElement): Boolean = {
+  override def isTest(psiElement: PsiElement): Boolean =
     psiElement.getContainingFile.getName.endsWith("Spec.hs")
-  }
-}

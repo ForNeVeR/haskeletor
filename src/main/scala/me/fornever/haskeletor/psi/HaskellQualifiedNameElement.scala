@@ -10,9 +10,8 @@ package me.fornever.haskeletor.psi
 
 import com.intellij.navigation.NavigationItem
 
-trait HaskellQualifiedNameElement extends HaskellCompositeElement with NavigationItem {
+trait HaskellQualifiedNameElement extends HaskellCompositeElement with NavigationItem:
 
   def getIdentifierElement: HaskellNamedElement
 
   def getQualifierName: Option[String]
-}

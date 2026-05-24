@@ -15,28 +15,22 @@ import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope, GlobalSearchSc
 import me.fornever.haskeletor.HaskellFileType
 import me.fornever.haskeletor.util.HaskellFileUtil
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object HaskellFileIndex {
+object HaskellFileIndex:
 
-  def findProjectHaskellFiles(project: Project): Iterable[PsiFile] = {
+  def findProjectHaskellFiles(project: Project): Iterable[PsiFile] =
     HaskellFileUtil.convertToHaskellFiles(project, findProjectFiles(project))
-  }
 
-  def findProjectProductionHaskellFiles(project: Project): Iterable[PsiFile] = {
+  def findProjectProductionHaskellFiles(project: Project): Iterable[PsiFile] =
     HaskellFileUtil.convertToHaskellFiles(project, findProjectProductionFiles(project))
-  }
 
-  private def findProjectFiles(project: Project): Iterable[VirtualFile] = {
+  private def findProjectFiles(project: Project): Iterable[VirtualFile] =
     findFiles(project, GlobalSearchScope.projectScope(project))
-  }
 
-  private def findProjectProductionFiles(project: Project): Iterable[VirtualFile] = {
+  private def findProjectProductionFiles(project: Project): Iterable[VirtualFile] =
     findFiles(project, GlobalSearchScopesCore.projectProductionScope(project))
-  }
 
-  private def findFiles(project: Project, searchScope: GlobalSearchScope): Iterable[VirtualFile] = {
+  private def findFiles(project: Project, searchScope: GlobalSearchScope): Iterable[VirtualFile] =
     FileTypeIndex.getFiles(HaskellFileType.INSTANCE, searchScope).asScala
-  }
 
-}

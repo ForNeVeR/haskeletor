@@ -20,48 +20,39 @@ import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
 
 import java.util
 
-class HaskellRenameFileProcessor extends RenamePsiElementProcessor {
+class HaskellRenameFileProcessor extends RenamePsiElementProcessor:
 
-  override def canProcessElement(element: PsiElement): Boolean = {
+  override def canProcessElement(element: PsiElement): Boolean =
     HaskellProjectUtil.isHaskellProject(element.getProject) && (element.isInstanceOf[HaskellFile] || element.isInstanceOf[HaskellModid])
-  }
 
-  override def prepareRenaming(psiElement: PsiElement, fileName: String, allRenames: util.Map[PsiElement, String]): Unit = {
-    if (psiElement.isValid) {
+  override def prepareRenaming(psiElement: PsiElement, fileName: String, allRenames: util.Map[PsiElement, String]): Unit =
+    if psiElement.isValid then
       HaskellPsiUtil.findModuleDeclaration(psiElement.getContainingFile.getOriginalFile).foreach(moduleDeclaration => {
         moduleDeclaration.getModuleName.foreach(moduleName => {
           val newModuleName = HaskellRenameFileProcessor.createNewModuleName(moduleName, fileName)
           allRenames.put(moduleDeclaration.getModid, newModuleName)
-          if (psiElement.isInstanceOf[HaskellModid]) {
+          if psiElement.isInstanceOf[HaskellModid] then {
             allRenames.put(psiElement.getContainingFile, newModuleName.split("\\.").last + "." + HaskellFileType.INSTANCE.getDefaultExtension)
           }
           super.prepareRenaming(psiElement, fileName, allRenames)
         })
       })
-    }
-  }
 
-  override def getPostRenameCallback(element: PsiElement, newName: String, elementListener: RefactoringElementListener): Runnable = {
-    ScalaUtil.runnable {
+  override def getPostRenameCallback(element: PsiElement, newName: String, elementListener: RefactoringElementListener): Runnable =
+    ScalaUtil.runnable:
       val psiFile = element.getContainingFile.getOriginalFile
       HaskellPsiUtil.invalidateModuleName(psiFile)
       HaskellComponentsManager.clearLoadedModule(psiFile)
       HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
-    }
-  }
-}
 
-object HaskellRenameFileProcessor {
+object HaskellRenameFileProcessor:
 
-  def createNewModuleName(oldModuleName: String, fileName: String): String = {
+  def createNewModuleName(oldModuleName: String, fileName: String): String =
     val conIds = oldModuleName.split("\\.")
-    if (fileName.endsWith(HaskellFileType.INSTANCE.getDefaultExtension)) {
+    if fileName.endsWith(HaskellFileType.INSTANCE.getDefaultExtension) then
       conIds(conIds.length - 1) = HaskellPsiImplUtil.removeFileExtension(fileName)
-    } else {
+    else
       val name = fileName.split("\\.").last
       conIds(conIds.length - 1) = name
-    }
     conIds.mkString(".")
-  }
-}
 

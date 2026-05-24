@@ -11,9 +11,7 @@ package me.fornever.haskeletor.psi
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
 
-class HaskellNamedElementManipulator extends AbstractElementManipulator[HaskellNamedElement] {
-  def handleContentChange(psi: HaskellNamedElement, range: TextRange, newContent: String): HaskellNamedElement = {
+class HaskellNamedElementManipulator extends AbstractElementManipulator[HaskellNamedElement]:
+  def handleContentChange(psi: HaskellNamedElement, range: TextRange, newContent: String): HaskellNamedElement =
     psi.setName(newContent)
     psi
-  }
-}

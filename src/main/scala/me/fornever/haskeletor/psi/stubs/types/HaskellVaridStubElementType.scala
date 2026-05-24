@@ -14,16 +14,12 @@ import me.fornever.haskeletor.psi.HaskellVarid
 import me.fornever.haskeletor.psi.impl.HaskellVaridImpl
 import me.fornever.haskeletor.psi.stubs.HaskellVaridStub
 
-class HaskellVaridStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellVaridStub, HaskellVarid](debugName) {
-  def createPsi(stub: HaskellVaridStub): HaskellVarid = {
+class HaskellVaridStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellVaridStub, HaskellVarid](debugName):
+  def createPsi(stub: HaskellVaridStub): HaskellVarid =
     new HaskellVaridImpl(stub, this)
-  }
 
-  def createStub(psi: HaskellVarid, parentStub: StubElement[? <: PsiElement]): HaskellVaridStub = {
+  def createStub(psi: HaskellVarid, parentStub: StubElement[? <: PsiElement]): HaskellVaridStub =
     new HaskellVaridStub(parentStub, this, psi.getName)
-  }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellVaridStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellVaridStub =
     new HaskellVaridStub(parentStub, this, dataStream.readName)
-  }
-}

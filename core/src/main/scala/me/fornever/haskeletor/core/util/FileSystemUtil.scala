@@ -15,30 +15,22 @@ import java.io.File
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.{Files, Paths}
 
-object FileSystemUtil {
+object FileSystemUtil:
 
-  def createDirectoryIfNotExists(directory: File, onlyWriteableByOwner: Boolean): Unit = {
-    if (!directory.exists()) {
+  def createDirectoryIfNotExists(directory: File, onlyWriteableByOwner: Boolean): Unit =
+    if !directory.exists() then
       val result = FileUtil.createDirectory(directory)
-      if (!result && !directory.exists()) {
+      if !result && !directory.exists() then
         throw new RuntimeException(s"Could not create directory `${directory.getAbsolutePath}`")
-      }
-      if (onlyWriteableByOwner) {
+      if onlyWriteableByOwner then
         directory.setWritable(true, true)
         removeGroupWritePermission(directory)
-      }
-    }
-  }
 
   // On Linux setting `directory.setWritable(true, true)` does not guarantee that group has NO write permissions
-  def removeGroupWritePermission(path: File): Unit = {
-    if (!SystemInfo.isWindows) {
+  def removeGroupWritePermission(path: File): Unit =
+    if !SystemInfo.isWindows then
       val directoryPath = Paths.get(path.getAbsolutePath)
       val permissions = Files.getPosixFilePermissions(directoryPath)
-      if (permissions.contains(PosixFilePermission.GROUP_WRITE)) {
+      if permissions.contains(PosixFilePermission.GROUP_WRITE) then
         permissions.remove(PosixFilePermission.GROUP_WRITE)
         Files.setPosixFilePermissions(directoryPath, permissions)
-      }
-    }
-  }
-}

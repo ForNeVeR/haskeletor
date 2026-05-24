@@ -15,6 +15,5 @@ import me.fornever.haskeletor.core.HaskellLanguage
 /**
  * Provide spellchecker support for Haskell sources.
  */
-class HaskellSpellcheckingStrategy extends SpellcheckingStrategy {
+class HaskellSpellcheckingStrategy extends SpellcheckingStrategy:
   override def isMyContext(element: PsiElement): Boolean = HaskellLanguage.Instance.is(element.getLanguage)
-}

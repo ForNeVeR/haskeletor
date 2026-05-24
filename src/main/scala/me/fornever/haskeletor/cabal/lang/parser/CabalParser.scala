@@ -13,41 +13,35 @@ import com.intellij.lang.{ASTNode, PsiBuilder, PsiParser}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.tree.IElementType
-import me.fornever.haskeletor.cabal.lang.psi.CabalTypes._
-import me.fornever.haskeletor.cabal.lang.psi._
+import me.fornever.haskeletor.cabal.lang.psi.*
+import me.fornever.haskeletor.cabal.lang.psi.CabalTypes.*
 import me.fornever.haskeletor.util.HaskellFileUtil
 
-final class CabalParser extends PsiParser {
+final class CabalParser extends PsiParser:
 
-  override def parse(root: IElementType, builder: PsiBuilder): ASTNode = {
+  override def parse(root: IElementType, builder: PsiBuilder): ASTNode =
     new CabalPsiBuilder(builder).doParse(root)
-  }
-}
 
 final class CabalPsiBuilder(builder: PsiBuilder)
-  extends PsiBuilderAdapter(builder) {
+  extends PsiBuilderAdapter(builder):
 
   val DEBUG = false
 
-  def getPsiFile: Option[PsiFile] = {
+  def getPsiFile: Option[PsiFile] =
     Option(getUserDataUnprotected(FileContextUtil.CONTAINING_FILE_KEY))
-  }
 
-  def doParse(root: IElementType): ASTNode = {
+  def doParse(root: IElementType): ASTNode =
     val marker = mark()
-    while (!eof()) parseFieldOrStanza()
+    while !eof() do parseFieldOrStanza()
     marker.done(root)
     getTreeBuilt
-  }
 
-  def parseFieldOrStanza(): Unit = {
-    if (topLevelField() || parseStanza()) return
+  def parseFieldOrStanza(): Unit =
+    if topLevelField() || parseStanza() then return
     // Attempt to recover by reporting an error and just consuming the line.
-    errorWith("Unexpected token: " + getTokenType) {
+    errorWith("Unexpected token: " + getTokenType):
       advanceWhile(getTokenType != EOL) {}
-      if (getTokenType == EOL) remapAdvance(WHITE_SPACE)
-    }
-  }
+      if getTokenType == EOL then remapAdvance(WHITE_SPACE)
 
   def parseStanza(): Boolean = (
     flagDecl()
@@ -129,19 +123,17 @@ final class CabalPsiBuilder(builder: PsiBuilder)
 
   val noStanzaArgs = () => {}
 
-  def stanzaNameArg(el: CabalStanzaArgTokenType)(): Unit = getTokenType match {
+  def stanzaNameArg(el: CabalStanzaArgTokenType)(): Unit = getTokenType match
     case _: CabalWordLikeTokenType => remapAdvance(el)
     case _ => () // non internal library has no name
-  }
 
-  def invalidStanza(): Boolean = {
+  def invalidStanza(): Boolean =
     parseStanzaWithPred(getTokenType.isInstanceOf[CabalIdentTokenType] && lookAhead(1) != COLON)(
       "invalid",
       INVALID_STANZA,
       argsParser = () => advanceWhile(getTokenType != EOL && getTokenType != LBRACE) {},
       fieldParser = () => invalidField("invalid")
     )
-  }
 
   def parseStanzaWithPred
       (pred: => Boolean)
@@ -149,21 +141,18 @@ final class CabalPsiBuilder(builder: PsiBuilder)
        el: CabalElementType,
        argsParser: () => Unit,
        fieldParser: () => Boolean)
-      : Boolean = {
-    if (!pred) return false
-    if (lookAhead(1) == COLON) return oldStyleStanza(stanzaType, el, argsParser, fieldParser)
+      : Boolean =
+    if !pred then return false
+    if lookAhead(1) == COLON then return oldStyleStanza(stanzaType, el, argsParser, fieldParser)
     val m = mark()
     advanceLexer()
     argsParser()
-    if (!eof() && getTokenType != EOL && getTokenType != LBRACE) {
-      errorWith(s"Unexpected $stanzaType argument") {
+    if !eof() && getTokenType != EOL && getTokenType != LBRACE then
+      errorWith(s"Unexpected $stanzaType argument"):
         advanceWhile(getTokenType != EOL && getTokenType != LBRACE) {}
-      }
-    }
     stanzaBody(stanzaType, fieldParser)
     m.done(el)
     true
-  }
 
   def stanza
       (stanzaType: String,
@@ -171,144 +160,116 @@ final class CabalPsiBuilder(builder: PsiBuilder)
        k: CabalStanzaKeyTokenType,
        argsParser: () => Unit,
        fieldParser: () => Boolean)
-      : Boolean = {
+      : Boolean =
     parseStanzaWithPred(getTokenType == k)(stanzaType, el, argsParser, fieldParser)
-  }
 
-  def stanzaBraceBody(stanzaType: String, fieldParser: () => Boolean): Unit = {
+  def stanzaBraceBody(stanzaType: String, fieldParser: () => Boolean): Unit =
     var foundRBrace = false
-    parseWhile(!foundRBrace) {
-      getTokenType match {
+    parseWhile(!foundRBrace):
+      getTokenType match
         case _: CabalLayoutTokenType => remapAdvance(WHITE_SPACE)
         case RBRACE => advanceLexer(); foundRBrace = true
         case _ =>
-          if (!(ifExpr(stanzaType, fieldParser) || fieldParser() || invalidField(stanzaType))) {
+          if !(ifExpr(stanzaType, fieldParser) || fieldParser() || invalidField(stanzaType)) then
             errorAdvance(s"Unexpected token in $stanzaType stanza: " + getTokenType)
-          }
-      }
-    }
-    if (!foundRBrace) error("Missing }")
-    if (getTokenType == EOL) remapAdvance(WHITE_SPACE)
-  }
+    if !foundRBrace then error("Missing }")
+    if getTokenType == EOL then remapAdvance(WHITE_SPACE)
 
-  def stanzaIndentBody(stanzaType: String, fieldParser: () => Boolean): Unit = {
-    if (getTokenType == INDENT) {
+  def stanzaIndentBody(stanzaType: String, fieldParser: () => Boolean): Unit =
+    if getTokenType == INDENT then
       var indent = 0
-      advanceWhile(getTokenType == INDENT) {
+      advanceWhile(getTokenType == INDENT):
         remapCurrentToken(WHITE_SPACE)
         indent += 1
-      }
       var break = false
-      parseWhile(!break && indent > 0) {
+      parseWhile(!break && indent > 0):
         assert(getTokenType != INDENT, "Unexpected INDENT")
-        if (!(ifExpr(stanzaType, fieldParser) || fieldParser() || invalidField(stanzaType))) {
+        if !(ifExpr(stanzaType, fieldParser) || fieldParser() || invalidField(stanzaType)) then
           errorAdvance(s"Unexpected token in $stanzaType stanza: " + getTokenType)
           break = true
-        }
         advanceWhile(indent > 0 && getTokenType == DEDENT) { indent -= 1 }
-      }
-    }
-  }
 
-  def stanzaBody(stanzaType: String, fieldParser: () => Boolean): Unit = getTokenType match {
+  def stanzaBody(stanzaType: String, fieldParser: () => Boolean): Unit = getTokenType match
     case LBRACE => advanceLexer(); stanzaBraceBody(stanzaType, fieldParser)
     case EOL => remapAdvance(WHITE_SPACE); stanzaIndentBody(stanzaType, fieldParser)
     case _ => error("Expected { or end of line")
-  }
 
   def oldStyleStanza
       (stanzaType: String,
        el: CabalElementType,
        argsParser: () => Unit,
        fieldParser: () => Boolean)
-      : Boolean = {
+      : Boolean =
     val m = mark()
     advanceLexer()
     expectColon()
     argsParser()
-    if (!eof() && getTokenType != EOL) {
-      errorWith(s"Unexpected $stanzaType argument") {
+    if !eof() && getTokenType != EOL then
+      errorWith(s"Unexpected $stanzaType argument"):
         advanceWhile(getTokenType != EOL) {}
-      }
-    }
-    parseWhile(!getTokenType.isInstanceOf[CabalStanzaKeyTokenType]) {
+    parseWhile(!getTokenType.isInstanceOf[CabalStanzaKeyTokenType]):
       advanceWhile(oneOf(INDENT, DEDENT, EOL)) { remapCurrentToken(WHITE_SPACE) }
-      if (!fieldParser()) errorAdvance(s"Unexpected $getTokenType")
-    }
+      if !fieldParser() then errorAdvance(s"Unexpected $getTokenType")
     m.done(el)
     true
-  }
 
-  def ifExpr(stanzaType: String, fieldParser: () => Boolean): Boolean = {
-    if (getTokenType != IF) return false
+  def ifExpr(stanzaType: String, fieldParser: () => Boolean): Boolean =
+    if getTokenType != IF then return false
     val m = mark()
     advanceLexer()
     ifCond()
     markWith(THEN_BODY) { stanzaBody(stanzaType, fieldParser) }
-    if (getTokenType == ELSE) {
+    if getTokenType == ELSE then
       advanceLexer()
       markWith(ELSE_BODY) { stanzaBody(stanzaType, fieldParser) }
-    }
     m.done(IF_EXPR)
     true
-  }
 
-  def ifCond(): Unit = {
+  def ifCond(): Unit =
     val m = mark()
     boolExpr()
     m.done(IF_COND)
-  }
 
-  def ifBody(stanzaType: String, fieldParser: () => Boolean): Unit = {
-    if (getTokenType != INDENT) {
+  def ifBody(stanzaType: String, fieldParser: () => Boolean): Unit =
+    if getTokenType != INDENT then
       error("Expected indent")
-    } else {
+    else
       var indent = 0
-      advanceWhile(getTokenType == INDENT) {
+      advanceWhile(getTokenType == INDENT):
         remapCurrentToken(WHITE_SPACE)
         indent += 1
-      }
       var break = false
-      parseWhile(!break && indent > 0) {
+      parseWhile(!break && indent > 0):
         assert(getTokenType != INDENT, "Unexpected INDENT")
-        if (!(ifExpr(stanzaType, fieldParser) || fieldParser() || invalidField(stanzaType))) {
+        if !(ifExpr(stanzaType, fieldParser) || fieldParser() || invalidField(stanzaType)) then
           error(s"Unexpected token in $stanzaType stanza: " + getTokenType)
           break = true
-        }
         advanceWhile(indent > 0 && getTokenType == DEDENT) { indent -= 1 }
-      }
-    }
-  }
 
-  def boolExpr(): Unit = {
-    if (boolLit() || funcCall() || negation() || parens(() => boolExpr())) {
-      if (oneOf(AND, OR)) {
+  def boolExpr(): Unit =
+    if boolLit() || funcCall() || negation() || parens(() => boolExpr()) then
+      if oneOf(AND, OR) then
         advanceLexer()
         boolExpr()
-      }
       return
-    }
     errorAdvance("Invalid boolean expression")
-  }
 
-  def parens(p: () => Unit): Boolean = {
-    if (getTokenType != LPAREN) return false
+  def parens(p: () => Unit): Boolean =
+    if getTokenType != LPAREN then return false
     advanceLexer()
     p()
-    if (getTokenType == RPAREN) advanceLexer() else error("Expected )")
+    if getTokenType == RPAREN then advanceLexer() else error("Expected )")
     true
-  }
 
-  def negation(): Boolean = {
-    if (getTokenType != BANG) return false
+  def negation(): Boolean =
+    if getTokenType != BANG then return false
     val m = mark()
     advanceLexer()
     boolExpr()
     m.done(LOGICAL_NEG)
     true
-  }
 
-  def boolLit(): Boolean = getTokenType match {
+  def boolLit(): Boolean = getTokenType match
     case TRUE | FALSE =>
       val m = mark()
       advanceLexer()
@@ -316,30 +277,23 @@ final class CabalPsiBuilder(builder: PsiBuilder)
       true
 
     case _ => false
-  }
 
-  def funcCall(): Boolean = getTokenType match {
+  def funcCall(): Boolean = getTokenType match
     case _: CabalIdentTokenType =>
-      markWith(FUNC_CALL) {
-        markWith(FUNC_NAME) {
-          if (getTokenType.isInstanceOf[CabalFuncLikeTokenType]) {
+      markWith(FUNC_CALL):
+        markWith(FUNC_NAME):
+          if getTokenType.isInstanceOf[CabalFuncLikeTokenType] then
             advanceLexer()
-          } else {
+          else
             errorWith("Invalid function") { advanceLexer() }
-          }
-        }
-        if (getTokenType != LPAREN) error("Expected (") else advanceLexer()
-        markWith(FUNC_ARG) {
-          advanceWhile(getTokenType != RPAREN && getTokenType != EOL) {
-            if (getTokenType.isInstanceOf[CabalIdentTokenType]) remapCurrentToken(IDENT)
-          }
-        }
-        if (getTokenType != RPAREN) error("Expected )") else advanceLexer()
-      }
+        if getTokenType != LPAREN then error("Expected (") else advanceLexer()
+        markWith(FUNC_ARG):
+          advanceWhile(getTokenType != RPAREN && getTokenType != EOL):
+            if getTokenType.isInstanceOf[CabalIdentTokenType] then remapCurrentToken(IDENT)
+        if getTokenType != RPAREN then error("Expected )") else advanceLexer()
       true
 
     case _ => false
-  }
 
   def buildDepends() = field(BUILD_DEPENDS, BUILD_DEPENDS_KEY, () => dependencies())
   def exposedModules() = field(EXPOSED_MODULES, EXPOSED_MODULES_KEY, () => moduleList())
@@ -414,7 +368,7 @@ final class CabalPsiBuilder(builder: PsiBuilder)
   )
 
   /** Should be called after all valid fields have been tried. */
-  def invalidField(stanzaType: String): Boolean = getTokenType match {
+  def invalidField(stanzaType: String): Boolean = getTokenType match
     case _: CabalFieldKeyTokenType if lookAhead(1) == COLON =>
       val m = mark()
       advanceLexer()
@@ -424,62 +378,53 @@ final class CabalPsiBuilder(builder: PsiBuilder)
       true
 
     case _ => false
-  }
 
-  def parseFieldWithPred(pred: => Boolean)(el: CabalElementType, p: () => Unit): Boolean = {
-    if (!pred) return false
+  def parseFieldWithPred(pred: => Boolean)(el: CabalElementType, p: () => Unit): Boolean =
+    if !pred then return false
     val m = mark()
     advanceLexer()
     expectColon()
     p()
     m.done(el)
     true
-  }
 
-  def field(el: CabalElementType, k: CabalFieldKeyTokenType, p: () => Unit): Boolean = {
+  def field(el: CabalElementType, k: CabalFieldKeyTokenType, p: () => Unit): Boolean =
     parseFieldWithPred(getTokenType == k)(el, p)
-  }
 
-  def ghcOptions(): Unit = {
+  def ghcOptions(): Unit =
     val m = mark()
     indentContext { _ => ghcOption() }
     m.done(IDENT_LIST)
-  }
 
-  def ghcOption(): Unit = {
+  def ghcOption(): Unit =
     val m = mark()
     var break = false
-    parseWhile(!break) {
+    parseWhile(!break):
       val next = rawLookup(1)
-      if (next == WHITE_SPACE || next.isInstanceOf[CabalLayoutTokenType]) {
+      if next == WHITE_SPACE || next.isInstanceOf[CabalLayoutTokenType] then
         break = true
-      }
       advanceLexer()
-    }
     m.collapse(IDENT)
-  }
 
-  def reexportedField(): Unit = {
+  def reexportedField(): Unit =
     var lookForComma = false
-    indentContext {
+    indentContext:
       case _: CabalIdentTokenType =>
         moduleReexport()
         lookForComma = true
 
       case COMMA =>
-        if (!lookForComma) error("Unexpected comma")
+        if !lookForComma then error("Unexpected comma")
         advanceLexer()
 
       case other => errorAdvance("Expected module")
-    }
-  }
 
-  def dependencies(): Unit = {
+  def dependencies(): Unit =
     val m = mark()
     var lookForComma = false
-    indentContext {
+    indentContext:
       case COMMA =>
-        if (!lookForComma) error("Unexpected comma")
+        if !lookForComma then error("Unexpected comma")
         advanceLexer()
 
       case _: CabalIdentTokenType =>
@@ -487,21 +432,18 @@ final class CabalPsiBuilder(builder: PsiBuilder)
         lookForComma = true
 
       case other => errorAdvance("Expected dependency")
-    }
     m.done(DEPENDENCIES)
-  }
 
-  def dependency(): Unit = {
+  def dependency(): Unit =
     assert(getTokenType.isInstanceOf[CabalIdentTokenType], "Unexpected token: " + getTokenType)
     val m = mark()
     remapAdvance(DEPENDENCY_NAME)
     dependencyVersion()
     renameModules()
     m.done(DEPENDENCY)
-  }
 
-  def dependencyVersion(): Unit = {
-    getTokenType match {
+  def dependencyVersion(): Unit =
+    getTokenType match
       case NUMBERS =>
         val m = mark()
         advanceLexer()
@@ -510,138 +452,115 @@ final class CabalPsiBuilder(builder: PsiBuilder)
       case _: CabalComparatorTokenType =>
         val m = mark()
         var break = false
-        parseWhile(!break) {
-          getTokenType match {
+        parseWhile(!break):
+          getTokenType match
             case _: CabalComparatorTokenType =>
               advanceLexer()
-              if (getTokenType != NUMBERS) error("Expected numbers")
+              if getTokenType != NUMBERS then error("Expected numbers")
               advanceLexer()
-              getTokenType match {
+              getTokenType match
                 case _: CabalLogicalTokenType => advanceLexer()
                 case _ => break = true
-              }
 
             case _ => break = true
-          }
-        }
         m.done(DEPENDENCY_VERSION)
 
       case DASH =>
         val m = mark()
         advanceLexer()
-        if (getTokenType.isInstanceOf[CabalIdentTokenType]) {
-          if (getTokenText == "any") {
+        if getTokenType.isInstanceOf[CabalIdentTokenType] then
+          if getTokenText == "any" then
             advanceLexer()
-          } else {
+          else
             errorAdvance("Expected -any")
-          }
-        } else {
+        else
           error("Expected -any")
-        }
         m.done(DEPENDENCY_VERSION)
 
       case LPAREN =>
         // If next is ident, we're actually at module renaming, not version.
-        if (lookAhead(1).isInstanceOf[CabalIdentTokenType]) return
+        if lookAhead(1).isInstanceOf[CabalIdentTokenType] then return
         val m = mark()
         advanceLexer()
         var break = false
-        parseWhile(!break) {
+        parseWhile(!break):
           dependencyVersion()
-          if (getTokenType != RPAREN) {
+          if getTokenType != RPAREN then
             error("Expected )")
-          } else {
+          else
             advanceLexer()
-          }
-          if (getTokenType.isInstanceOf[CabalLogicalTokenType]) {
+          if getTokenType.isInstanceOf[CabalLogicalTokenType] then
             advanceLexer()
-          } else {
+          else
             break = true
-          }
-          if (getTokenType == LPAREN) {
+          if getTokenType == LPAREN then
             advanceLexer()
-          } else {
+          else
             break = true
-          }
-        }
         m.done(DEPENDENCY_VERSION)
 
 
       case _ => // done
-    }
-  }
 
-  def renameModules(): Unit = (getTokenType, lookAhead(1)) match {
+  def renameModules(): Unit = (getTokenType, lookAhead(1)) match
     case (WITH, LPAREN) => withRenameModules()
     case (LPAREN, _: CabalIdentTokenType) => thinRenameModules()
     case _ => // noop
-  }
 
-  def innerRenameModules(): Unit = {
-    if (getTokenType == LPAREN) advanceLexer() else error("Expected (")
+  def innerRenameModules(): Unit =
+    if getTokenType == LPAREN then advanceLexer() else error("Expected (")
     var break = false
-    parseWhile(!break) {
-      getTokenType match {
+    parseWhile(!break):
+      getTokenType match
         case RPAREN => break = true
         case _: CabalIdentTokenType => renameModule()
         case COMMA => advanceLexer()
         case other => errorAdvance("Unexpected token: " + other)
-      }
-    }
-    if (getTokenType != RPAREN) error("Missing )")
+    if getTokenType != RPAREN then error("Missing )")
     advanceLexer()
-  }
 
-  def withRenameModules(): Unit = {
+  def withRenameModules(): Unit =
     val m = mark()
     advanceLexer() // WITH
     innerRenameModules()
     m.done(WITH_RENAME_MODULES)
-  }
 
-  def thinRenameModules(): Unit = {
+  def thinRenameModules(): Unit =
     val m = mark()
     innerRenameModules()
     m.done(THIN_RENAME_MODULES)
-  }
 
-  def moduleReexport(): Boolean = {
-    if (!getTokenType.isInstanceOf[CabalIdentTokenType]) return false
+  def moduleReexport(): Boolean =
+    if !getTokenType.isInstanceOf[CabalIdentTokenType] then return false
     val m = mark()
     // Might specify package via -
     // p:P as RP,
-    if (lookAhead(1) == COLON) {
+    if lookAhead(1) == COLON then
       remapAdvance(ORIGINAL_PACKAGE)
       expectColon()
-    }
-    if (getTokenType.isInstanceOf[CabalIdentTokenType]) {
+    if getTokenType.isInstanceOf[CabalIdentTokenType] then
       renameModule()
-    }
     m.done(MODULE_REEXPORT)
     true
-  }
 
-  def renameModule(): Boolean = {
+  def renameModule(): Boolean =
     val m = mark()
-    if (!module()) {
+    if !module() then
       m.drop()
       return false
-    }
-    if (getTokenType != AS) {
+    if getTokenType != AS then
       // No need to wrap an MODULE element in a RENAME_MODULE element.
       m.drop()
       return true
-    }
     advanceLexer() // AS
-    if (!module()) error("Expected module")
+    if !module() then error("Expected module")
     m.done(RENAME_MODULE)
     true
-  }
 
-  def boolValue(): Unit = {
+  def boolValue(): Unit =
     var found = false
     var err = false
-    indentContext {
+    indentContext:
       case (TRUE | FALSE) if !found =>
         found = true
         val m = mark()
@@ -654,100 +573,84 @@ final class CabalPsiBuilder(builder: PsiBuilder)
         advanceLexer()
 
       case _ => advanceLexer()
-    }
-  }
 
-  def freeform(): Unit = {
+  def freeform(): Unit =
     val m = mark()
     indentContext { _ => valueLine() }
     m.done(FREEFORM)
-  }
 
-  def identList(): Unit = {
+  def identList(): Unit =
     val m = mark()
-    indentContext {
+    indentContext:
       case _: CabalIdentTokenType => remapAdvance(IDENT)
       case COMMA => advanceLexer() // skip commas
       case _ => errorAdvance("Expected identifier")
-    }
     m.done(IDENT_LIST)
-  }
 
   def sourceDirs(): Unit = indentContext { _ =>
-    if (!sourceDir()) advanceLexer()
+    if !sourceDir() then advanceLexer()
   }
 
-  def sourceDir(): Boolean = {
-    if (isSourceDirSep(getTokenType)) return false
+  def sourceDir(): Boolean =
+    if isSourceDirSep(getTokenType) then return false
     val m = mark()
     var break = false
-    parseWhile(!break) {
-      if (isSourceDirSep(getTokenType)) {
+    parseWhile(!break):
+      if isSourceDirSep(getTokenType) then
         break = true
-      } else if (isSourceDirSep(rawLookup(1))) {
+      else if isSourceDirSep(rawLookup(1)) then
         advanceLexer()
         break = true
-      } else {
+      else
         advanceLexer()
-      }
-    }
     m.collapse(SOURCE_DIR)
     true
-  }
 
-  def isSourceDirSep(typ: IElementType): Boolean = typ match {
+  def isSourceDirSep(typ: IElementType): Boolean = typ match
     case COMMA => true
     case t if isWhiteSpace(t) => true
     case _ => false
-  }
 
-  def isWhiteSpace(typ: IElementType): Boolean = typ match {
+  def isWhiteSpace(typ: IElementType): Boolean = typ match
     case WHITE_SPACE => true
     case _: CabalLayoutTokenType => true
     case _ => false
-  }
 
-  def moduleList(): Unit = {
+  def moduleList(): Unit =
     val m = mark()
-    indentContext {
+    indentContext:
       case _: CabalIdentTokenType => module()
       case COMMA => advanceLexer() // skip commas
       case other => errorAdvance("Expected module")
-    }
     m.done(MODULE_LIST)
-  }
 
-  def module(): Boolean = {
-    if (!getTokenType.isInstanceOf[CabalIdentTokenType]) return false
+  def module(): Boolean =
+    if !getTokenType.isInstanceOf[CabalIdentTokenType] then return false
     val m = mark()
     markWith(MODULE_PART) { remapAdvance(IDENT) }
     var break = false
-    parseWhile(!break && getTokenType == DOT) {
+    parseWhile(!break && getTokenType == DOT):
       advanceLexer()
-      if (!getTokenType.isInstanceOf[CabalIdentTokenType]) {
+      if !getTokenType.isInstanceOf[CabalIdentTokenType] then
         error("Expected module")
         break = true
-      } else {
+      else
         markWith(MODULE_PART) { remapAdvance(IDENT) }
-      }
-    }
     m.done(MODULE)
     true
-  }
 
   /** Runs a parser on each eligible element in an indentation context. */
-  def indentContext(p: IElementType => Unit): Unit = {
+  def indentContext(p: IElementType => Unit): Unit =
     var indent = 0
     var newLine = false
-    parseWhile(!newLine || indent > 0) {
-      getTokenType match {
+    parseWhile(!newLine || indent > 0):
+      getTokenType match
         case EOL =>
           remapAdvance(WHITE_SPACE)
           newLine = true
-          if (getTokenType == INDENT) {
+          if getTokenType == INDENT then
             remapAdvance(WHITE_SPACE)
             indent += 1
-          }
 
         case INDENT =>
           remapAdvance(WHITE_SPACE)
@@ -758,104 +661,82 @@ final class CabalPsiBuilder(builder: PsiBuilder)
           indent -= 1
 
         case other => p(other)
-      }
-    }
-  }
 
-  def valueLine(): Unit = {
+  def valueLine(): Unit =
     val m = mark()
-    if (getTokenType == INDENT || getTokenType == DEDENT) {
+    if getTokenType == INDENT || getTokenType == DEDENT then
       error(s"Unexpected token in value line: " + getTokenType)
-    }
     advanceWhile(getTokenType != EOL) {}
     m.collapse(FREEFORM_LINE)
-  }
 
-  def expectColon(): Unit = {
-    if (getTokenType == COLON) advanceLexer()
+  def expectColon(): Unit =
+    if getTokenType == COLON then advanceLexer()
     else error("Missing colon")
-  }
 
-  def consumeEOL(): Boolean = {
-    if (getTokenType == EOL) {
+  def consumeEOL(): Boolean =
+    if getTokenType == EOL then
       remapAdvance(WHITE_SPACE)
       true
-    } else {
+    else
       error("Expected end of line")
       false
-    }
-  }
 
-  def remapAdvance(typ: IElementType): Unit = {
+  def remapAdvance(typ: IElementType): Unit =
     remapCurrentToken(typ)
     advanceLexer()
-  }
 
-  def errorAdvance(msg: String): Unit = {
+  def errorAdvance(msg: String): Unit =
     errorWith(msg) { advanceLexer() }
-  }
 
   /**
    * Safer while loop that always checks eof() to avoid infinite loops.
    * If we iterate too many times (PARSE_WHILE_ASSERTION_LIMIT) and never move past
    * the current offset, an AssertionError is thrown to avoid entering an infinite loop.
    */
-  def parseWhile(cond: => Boolean)(block: => Unit): Unit = {
+  def parseWhile(cond: => Boolean)(block: => Unit): Unit =
     var trackedOffset = -1
     var trackedCount = 0
-    while (!eof() && cond) {
-      if (trackedOffset == getCurrentOffset) {
+    while !eof() && cond do
+      if trackedOffset == getCurrentOffset then
         trackedCount += 1
-        if (trackedCount > PARSE_WHILE_ASSERTION_LIMIT) {
+        if trackedCount > PARSE_WHILE_ASSERTION_LIMIT then
           throw new AssertionError(
             s"parseWhile stuck at offset $getCurrentOffset for $trackedCount iterations in file: "
               + getPsiFile.flatMap(HaskellFileUtil.findVirtualFile).orNull
           )
-        }
-      } else {
+      else
         trackedOffset = getCurrentOffset
         trackedCount = 0
-      }
       block
-    }
-  }
 
   private val PARSE_WHILE_ASSERTION_LIMIT = 100
 
   /** Safer while loop that always checks eof() and advances to avoid infinite loops. */
-  def advanceWhile(cond: => Boolean)(block: => Unit): Unit = {
-    while (!eof() && cond) {
+  def advanceWhile(cond: => Boolean)(block: => Unit): Unit =
+    while !eof() && cond do
       block
       advanceLexer()
-    }
-  }
 
-  def markWith[A](el: CabalElementType)(block: => A): A = {
+  def markWith[A](el: CabalElementType)(block: => A): A =
     val m = mark()
     val result = block
     m.done(el)
     result
-  }
 
-  def errorWith[A](msg: String)(block: => A): A = {
+  def errorWith[A](msg: String)(block: => A): A =
     val m = mark()
     val result = block
     m.error(msg)
     result
-  }
 
-  def oneOf(t1: IElementType, ts: IElementType*): Boolean = {
+  def oneOf(t1: IElementType, ts: IElementType*): Boolean =
     val t = getTokenType
-    if (t == t1) return true
+    if t == t1 then return true
     ts.contains(t)
-  }
 
-  def assert(cond: Boolean, msg: => String): Unit = {
-    if (!cond) throw new AssertionError(msg)
-  }
+  def assert(cond: Boolean, msg: => String): Unit =
+    if !cond then throw new AssertionError(msg)
 
-  override def advanceLexer(): Unit = {
+  override def advanceLexer(): Unit =
     super.advanceLexer()
-    if (DEBUG && !eof()) println("<- " + getTokenType + ": '" + getTokenText.replace("\n", "\\n") + "'")
-  }
-}
+    if DEBUG && !eof() then println("<- " + getTokenType + ": '" + getTokenText.replace("\n", "\\n") + "'")

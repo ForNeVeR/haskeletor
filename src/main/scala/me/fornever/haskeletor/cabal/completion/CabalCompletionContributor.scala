@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.cabal.completion
 
-import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns
@@ -20,52 +20,45 @@ import me.fornever.haskeletor.external.component.AvailableModuleNamesComponent
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.{getAvailableStackagePackages, getSupportedLanguageExtension}
 import me.fornever.haskeletor.icons.HaskellIcons
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-final class CabalCompletionContributor extends CompletionContributor {
+final class CabalCompletionContributor extends CompletionContributor:
 
-  private val provider: CompletionProvider[CompletionParameters] = new CompletionProvider[CompletionParameters] {
+  private val provider: CompletionProvider[CompletionParameters] = new CompletionProvider[CompletionParameters]:
 
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit =
       val project = parameters.getEditor.getProject
       val position = parameters.getPosition
 
-      CabalPsiUtil.getFieldContext(position).foreach {
+      CabalPsiUtil.getFieldContext(position).foreach:
         case ei: ExtensionsImpl => result.addAllElements(filterExtensions(ei, project).asJavaCollection)
         case bd: BuildDepends => result.addAllElements(filterPackageNames(bd, project).asJavaCollection)
         case em: ExposedModules => result.addAllElements(filterExposedModuleNames(project, em).asJavaCollection)
         case _ => ()
-      }
-    }
 
-    private def filterExtensions(el: ExtensionsImpl, project: Project): Iterable[LookupElement] = {
+    private def filterExtensions(el: ExtensionsImpl, project: Project): Iterable[LookupElement] =
       val currentExts = el.getValue.toSet
-      val negExts = currentExts.map(v => if (v.startsWith("No")) v.substring(2) else "No" + v)
+      val negExts = currentExts.map(v => if v.startsWith("No") then v.substring(2) else "No" + v)
       // Skip already provided extensions or their negation.
       val skipExts = currentExts ++ negExts
       getSupportedLanguageExtension(project)
         .filter(!skipExts.contains(_))
         .map(n => LookupElementBuilder.create(n).withIcon(HaskellIcons.HaskellSmallBlueLogo))
-    }
 
-    private def filterPackageNames(el: BuildDepends, project: Project): Seq[LookupElement] = {
+    private def filterPackageNames(el: BuildDepends, project: Project): Seq[LookupElement] =
       val skipPackageNames = el.getPackageNames.toSet
       getAvailableStackagePackages(project)
         .filter(!skipPackageNames.contains(_))
         .map(n => LookupElementBuilder.create(n).withIcon(HaskellIcons.HaskellSmallBlueLogo)).toSeq
-    }
 
     // TODO[#68] Take into account stanza type, currently always project library module names are suggested.
-    private def filterExposedModuleNames(project: Project, em: ExposedModules): Iterable[LookupElement] = {
+    private def filterExposedModuleNames(project: Project, em: ExposedModules): Iterable[LookupElement] =
       val skipModuleNames = em.getModuleNames.toSet
       val moduleNames = AvailableModuleNamesComponent.findModuleNames(project)
       moduleNames
         .filterNot(skipModuleNames.contains)
         .map(n => LookupElementBuilder.create(n).withIcon(HaskellIcons.HaskellSmallBlueLogo))
-    }
-  }
 
   // Extends this class with completion for Cabal files.
   extend(CompletionType.BASIC, PlatformPatterns.psiElement().withLanguage(CabalLanguage.Instance), provider)
 
-}

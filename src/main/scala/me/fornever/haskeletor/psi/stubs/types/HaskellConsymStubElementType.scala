@@ -14,16 +14,12 @@ import me.fornever.haskeletor.psi.HaskellConsym
 import me.fornever.haskeletor.psi.impl.HaskellConsymImpl
 import me.fornever.haskeletor.psi.stubs.HaskellConsymStub
 
-class HaskellConsymStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellConsymStub, HaskellConsym](debugName) {
-  def createPsi(stub: HaskellConsymStub): HaskellConsym = {
+class HaskellConsymStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellConsymStub, HaskellConsym](debugName):
+  def createPsi(stub: HaskellConsymStub): HaskellConsym =
     new HaskellConsymImpl(stub, this)
-  }
 
-  def createStub(psi: HaskellConsym, parentStub: StubElement[? <: PsiElement]): HaskellConsymStub = {
+  def createStub(psi: HaskellConsym, parentStub: StubElement[? <: PsiElement]): HaskellConsymStub =
     new HaskellConsymStub(parentStub, this, psi.getName)
-  }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellConsymStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellConsymStub =
     new HaskellConsymStub(parentStub, this, dataStream.readName)
-  }
-}

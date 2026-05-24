@@ -11,9 +11,7 @@ package me.fornever.haskeletor.cabal.lang.psi
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
 
-class CabalNamedElementManipulator extends AbstractElementManipulator[CabalNamedElement] {
-  def handleContentChange(psi: CabalNamedElement, range: TextRange, newContent: String): CabalNamedElement = {
+class CabalNamedElementManipulator extends AbstractElementManipulator[CabalNamedElement]:
+  def handleContentChange(psi: CabalNamedElement, range: TextRange, newContent: String): CabalNamedElement =
     psi.setName(newContent)
     psi
-  }
-}

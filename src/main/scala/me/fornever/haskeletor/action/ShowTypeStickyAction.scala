@@ -18,15 +18,14 @@ import me.fornever.haskeletor.util.HaskellEditorUtil
 
 import scala.annotation.tailrec
 
-class ShowTypeStickyAction extends AnAction {
+class ShowTypeStickyAction extends AnAction:
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableAction(onlyForSourceFile = true, actionEvent)
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
       val editor = actionContext.editor
       val psiFile = actionContext.psiFile
@@ -37,29 +36,24 @@ class ShowTypeStickyAction extends AnAction {
           case Left(info) => HaskellEditorUtil.showHint(editor, info.message)
         }
         case _ =>
-          for {
+          for
             psiElement <- HaskellPsiUtil.untilNonWhitespaceBackwards(Option(psiFile.findElementAt(editor.getCaretModel.getOffset)))
             namedElement <- HaskellPsiUtil.findNamedElement(psiElement).orElse {
               untilNameElementBackwards(Some(PsiTreeUtil.getDeepestLast(psiElement)))
             }
-          } yield {
+          yield {
             ShowTypeAction.showTypeAsHint(actionContext.project, editor, namedElement, psiFile, sticky = true)
           }
       }
     })
-  }
 
   @tailrec
-  private def untilNameElementBackwards(element: Option[PsiElement]): Option[HaskellQualifiedNameElement] = {
-    element match {
+  private def untilNameElementBackwards(element: Option[PsiElement]): Option[HaskellQualifiedNameElement] =
+    element match
       case Some(e) =>
-        HaskellPsiUtil.findQualifiedName(e) match {
+        HaskellPsiUtil.findQualifiedName(e) match
           case None => untilNameElementBackwards(Option(e.getPrevSibling))
           case qualifiedName => qualifiedName
-        }
 
       case None => None
-    }
-  }
 
-}

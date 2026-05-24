@@ -14,16 +14,12 @@ import me.fornever.haskeletor.psi.HaskellVarsym
 import me.fornever.haskeletor.psi.impl.HaskellVarsymImpl
 import me.fornever.haskeletor.psi.stubs.HaskellVarsymStub
 
-class HaskellVarsymStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellVarsymStub, HaskellVarsym](debugName) {
-  def createPsi(stub: HaskellVarsymStub): HaskellVarsym = {
+class HaskellVarsymStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellVarsymStub, HaskellVarsym](debugName):
+  def createPsi(stub: HaskellVarsymStub): HaskellVarsym =
     new HaskellVarsymImpl(stub, this)
-  }
 
-  def createStub(psi: HaskellVarsym, parentStub: StubElement[? <: PsiElement]): HaskellVarsymStub = {
+  def createStub(psi: HaskellVarsym, parentStub: StubElement[? <: PsiElement]): HaskellVarsymStub =
     new HaskellVarsymStub(parentStub, this, psi.getName)
-  }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellVarsymStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellVarsymStub =
     new HaskellVarsymStub(parentStub, this, dataStream.readName)
-  }
-}

@@ -10,79 +10,67 @@ package me.fornever.haskeletor.external.repl
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import me.fornever.haskeletor.cabal._
+import me.fornever.haskeletor.cabal.*
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.component.HaskellComponentsManager.ComponentTarget
 import me.fornever.haskeletor.external.component.{HaskellComponentsManager, StackProjectManager}
-import me.fornever.haskeletor.external.repl.StackRepl._
+import me.fornever.haskeletor.external.repl.StackRepl.*
 import me.fornever.haskeletor.external.repl.StackReplsManager.ProjectReplTargets
 import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.settings.HaskellSettingsState
-import me.fornever.haskeletor.util._
+import me.fornever.haskeletor.util.*
 
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-private[external] object StackReplsManager {
+private[external] object StackReplsManager:
 
-  case class ProjectReplTargets(stanzaType: StanzaType, targets: Seq[ComponentTarget]) {
+  case class ProjectReplTargets(stanzaType: StanzaType, targets: Seq[ComponentTarget]):
     def targetsName: String = targets.map(_.target).mkString(" ")
-  }
 
-  def getReplsManager(project: Project): Option[StackReplsManager] = {
+  def getReplsManager(project: Project): Option[StackReplsManager] =
     StackProjectManager.getStackProjectManager(project).flatMap(_.getStackReplsManager)
-  }
 
-  def getRunningProjectRepls(project: Project): Iterable[ProjectStackRepl] = {
+  def getRunningProjectRepls(project: Project): Iterable[ProjectStackRepl] =
     getReplsManager(project).map(_.getRunningProjectRepls).getOrElse(Iterable())
-  }
 
-  def getProjectRepl(psiFile: PsiFile): Option[ProjectStackRepl] = {
+  def getProjectRepl(psiFile: PsiFile): Option[ProjectStackRepl] =
     getReplsManager(psiFile.getProject).flatMap(_.findProjectRepl(psiFile))
-  }
 
-  def getProjectRepl(project: Project, projectReplTargets: ProjectReplTargets): Option[ProjectStackRepl] = {
+  def getProjectRepl(project: Project, projectReplTargets: ProjectReplTargets): Option[ProjectStackRepl] =
     getReplsManager(project).map(_.getProjectRepl(projectReplTargets))
-  }
 
-  def getGlobalRepl(project: Project): Option[GlobalStackRepl] = {
+  def getGlobalRepl(project: Project): Option[GlobalStackRepl] =
     val repl = getReplsManager(project).map(_.getGlobalRepl)
-    repl.foreach(r => if (!r.available && !r.starting) r.start())
+    repl.foreach(r => if !r.available && !r.starting then r.start())
     repl
-  }
 
-  def getGlobalRepl2(project: Project): Option[GlobalStackRepl] = {
+  def getGlobalRepl2(project: Project): Option[GlobalStackRepl] =
     val repl = getReplsManager(project).map(_.getGlobalRepl2)
-    repl.foreach(r => if (!r.available && !r.starting) r.start())
+    repl.foreach(r => if !r.available && !r.starting then r.start())
     repl
-  }
 
-  private def createPackageInfos(project: Project): Iterable[PackageInfo] = {
-    val cabalFiles = for {
+  private def createPackageInfos(project: Project): Iterable[PackageInfo] =
+    val cabalFiles = for
       cabalFile <- HaskellProjectManager.getInstance(project).findCabalFiles().asScala
       ci <- PackageInfo.create(project, cabalFile.toFile)
-    } yield ci
+    yield ci
 
-    if (cabalFiles.isEmpty) {
+    if cabalFiles.isEmpty then
       HaskellNotificationGroup.logWarningBalloonEvent(project, s"No Cabal files found for project `${project.getName}`. Check your project configuration.")
-    }
     cabalFiles
-  }
 
-  private def createComponentTargets(moduleCabalInfos: Iterable[PackageInfo]): Iterable[ComponentTarget] = {
+  private def createComponentTargets(moduleCabalInfos: Iterable[PackageInfo]): Iterable[ComponentTarget] =
     moduleCabalInfos.flatMap { cabalInfo =>
-      cabalInfo.cabalStanzas.map {
+      cabalInfo.cabalStanzas.map:
         case cs: LibraryCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, LibType, cs.sourceDirs, None, cs.isNoImplicitPreludeActive, cs.buildDepends, cs.exposedModuleNames)
         case cs: ExecutableCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, ExeType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
         case cs: TestSuiteCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, TestSuiteType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
         case cs: BenchmarkCabalStanza => ComponentTarget(cs.modulePath, cs.packageName, cs.targetName, BenchmarkType, cs.sourceDirs, cs.mainIs, cs.isNoImplicitPreludeActive, cs.buildDepends)
-      }
     }
-  }
-}
 
-private[external] class StackReplsManager(val project: Project, workingDirectory: Path) {
+private[external] class StackReplsManager(val project: Project, workingDirectory: Path):
 
   private val globalRepl= GlobalStackRepl(project, workingDirectory, HaskellSettingsState.getReplTimeout)
   private val globalRepl2 = GlobalStackRepl(project, workingDirectory, HaskellSettingsState.getReplTimeout)
@@ -94,64 +82,50 @@ private[external] class StackReplsManager(val project: Project, workingDirectory
   val componentTargets: Iterable[ComponentTarget] = StackReplsManager.createComponentTargets(modulePackageInfos)
 
   val projectReplTargets: Iterable[ProjectReplTargets] = componentTargets.groupBy(_.stanzaType).flatMap { case (stanzaType, targets) =>
-    if (stanzaType == LibType) {
+    if stanzaType == LibType then
       Seq(ProjectReplTargets(stanzaType, targets.toSeq))
-    } else {
+    else
       targets.map(target => ProjectReplTargets(stanzaType, Seq(target)))
-    }
   }
 
-  def getRunningProjectRepls: Iterable[ProjectStackRepl] = {
+  def getRunningProjectRepls: Iterable[ProjectStackRepl] =
     startedTargetProjectRepls.values.filter(_.available)
-  }
 
-  def libTargetsName: Option[String] = {
+  def libTargetsName: Option[String] =
     projectReplTargets.find(_.stanzaType == LibType).map(_.targetsName)
-  }
 
   def getGlobalRepl: GlobalStackRepl = globalRepl
 
   def getGlobalRepl2: GlobalStackRepl = globalRepl2
 
-  private def findProjectReplTargets(componentTarget: ComponentTarget): Option[ProjectReplTargets] = {
+  private def findProjectReplTargets(componentTarget: ComponentTarget): Option[ProjectReplTargets] =
     projectReplTargets.find(_.targets.contains(componentTarget))
-  }
 
-  private def findProjectRepl(psiFile: PsiFile): Option[ProjectStackRepl] = {
-    if (HaskellProjectUtil.isSourceFile(psiFile)) {
+  private def findProjectRepl(psiFile: PsiFile): Option[ProjectStackRepl] =
+    if HaskellProjectUtil.isSourceFile(psiFile) then
       val target = HaskellComponentsManager.findStackComponentInfo(psiFile)
-      target.flatMap(findProjectReplTargets) match {
+      target.flatMap(findProjectReplTargets) match
         case Some(t) => Some(getProjectRepl(t))
         case None =>
           HaskellNotificationGroup.warningEvent(project, s"No Haskell support for file `${psiFile.getName}` because no component target could be found for this file")
           None
-      }
-    } else {
+    else
       None
-    }
-  }
 
-  private def getProjectRepl(targets: ProjectReplTargets): ProjectStackRepl = {
-    startedTargetProjectRepls.get(targets) match {
+  private def getProjectRepl(targets: ProjectReplTargets): ProjectStackRepl =
+    startedTargetProjectRepls.get(targets) match
       case Some(repl) => repl
       case None =>
-        targets.synchronized {
-          startedTargetProjectRepls.get(targets) match {
+        targets.synchronized:
+          startedTargetProjectRepls.get(targets) match
             case Some(r) => r
             case None =>
               val repl = createAndStartProjectRepl(targets)
               startedTargetProjectRepls.put(targets, repl)
               repl
-          }
-        }
-    }
-  }
 
-  private def createAndStartProjectRepl(targets: ProjectReplTargets): ProjectStackRepl = {
+  private def createAndStartProjectRepl(targets: ProjectReplTargets): ProjectStackRepl =
     val repl = new ProjectStackRepl(project, workingDirectory, targets, HaskellSettingsState.getReplTimeout)
-    if (!project.isDisposed) {
+    if !project.isDisposed then
       repl.start()
-    }
     repl
-  }
-}

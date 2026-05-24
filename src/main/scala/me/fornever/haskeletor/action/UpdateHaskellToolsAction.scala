@@ -14,16 +14,13 @@ import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.external.component.StackProjectManager
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class UpdateHaskellToolsAction extends AnAction {
+class UpdateHaskellToolsAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableExternalAction(actionEvent, (project: Project) => !StackProjectManager.isInstallingHaskellTools(project) && !StackProjectManager.isInitializing(project) && !StackProjectManager.isPreloadingAllLibraryIdentifiers(project))
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     Option(actionEvent.getProject).foreach(project => {
       HaskellNotificationGroup.logInfoEvent(project, "Updating Haskell Tools")
       StackProjectManager.launchInstallHaskellTools(project, update = true)
     })
-  }
-}

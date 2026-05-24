@@ -14,16 +14,12 @@ import me.fornever.haskeletor.psi.HaskellModid
 import me.fornever.haskeletor.psi.impl.HaskellModidImpl
 import me.fornever.haskeletor.psi.stubs.HaskellModidStub
 
-class HaskellModidStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellModidStub, HaskellModid](debugName) {
-  def createPsi(stub: HaskellModidStub): HaskellModid = {
+class HaskellModidStubElementType(debugName: String) extends HaskellNamedStubElementType[HaskellModidStub, HaskellModid](debugName):
+  def createPsi(stub: HaskellModidStub): HaskellModid =
     new HaskellModidImpl(stub, this)
-  }
 
-  def createStub(psi: HaskellModid, parentStub: StubElement[? <: PsiElement]): HaskellModidStub = {
+  def createStub(psi: HaskellModid, parentStub: StubElement[? <: PsiElement]): HaskellModidStub =
     new HaskellModidStub(parentStub, this, psi.getName)
-  }
 
-  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellModidStub = {
+  def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): HaskellModidStub =
     new HaskellModidStub(parentStub, this, dataStream.readName)
-  }
-}

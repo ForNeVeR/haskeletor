@@ -14,17 +14,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilBase
 
-object ActionUtil {
+object ActionUtil:
 
-  def findActionContext(actionEvent: AnActionEvent): Option[ActionContext] = {
+  def findActionContext(actionEvent: AnActionEvent): Option[ActionContext] =
     val context = actionEvent.getDataContext
-    for {
+    for
       editor <- Option(CommonDataKeys.EDITOR.getData(context))
       project <- Option(CommonDataKeys.PROJECT.getData(context))
       psiFile <- Option(PsiUtilBase.getPsiFileInEditor(editor, project))
       selectionModel = Option(editor.getSelectionModel).find(sm => Option(sm.getSelectedText).isDefined)
-    } yield ActionContext(psiFile, editor, project, selectionModel)
-  }
-}
+    yield ActionContext(psiFile, editor, project, selectionModel)
 
 sealed case class ActionContext(psiFile: PsiFile, editor: Editor, project: Project, selectionModel: Option[SelectionModel])

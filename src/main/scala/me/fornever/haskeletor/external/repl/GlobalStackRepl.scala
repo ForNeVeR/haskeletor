@@ -25,16 +25,15 @@ case class GlobalStackRepl(project: Project,
     None,
     Seq("--no-package-hiding", "--no-load"),
     replTimeout
-  ) {
+  ):
 
   @volatile
   private var loadedModuleName: Option[String] = None
 
-  def clearLoadedModules(): Unit = {
+  def clearLoadedModules(): Unit =
     loadedModuleName = None
-  }
 
-  def getModuleIdentifiers(moduleName: String): Option[StackReplOutput] = {
+  def getModuleIdentifiers(moduleName: String): Option[StackReplOutput] =
     ScalaFutureUtil.waitForValue(project, Future {
       blocking {
         synchronized {
@@ -45,15 +44,14 @@ case class GlobalStackRepl(project: Project,
         }
       }
     }, ":browse in GlobalStackRepl").flatten
-  }
 
-  def findInfo(moduleName: String, name: String): Option[StackReplOutput] = {
+  def findInfo(moduleName: String, name: String): Option[StackReplOutput] =
     ScalaFutureUtil.waitForValue(project, Future {
       blocking {
         synchronized {
           loadModule(moduleName)
 
-          if (loadedModuleName.contains(moduleName)) {
+          if loadedModuleName.contains(moduleName) then {
             execute(s":info $name")
           } else {
             // No info means NEVER info because it's library
@@ -62,25 +60,18 @@ case class GlobalStackRepl(project: Project,
         }
       }
     }, ":info in GlobalStackRepl").flatten
-  }
 
-  override def restart(forceExit: Boolean): Unit = synchronized {
-    if (available && !starting) {
+  override def restart(forceExit: Boolean): Unit = synchronized:
+    if available && !starting then
       exit(forceExit)
       loadedModuleName = None
       Thread.sleep(1000)
       start()
-    }
-  }
 
-  private def loadModule(moduleName: String): Unit = {
-    if (!loadedModuleName.contains(moduleName)) {
+  private def loadModule(moduleName: String): Unit =
+    if !loadedModuleName.contains(moduleName) then
       val output = execute(s":module $moduleName")
-      if (output.exists(_.stderrLines.isEmpty)) {
+      if output.exists(_.stderrLines.isEmpty) then
         loadedModuleName = Some(moduleName)
-      } else {
+      else
         loadedModuleName = None
-      }
-    }
-  }
-}

@@ -8,70 +8,54 @@
 
 package me.fornever.haskeletor.settings
 
-object HaskellSettingsState {
+object HaskellSettingsState:
   private def state = HaskellSettingsPersistentStateComponent.getInstance().getState
 
-  def getReplTimeout: Integer = {
+  def getReplTimeout: Integer =
     state.replTimeout
-  }
 
-  def getHlintOptions: String = {
+  def getHlintOptions: String =
     state.hlintOptions
-  }
 
-  def useSystemGhc: Boolean = {
+  def useSystemGhc: Boolean =
     state.useSystemGhc
-  }
 
-  def isReformatCodeBeforeCommit: Boolean = {
+  def isReformatCodeBeforeCommit: Boolean =
     state.reformatCodeBeforeCommit
-  }
 
-  def setReformatCodeBeforeCommit(reformat: Boolean): Unit = {
+  def setReformatCodeBeforeCommit(reformat: Boolean): Unit =
     state.reformatCodeBeforeCommit = reformat
-  }
 
-  def isOptmizeImportsBeforeCommit: Boolean = {
+  def isOptmizeImportsBeforeCommit: Boolean =
     state.optimizeImportsBeforeCommit
-  }
 
-  def setOptimizeImportsBeforeCommit(optimize: Boolean): Unit = {
+  def setOptimizeImportsBeforeCommit(optimize: Boolean): Unit =
     state.optimizeImportsBeforeCommit = optimize
-  }
 
-  def customTools: Boolean = {
+  def customTools: Boolean =
     state.customTools
-  }
 
-  def hlintPath: Option[String] = {
+  def hlintPath: Option[String] =
     Option.when(customTools && state.hlintPath.nonEmpty)(state.hlintPath)
-  }
 
-  def hooglePath: Option[String] = {
+  def hooglePath: Option[String] =
     Option.when(customTools && state.hooglePath.nonEmpty)(state.hooglePath)
-  }
 
-  def ormoluPath: Option[String] = {
+  def ormoluPath: Option[String] =
     Option.when(customTools && state.ormoluPath.nonEmpty)(state.ormoluPath)
-  }
 
-  def stackPath: Option[String] = {
+  def stackPath: Option[String] =
     Option.when(state.stackPath.trim.nonEmpty)(state.stackPath.trim)
-  }
 
-  def useCustomTools: Boolean = {
+  def useCustomTools: Boolean =
     state.customTools
-  }
 
-  def getExtraStackArguments: java.util.List[String] = {
-    import scala.jdk.CollectionConverters._
+  def getExtraStackArguments: java.util.List[String] =
+    import scala.jdk.CollectionConverters.*
     Option.when(state.extraStackArguments.trim.nonEmpty)(state.extraStackArguments)
       .map(_.split("""\s+""").toSeq)
       .getOrElse(Seq())
       .asJava
-  }
 
-  def getDefaultGhcOptions: IndexedSeq[String] = {
+  def getDefaultGhcOptions: IndexedSeq[String] =
     state.defaultGhcOptions.split(" ").toIndexedSeq.map(_.trim)
-  }
-}

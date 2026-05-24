@@ -25,22 +25,20 @@ import javax.swing.JComponent
 import scala.collection.concurrent
 import scala.jdk.CollectionConverters.*
 
-object ConfigFileWatcherNotificationProvider {
+object ConfigFileWatcherNotificationProvider:
   val showNotificationsByProject: concurrent.Map[Project, Boolean] = new ConcurrentHashMap[Project, Boolean]().asScala
-}
 
-class ConfigFileWatcherNotificationProvider extends EditorNotificationProvider {
+class ConfigFileWatcherNotificationProvider extends EditorNotificationProvider:
 
   override def collectNotificationData(project: Project,
                                        virtualFile: VirtualFile): function.Function[? >: FileEditor, ? <: JComponent] = { _ =>
-    if (HaskellProjectUtil.isHaskellProject(project) && ConfigFileWatcherNotificationProvider.showNotificationsByProject.get(project).contains(true)) {
+    if HaskellProjectUtil.isHaskellProject(project) && ConfigFileWatcherNotificationProvider.showNotificationsByProject.get(project).contains(true) then
       createPanel(project, virtualFile)
-    } else {
+    else
       null
-    }
   }
 
-  private def createPanel(project: Project, file: VirtualFile): EditorNotificationPanel = {
+  private def createPanel(project: Project, file: VirtualFile): EditorNotificationPanel =
     val notifications = EditorNotifications.getInstance(project)
 
     val panel = new EditorNotificationPanel
@@ -55,27 +53,21 @@ class ConfigFileWatcherNotificationProvider extends EditorNotificationProvider {
       notifications.updateAllNotifications()
     })
     panel
-  }
-}
 
-class ConfigFileWatcher(project: Project, notifications: EditorNotifications) extends BulkFileListener {
+class ConfigFileWatcher(project: Project, notifications: EditorNotifications) extends BulkFileListener:
 
   private val watchFileNames = IndexedSeq("stack.yaml", "package.yaml")
   private val watchFileExtensions = IndexedSeq("cabal")
 
   override def before(events: util.List[? <: VFileEvent]): Unit = {}
 
-  override def after(events: util.List[? <: VFileEvent]): Unit = {
-    if (!StackProjectManager.isInitializing(project)) {
-      if (events.asScala.exists(e =>
+  override def after(events: util.List[? <: VFileEvent]): Unit =
+    if !StackProjectManager.isInitializing(project) then
+      if events.asScala.exists(e =>
         e.isInstanceOf[VFileContentChangeEvent]
         && !e.isFromRefresh
         && (watchFileNames.exists(e.getFile.getName.equalsIgnoreCase) || watchFileExtensions.exists(e.getFile.getExtension.equalsIgnoreCase))
         && ProjectFileIndex.getInstance(project).isInContent(e.getFile)
-      )) {
+      ) then
         ConfigFileWatcherNotificationProvider.showNotificationsByProject.put(project, true)
         notifications.updateAllNotifications()
-      }
-    }
-  }
-}

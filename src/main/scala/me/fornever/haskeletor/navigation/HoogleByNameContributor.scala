@@ -17,52 +17,46 @@ import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
 
 import javax.swing.Icon
 
-class HoogleByNameContributor extends ChooseByNameContributor {
+class HoogleByNameContributor extends ChooseByNameContributor:
 
   private final val DeclarationPattern = """([\w.\-]+) (.*)""".r
   private final val ModulePattern = """module ([\w.\-]+)""".r
   private final val PackagePattern = """package (.*)""".r
 
-  override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {
+  override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] =
     Iterable("a").toArray
-  }
 
-  override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
+  override def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] =
     val hooglePattern =
-      if (includeNonProjectItems) {
+      if includeNonProjectItems then
         pattern
-      } else {
+      else
         HaskellComponentsManager.findProjectPackageNames(project).map(_.foldLeft("")((s: String, pn: String) => s + s"+$pn")).map(_ + s" $pattern").getOrElse(pattern)
-      }
 
     ProgressManager.checkCanceled()
 
-    val navigationItems: Seq[NavigationItem] = HoogleComponent.runHoogle(project, hooglePattern, count = 25).getOrElse(Seq()).flatMap {
+    val navigationItems: Seq[NavigationItem] = HoogleComponent.runHoogle(project, hooglePattern, count = 25).getOrElse(Seq()).flatMap:
       case ModulePattern(moduleName) =>
         ProgressManager.checkCanceled()
-        HaskellModuleNameIndex.findFilesByModuleName(project, moduleName) match {
+        HaskellModuleNameIndex.findFilesByModuleName(project, moduleName) match
           case Right(files) => files
           case _ => Seq()
-        }
       case PackagePattern(_) =>
         ProgressManager.checkCanceled()
         Seq()
       case DeclarationPattern(moduleName, declaration) =>
         ProgressManager.checkCanceled()
-        DeclarationUtil.getDeclarationInfo(declaration, containsQualifiedIds = false) match {
+        DeclarationUtil.getDeclarationInfo(declaration, containsQualifiedIds = false) match
           case Some(declarationInfo) =>
             val identifiers = HaskellReference.findIdentifiersByModulesAndName(project, Seq(moduleName), declarationInfo.id, prioIdInExpression = false).toOption.map(_._2).toSeq
-            if (identifiers.isEmpty) {
+            if identifiers.isEmpty then
               Seq(NotFoundNavigationItem(declaration, moduleName))
-            } else {
+            else
               identifiers.map(e => HaskellPsiUtil.findDeclarationElement(e).getOrElse(e)).map(d => createLibraryNavigationItem(d, moduleName))
-            }
           case None => Seq()
-        }
       case _ =>
         ProgressManager.checkCanceled()
         Seq()
-    }
 
     navigationItems.zipWithIndex.map({ case (item, i) => new NavigationItem {
 
@@ -80,45 +74,38 @@ class HoogleByNameContributor extends ChooseByNameContributor {
       override def canNavigateToSource: Boolean = item.canNavigateToSource
     }
     }).toArray
-  }
 
-  private def createLibraryNavigationItem(namedElement: NavigationItem, moduleNameFromHoogle: String): NavigationItem = {
-    new NavigationItem {
+  private def createLibraryNavigationItem(namedElement: NavigationItem, moduleNameFromHoogle: String): NavigationItem =
+    new NavigationItem:
 
       override def getName: String = namedElement.getName
 
-      override def getPresentation: ItemPresentation = new ItemPresentation {
+      override def getPresentation: ItemPresentation = new ItemPresentation:
         override def getPresentableText: String = namedElement.getPresentation.getPresentableText
 
         override def getLocationString: String = namedElement.getPresentation.getLocationString + " -- " + moduleNameFromHoogle
 
         override def getIcon(unused: Boolean): Icon = namedElement.getPresentation.getIcon(unused)
-      }
 
       override def navigate(requestFocus: Boolean): Unit = namedElement.navigate(requestFocus)
 
       override def canNavigate: Boolean = namedElement.canNavigate
 
       override def canNavigateToSource: Boolean = namedElement.canNavigateToSource
-    }
-  }
 
-  case class NotFoundNavigationItem(declaration: String, moduleName: String) extends NavigationItem {
+  case class NotFoundNavigationItem(declaration: String, moduleName: String) extends NavigationItem:
     override def getName: String = declaration
 
-    override def getPresentation: ItemPresentation = new ItemPresentation {
+    override def getPresentation: ItemPresentation = new ItemPresentation:
       override def getIcon(unused: Boolean): Icon = null
 
       override def getLocationString: String = moduleName
 
       override def getPresentableText: String = getName
-    }
 
     override def canNavigateToSource: Boolean = false
 
     override def canNavigate: Boolean = false
 
     override def navigate(requestFocus: Boolean): Unit = ()
-  }
 
-}

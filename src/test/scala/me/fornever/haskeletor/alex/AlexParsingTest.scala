@@ -11,26 +11,20 @@ package me.fornever.haskeletor.alex
 import com.intellij.testFramework.ParsingTestCase
 import me.fornever.haskeletor.alex.lang.parser.AlexParserDefinition
 
-class AlexParsingTest extends ParsingTestCase("", "x", new AlexParserDefinition) {
+class AlexParsingTest extends ParsingTestCase("", "x", new AlexParserDefinition):
   override def getTestDataPath: String = "src/test/testData/parsing"
 
-  def testSimple(): Unit = {
+  def testSimple(): Unit =
     doTest(true)
-  }
 
-  def testRules(): Unit = {
+  def testRules(): Unit =
     doTest(true)
-  }
 
-  def testRuleDescription(): Unit = {
+  def testRuleDescription(): Unit =
     doTest(true)
-  }
 
-  def testLexerOwO(): Unit = {
+  def testLexerOwO(): Unit =
     doTest(true)
-  }
 
-  def testMixedStatefulStateless(): Unit = {
+  def testMixedStatefulStateless(): Unit =
     doTest(true)
-  }
-}

@@ -14,20 +14,16 @@ import com.intellij.psi.FileViewProvider
 import me.fornever.haskeletor.core.cabal.CabalLanguage
 import org.jetbrains.annotations.NotNull
 
-import javax.swing._
+import javax.swing.*
 
-class CabalFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, CabalLanguage.Instance) {
+class CabalFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, CabalLanguage.Instance):
 
   @NotNull
-  def getFileType: FileType = {
+  def getFileType: FileType =
     CabalFileType.INSTANCE
-  }
 
-  override def toString: String = {
+  override def toString: String =
     "Cabal file"
-  }
 
-  override def getIcon(flags: Int): Icon = {
+  override def getIcon(flags: Int): Icon =
     super.getIcon(flags)
-  }
-}

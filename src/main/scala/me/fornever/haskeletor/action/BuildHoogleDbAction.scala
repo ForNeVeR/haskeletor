@@ -21,17 +21,16 @@ import me.fornever.haskeletor.util.HaskellEditorUtil
 import java.nio.file.Path
 import java.util.Optional
 
-class BuildHoogleDbAction extends AnAction {
+class BuildHoogleDbAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableExternalAction(actionEvent, (project: Project) =>
       !StackProjectManager.isInitializing(project) &&
         StackProjectManager.isHoogleAvailable(project).isDefined &&
         !ProjectLibraryBuilder.isBuilding(project) &&
         !StackProjectManager.isHaddockBuilding(project))
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     val message = "Building or rebuilding Hoogle database"
     Option(actionEvent.getProject).foreach(project => {
       ProjectLibraryBuilder.resetBuildStatus(project)
@@ -42,11 +41,9 @@ class BuildHoogleDbAction extends AnAction {
         project.getService(classOf[ProjectInfoManagerImpl])
       )
     })
-  }
-}
 
 @Service(Array(Service.Level.PROJECT))
-private final class HoogleInstallationManagerImpl(project: Project) extends HoogleInstallationManager {
+private final class HoogleInstallationManagerImpl(project: Project) extends HoogleInstallationManager:
 
   override def findHooglePath(): Optional[Path] =
     Optional.ofNullable(StackProjectManager.isHoogleAvailable(project).map(Path.of(_)).orNull)
@@ -54,11 +51,9 @@ private final class HoogleInstallationManagerImpl(project: Project) extends Hoog
     HoogleComponent.hoogleDbPath(project).toPath
   override def setHaddockBuilding(building: Boolean): Unit =
     StackProjectManager.setHaddockBuilding(project, building)
-}
 
 @Service(Array(Service.Level.PROJECT))
-private final class ProjectInfoManagerImpl(project: Project) extends ProjectInfoManager {
+private final class ProjectInfoManagerImpl(project: Project) extends ProjectInfoManager:
 
   override def findGlobalProjectInfo(): Optional[GlobalProjectInfo] =
     Optional.ofNullable(GlobalProjectInfoComponent.findGlobalProjectInfo(project).orNull)
-}

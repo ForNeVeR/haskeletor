@@ -15,14 +15,11 @@ import me.fornever.haskeletor.core.HaskellLanguage
 /**
   * @author ice1000
   */
-class AlexHaskellInjector extends LanguageInjector {
-  override def getLanguagesToInject(host: PsiLanguageInjectionHost, places: InjectedLanguagePlaces): Unit = {
-    host match {
+class AlexHaskellInjector extends LanguageInjector:
+  override def getLanguagesToInject(host: PsiLanguageInjectionHost, places: InjectedLanguagePlaces): Unit =
+    host match
       case _: AlexTopModuleSection =>
         places.addPlace(HaskellLanguage.Instance, new TextRange(2, host.getTextLength - 1), null, null)
       case _: AlexUserCodeSection =>
         places.addPlace(HaskellLanguage.Instance, new TextRange(2, host.getTextLength - 1), null, null)
       case _ =>
-    }
-  }
-}

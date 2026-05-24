@@ -18,37 +18,30 @@ import java.lang
   * @author ice1000
   */
 abstract class AlexHaskellCodeInjectionHost private[impl](node: ASTNode)
-  extends AlexElementImpl(node) with PsiLanguageInjectionHost {
+  extends AlexElementImpl(node) with PsiLanguageInjectionHost:
 
   import com.intellij.openapi.util.TextRange
   import com.intellij.psi.LiteralTextEscaper
 
   override def isValidHost = true
 
-  override def updateText(text: String): AlexHaskellCodeInjectionHost = {
+  override def updateText(text: String): AlexHaskellCodeInjectionHost =
     val newElement = PsiFileFactory
       .getInstance(getProject)
       .createFileFromText("a.x", AlexLanguage.Instance, text, false, false)
     this.replace(newElement).asInstanceOf[AlexHaskellCodeInjectionHost]
-  }
 
-  override def createLiteralTextEscaper: LiteralTextEscaper[AlexHaskellCodeInjectionHost] = {
-    new LiteralTextEscaper[AlexHaskellCodeInjectionHost](this) {
-      override def decode(textRange: TextRange, stringBuilder: lang.StringBuilder): Boolean = {
+  override def createLiteralTextEscaper: LiteralTextEscaper[AlexHaskellCodeInjectionHost] =
+    new LiteralTextEscaper[AlexHaskellCodeInjectionHost](this):
+      override def decode(textRange: TextRange, stringBuilder: lang.StringBuilder): Boolean =
         stringBuilder.append(myHost.getText, textRange.getStartOffset, textRange.getEndOffset)
         true
-      }
 
-      override def getOffsetInHost(i: Int, textrange: TextRange): Int = {
+      override def getOffsetInHost(i: Int, textrange: TextRange): Int =
         var j = i + textrange.getStartOffset
-        if (j < textrange.getStartOffset) j = textrange.getStartOffset
-        if (j > textrange.getEndOffset) j = textrange.getEndOffset
+        if j < textrange.getStartOffset then j = textrange.getStartOffset
+        if j > textrange.getEndOffset then j = textrange.getEndOffset
         j
-      }
 
-      override def isOneLine: Boolean = {
+      override def isOneLine: Boolean =
         false
-      }
-    }
-  }
-}

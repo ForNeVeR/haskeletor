@@ -10,14 +10,11 @@ package me.fornever.haskeletor
 
 import com.intellij.testFramework.ParsingTestCase
 
-class HaskellParsingTest extends ParsingTestCase("", "hs", new HaskellParserDefinition) {
+class HaskellParsingTest extends ParsingTestCase("", "hs", new HaskellParserDefinition):
   override def getTestDataPath: String = "src/test/testData/parsing-hs"
 
-  def testPragma(): Unit = {
+  def testPragma(): Unit =
     doTest(true)
-  }
 
-  def testComplicatedPragma(): Unit = {
+  def testComplicatedPragma(): Unit =
     doTest(true)
-  }
-}

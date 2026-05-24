@@ -15,14 +15,14 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import me.fornever.haskeletor.settings.GlobalInfo
 import me.fornever.haskeletor.stack.StackLocator
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-class HaskellStackStateBase(val configuration: HaskellStackConfigurationBase, val environment: ExecutionEnvironment, val parameters: List[String]) extends CommandLineState(environment) {
+class HaskellStackStateBase(val configuration: HaskellStackConfigurationBase, val environment: ExecutionEnvironment, val parameters: List[String]) extends CommandLineState(environment):
 
-  protected def startProcess: ProcessHandler = {
+  protected def startProcess: ProcessHandler =
     val project = configuration.getProject
 
-    Option(StackLocator.getInstance(project).locateStackBlocking()) match {
+    Option(StackLocator.getInstance(project).locateStackBlocking()) match
       case Some(stackPath) =>
         val stackArgs = configuration.getStackArgs
 
@@ -31,13 +31,10 @@ class HaskellStackStateBase(val configuration: HaskellStackConfigurationBase, va
           .withWorkDirectory(configuration.getWorkingDirPath)
           .withEnvironment(GlobalInfo.pathVariables)
 
-        if (stackArgs.nonEmpty)
+        if stackArgs.nonEmpty then
           commandLine.addParameters(stackArgs.split(" ").toList.asJava)
 
         val handler = new KillableColoredProcessHandler(commandLine)
         ProcessTerminatedListener.attach(handler)
         handler
       case None => throw new CantRunException("Invalid Haskell Stack SDK")
-    }
-  }
-}

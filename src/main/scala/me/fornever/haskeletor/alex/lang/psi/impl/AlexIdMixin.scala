@@ -22,90 +22,76 @@ import scala.collection.mutable
   * @param node ast node
   */
 abstract class AlexIdMixin(node: ASTNode) extends AlexElementImpl(node)
-  with PsiNameIdentifierOwner with PsiPolyVariantReference {
-  override def resolve(): PsiElement = {
+  with PsiNameIdentifierOwner with PsiPolyVariantReference:
+  override def resolve(): PsiElement =
     val r = multiResolve(false)
-    if (r.isEmpty) null
+    if r.isEmpty then null
     else r(0).getElement
-  }
 
-  override def multiResolve(b: Boolean): Array[ResolveResult] = {
+  override def multiResolve(b: Boolean): Array[ResolveResult] =
     val declarations = getAlexDeclarationsSection
-    if (declarations == null) return Array()
+    if declarations == null then return Array()
     val variants = mutable.ArrayBuffer[ResolveResult]()
     declarations.getDeclarationList.forEach { decl =>
       val tokenSet = decl.getTokenSetDeclaration
-      if (tokenSet != null && tokenSet.getTokenSetId.getText == getText)
+      if tokenSet != null && tokenSet.getTokenSetId.getText == getText then
         variants += new PsiElementResolveResult(tokenSet.getTokenSetId)
       val rules = decl.getRuleDeclaration
-      if (rules != null && rules.getRuleId.getText == getText)
+      if rules != null && rules.getRuleId.getText == getText then
         variants += new PsiElementResolveResult(rules.getRuleId)
     }
     variants.toArray
-  }
 
-  private def getAlexDeclarationsSection: AlexDeclarationsSection = {
+  private def getAlexDeclarationsSection: AlexDeclarationsSection =
     val file = getElement.getContainingFile
-    if (file == null) return null
+    if file == null then return null
     val declarations = PsiTreeUtil.findChildOfType(file, classOf[AlexDeclarationsSection])
-    if (declarations == null) return null
+    if declarations == null then return null
     declarations
-  }
 
-  override def getVariants: Array[AnyRef] = {
+  override def getVariants: Array[AnyRef] =
     val declarations = getAlexDeclarationsSection
-    if (declarations == null) return Array()
+    if declarations == null then return Array()
     val variants = mutable.ArrayBuffer[AnyRef]()
     declarations.getDeclarationList.forEach { decl =>
       val tokenSet = decl.getTokenSetDeclaration
-      if (tokenSet != null) variants += tokenSet.getTokenSetId.getText
+      if tokenSet != null then variants += tokenSet.getTokenSetId.getText
       val rules = decl.getRuleDeclaration
-      if (rules != null) variants += rules.getRuleId.getText
+      if rules != null then variants += rules.getRuleId.getText
     }
     variants.toArray
-  }
 
-  override def getElement: PsiElement = {
+  override def getElement: PsiElement =
     this
-  }
 
   private val range = new TextRange(0, getTextLength)
 
-  override def getRangeInElement: TextRange = {
+  override def getRangeInElement: TextRange =
     range
-  }
 
-  override def getReference: AlexIdMixin = {
+  override def getReference: AlexIdMixin =
     this
-  }
 
-  override def getReferences: Array[PsiReference] = {
+  override def getReferences: Array[PsiReference] =
     Array(getReference)
-  }
 
-  override def getName: String = {
+  override def getName: String =
     getText
-  }
 
-  override def getCanonicalText: String = {
+  override def getCanonicalText: String =
     getText
-  }
 
-  override def isSoft: Boolean = {
+  override def isSoft: Boolean =
     true
-  }
 
-  override def isReferenceTo(psiElement: PsiElement): Boolean = {
+  override def isReferenceTo(psiElement: PsiElement): Boolean =
     psiElement == this
-  }
 
   override def handleElementRename(s: String): PsiElement = throw new IncorrectOperationException("Unsupported")
 
   override def bindToElement(psiElement: PsiElement): PsiElement = throw new IncorrectOperationException("Unsupported")
 
-  override def getNameIdentifier: PsiElement = {
+  override def getNameIdentifier: PsiElement =
     this
-  }
 
   override def setName(s: String): PsiElement = throw new IncorrectOperationException("Unsupported")
-}

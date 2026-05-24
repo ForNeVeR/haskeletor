@@ -9,7 +9,7 @@
 package me.fornever.haskeletor.util
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.*
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiFile
@@ -20,66 +20,53 @@ import me.fornever.haskeletor.projectmodel.HaskellProjectManager
 import me.fornever.haskeletor.settings.GlobalInfo
 
 import java.io.File
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object HaskellProjectUtil {
+object HaskellProjectUtil:
 
   final val Prelude = "Prelude"
 
-  def setNoDiagnosticsShowCaretFlag(project: Project): Boolean = {
+  def setNoDiagnosticsShowCaretFlag(project: Project): Boolean =
     HaskellComponentsManager.getGhcVersion(project).exists(ghcVersion =>
       ghcVersion >= GhcVersion(8, 2, 1)
     )
-  }
 
-  def isHaskellProject(project: Project): Boolean = {
+  def isHaskellProject(project: Project): Boolean =
     HaskellProjectManager.getInstance(project).isHaskellProject.getValueOrNull == true
-  }
 
-  def isSourceFile(project: Project, virtualFile: VirtualFile): Boolean = {
-    if (project.isDisposed) {
+  def isSourceFile(project: Project, virtualFile: VirtualFile): Boolean =
+    if project.isDisposed then
       // Well, it does not matter what is returned because is closing or closed
       false
-    } else {
+    else
       val rootManager = ProjectRootManager.getInstance(project)
       val contentRoots = rootManager.getContentRootsFromAllModules.toSet.asJava
       VfsUtilCore.isUnder(virtualFile, contentRoots)
-    }
-  }
 
-  def isSourceFile(psiFile: PsiFile): Boolean = {
+  def isSourceFile(psiFile: PsiFile): Boolean =
     val project = psiFile.getProject
     // Only source files can be only in memory
     HaskellFileUtil.findVirtualFile(psiFile).forall(vf => isSourceFile(project, vf))
-  }
 
-  def isLibraryFile(psiFile: PsiFile): Boolean = {
+  def isLibraryFile(psiFile: PsiFile): Boolean =
     val projectLibDirectory = getProjectLibrarySourcesDirectory(psiFile.getProject)
     HaskellFileUtil.findVirtualFile(psiFile).exists(vf => FileUtil.isAncestor(projectLibDirectory.getAbsolutePath, vf.getPath, true))
-  }
 
-  def getProjectLibrarySourcesDirectory(project: Project): File = {
+  def getProjectLibrarySourcesDirectory(project: Project): File =
     new File(GlobalInfo.getLibrarySourcesPath, project.getName)
-  }
 
-  def findStackFile(directory: File): Option[File] = {
+  def findStackFile(directory: File): Option[File] =
     directory.listFiles.find(_.getName == "stack.yaml")
-  }
 
-  def findStackFile(project: Project): Option[File] = {
+  def findStackFile(project: Project): Option[File] =
     findStackFile(new File(project.getBasePath))
-  }
 
-  def getProjectSearchScope(project: Project): GlobalSearchScope = {
+  def getProjectSearchScope(project: Project): GlobalSearchScope =
     GlobalSearchScope.allScope(project)
-  }
 
-  def getSearchScope(project: Project, includeNonProjectItems: Boolean): GlobalSearchScope = {
-    if (includeNonProjectItems) getProjectSearchScope(project) else GlobalSearchScope.projectScope(project)
-  }
+  def getSearchScope(project: Project, includeNonProjectItems: Boolean): GlobalSearchScope =
+    if includeNonProjectItems then getProjectSearchScope(project) else GlobalSearchScope.projectScope(project)
 
-  def findProjectPackageNames(project: Project): Seq[String] = {
+  def findProjectPackageNames(project: Project): Seq[String] =
     HaskellComponentsManager.findProjectModulePackageNames(project)
-  }
-}
 

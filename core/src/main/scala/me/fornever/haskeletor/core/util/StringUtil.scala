@@ -14,73 +14,58 @@ import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 
 import scala.collection.mutable.ListBuffer
 
-object StringUtil {
+object StringUtil:
 
   private final val PackageModuleQualifierPattern = """([a-zA-Z\-]+\-[\.0-9]+\:)?([A-Z][\w\\\-\']*\.)+"""
   private final val PackageQualifierPattern = """^([a-zA-Z\-]+\-[\.0-9]+\:)?"""
 
-  def escapeString(s: String): String = {
+  def escapeString(s: String): String =
     XmlStringUtil.escapeString(s, false, false)
-  }
 
-  def removePackageModuleQualifier(s: String): String = {
+  def removePackageModuleQualifier(s: String): String =
     s.replaceAll(PackageModuleQualifierPattern, "")
-  }
 
-  def removePackageQualifier(s: String): String = {
+  def removePackageQualifier(s: String): String =
     s.replaceAll(PackageQualifierPattern, "")
-  }
 
-  def sanitizeDeclaration(declaration: String): String = {
+  def sanitizeDeclaration(declaration: String): String =
     removeCommentsAndWhiteSpaces(declaration.replaceAll(PackageModuleQualifierPattern, ""))
-  }
 
-  def removeCommentsAndWhiteSpaces(code: String): String = {
+  def removeCommentsAndWhiteSpaces(code: String): String =
     code.replaceAll("""\{-[^\}]+-\}""", " ").replaceAll("""--.*""", " ").replaceAll("""\s+""", " ")
-  }
 
-  def removeOuterParens(name: String): String = {
-    if (isWithinParens(name)) {
+  def removeOuterParens(name: String): String =
+    if isWithinParens(name) then
       name.substring(1, name.length - 1)
-    } else {
+    else
       name
-    }
-  }
 
-  def removeOuterQuotes(name: String): String = {
-    if (isWithinQuotes(name)) {
+  def removeOuterQuotes(name: String): String =
+    if isWithinQuotes(name) then
       name.substring(1, name.length - 1)
-    } else {
+    else
       name
-    }
-  }
 
-  def isWithinQuotes(name: String): Boolean = {
+  def isWithinQuotes(name: String): Boolean =
     name.startsWith("'") && name.endsWith("'")
-  }
 
-  def isWithinParens(name: String): Boolean = {
+  def isWithinParens(name: String): Boolean =
     name.startsWith("(") && name.endsWith(")")
-  }
 
-  def joinIndentedLines(project: Project, lines: Seq[String]): Seq[String] = {
-    if (lines.size == 1) {
+  def joinIndentedLines(project: Project, lines: Seq[String]): Seq[String] =
+    if lines.size == 1 then
       lines
-    } else {
-      try {
+    else
+      try
         lines.foldLeft(ListBuffer[StringBuilder]())((lb, s) =>
-          if (s.startsWith("  ")) {
+          if s.startsWith("  ") then {
             lb.last.append(s)
             lb
           }
           else {
             lb += new StringBuilder(2, s)
           }).map(_.toString).toSeq
-      } catch {
+      catch
         case _: NoSuchElementException =>
           HaskellNotificationGroup.logErrorBalloonEvent(project, s"Could not join indented lines. Probably first line started with spaces. Unexpected input was: ${lines.mkString(", ")}")
           Seq()
-      }
-    }
-  }
-}

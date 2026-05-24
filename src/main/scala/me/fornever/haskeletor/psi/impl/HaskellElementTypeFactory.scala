@@ -9,18 +9,15 @@
 package me.fornever.haskeletor.psi.impl
 
 import com.intellij.psi.tree.IElementType
-import me.fornever.haskeletor.psi.stubs.types._
+import me.fornever.haskeletor.psi.stubs.types.*
 
-object HaskellElementTypeFactory {
+object HaskellElementTypeFactory:
 
-  def factory(name: String): IElementType = {
-    name match {
+  def factory(name: String): IElementType =
+    name match
       case "HS_CONID" => new HaskellConidStubElementType(name)
       case "HS_VARID" => new HaskellVaridStubElementType(name)
       case "HS_VARSYM" => new HaskellVarsymStubElementType(name)
       case "HS_CONSYM" => new HaskellConsymStubElementType(name)
       case "HS_MODID" => new HaskellModidStubElementType(name)
       case _ => throw new IllegalStateException(s"Unknown element name: $name")
-    }
-  }
-}

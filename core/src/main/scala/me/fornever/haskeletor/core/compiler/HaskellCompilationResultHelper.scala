@@ -14,7 +14,7 @@ import me.fornever.haskeletor.core.util.StringUtil
 
 import java.nio.file.Path
 
-object HaskellCompilationResultHelper {
+object HaskellCompilationResultHelper:
 
   private final val ProblemPattern = """((?:[A-Z]:\\)?[^:]+):([\d]+):([\d]+):(.+)""".r
   // Stack status lines like "StateVar > build with ghc-9.0.2" or "Progress 0/67 StateVar > configure"
@@ -22,49 +22,39 @@ object HaskellCompilationResultHelper {
 
   final val LayoutSpaceChar = '\u00A0'
 
-  def createCompilationResult(currentFilePath: Path, errorLines: Seq[String], failed: Boolean): CompilationResult = {
+  def createCompilationResult(currentFilePath: Path, errorLines: Seq[String], failed: Boolean): CompilationResult =
     val compilationProblems = errorLines.flatMap(parseErrorLine)
 
     val (currentFileProblems, otherFileProblems) = compilationProblems.partition(_.filePath == currentFilePath)
 
     CompilationResult(currentFileProblems, otherFileProblems, failed)
-  }
 
-  def parseErrorLine(errorLine: String): Option[CompilationProblem] = {
+  def parseErrorLine(errorLine: String): Option[CompilationProblem] =
     // Skip stack status lines (e.g., "StateVar > build with ghc-9.0.2")
-    if (StackStatusPattern.matches(errorLine)) {
+    if StackStatusPattern.matches(errorLine) then
       return None
-    }
 
-    errorLine match {
+    errorLine match
       case ProblemPattern(filePath, lineNr, columnNr, message) =>
-        try {
+        try
           val displayMessage = message.trim.replaceAll("""(\s\s\s\s+)""", "\n" + "$1")
           Some(CompilationProblem(Path.of(filePath), lineNr.toInt, columnNr.toInt, displayMessage))
-        } catch {
+        catch
           case _: java.nio.file.InvalidPathException => None
-        }
       case _ => None
-    }
-  }
-}
 
 case class CompilationResult(currentFileProblems: Iterable[CompilationProblem], otherFileProblems: Iterable[CompilationProblem], failed: Boolean)
 
-case class CompilationProblem(filePath: Path, lineNr: Int, columnNr: Int, message: String) {
+case class CompilationProblem(filePath: Path, lineNr: Int, columnNr: Int, message: String):
 
   @NlsSafe
-  def plainMessage: String = {
+  def plainMessage: String =
     message.split("\n").mkString.replaceAll("\\s+", " ")
-  }
 
-  def htmlMessage: String = {
+  def htmlMessage: String =
     StringUtil.escapeString(message.replace(' ', LayoutSpaceChar))
-  }
 
-  def isWarning: Boolean = {
+  def isWarning: Boolean =
     message.startsWith("warning:") || message.startsWith("Warning:")
-  }
-}
 
 

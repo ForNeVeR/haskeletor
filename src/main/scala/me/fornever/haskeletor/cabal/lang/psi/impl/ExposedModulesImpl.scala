@@ -9,15 +9,12 @@
 package me.fornever.haskeletor.cabal.lang.psi.impl
 
 import com.intellij.psi.PsiElement
-import me.fornever.haskeletor.cabal.lang.psi._
+import me.fornever.haskeletor.cabal.lang.psi.*
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
-trait ExposedModulesImpl extends PsiElement {
+trait ExposedModulesImpl extends PsiElement:
 
-  def getModuleNames: Array[String] = {
-    HaskellPsiUtil.getChildOfType(this, classOf[ModuleList]) match {
+  def getModuleNames: Array[String] =
+    HaskellPsiUtil.getChildOfType(this, classOf[ModuleList]) match
       case None => Array.empty
       case Some(moduleList) => HaskellPsiUtil.streamChildren(moduleList, classOf[Module]).map(c => c.getModuleName ).toArray
-    }
-  }
-}

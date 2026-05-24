@@ -13,22 +13,17 @@ import com.intellij.psi.codeStyle.{CodeStyleConfigurable, CodeStyleSettings, Cod
 import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
-class HaskellCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
-  override def getConfigurableDisplayName: String = {
+class HaskellCodeStyleSettingsProvider extends CodeStyleSettingsProvider:
+  override def getConfigurableDisplayName: String =
     "Haskell"
-  }
 
   @NotNull
-  override def createConfigurable(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): CodeStyleConfigurable = {
+  override def createConfigurable(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): CodeStyleConfigurable =
     new HaskellCodeStyleConfigurable(settings, originalSettings)
-  }
 
   @NotNull
-  override def createCustomSettings(settings: CodeStyleSettings): CustomCodeStyleSettings = {
+  override def createCustomSettings(settings: CodeStyleSettings): CustomCodeStyleSettings =
     new HaskellCodeStyleSettings(settings)
-  }
 
-  override def getLanguage: Language = {
+  override def getLanguage: Language =
     HaskellLanguage.Instance
-  }
-}

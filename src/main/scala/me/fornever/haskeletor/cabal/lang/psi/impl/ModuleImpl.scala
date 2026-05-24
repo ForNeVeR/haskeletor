@@ -11,7 +11,7 @@ package me.fornever.haskeletor.cabal.lang.psi.impl
 import com.intellij.psi.PsiElement
 import me.fornever.haskeletor.cabal.lang.psi.ModulePart
 
-trait ModuleImpl extends PsiElement {
+trait ModuleImpl extends PsiElement:
 
   def getParts: Array[ModulePart] = getChildren.map(assertModulePart)
 
@@ -19,12 +19,9 @@ trait ModuleImpl extends PsiElement {
 
   def getLastPart: ModulePart = assertModulePart(getLastChild)
 
-  def getModuleName: String = {
+  def getModuleName: String =
     this.getText
-  }
 
-  private def assertModulePart(el: PsiElement): ModulePart = el match {
+  private def assertModulePart(el: PsiElement): ModulePart = el match
     case el: ModulePart => el
     case other => throw new CabalElementTypeError("ModulePart", other)
-  }
-}

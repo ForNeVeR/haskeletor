@@ -10,6 +10,5 @@ package me.fornever.haskeletor.editor.formatter.settings
 
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CustomCodeStyleSettings}
 
-class HaskellCodeStyleSettings(settings: CodeStyleSettings) extends CustomCodeStyleSettings("HaskellCodeStyleSettings", settings) {
+class HaskellCodeStyleSettings(settings: CodeStyleSettings) extends CustomCodeStyleSettings("HaskellCodeStyleSettings", settings):
   settings.AUTODETECT_INDENTS = false
-}

@@ -12,6 +12,5 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.search.SearchScope
 
-trait HaskellNamedElement extends HaskellCompositeElement with PsiNameIdentifierOwner with NavigationItem {
+trait HaskellNamedElement extends HaskellCompositeElement with PsiNameIdentifierOwner with NavigationItem:
   def getUseScope: SearchScope
-}

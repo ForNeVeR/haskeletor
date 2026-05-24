@@ -13,13 +13,12 @@ import me.fornever.haskeletor.action.ActionUtil
 import me.fornever.haskeletor.psi.{HaskellPsiUtil, HaskellTypes}
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleViewMap
 
-class SendToConsoleAction extends AnAction {
+class SendToConsoleAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     actionEvent.getPresentation.setEnabled(HaskellConsoleViewMap.getConsole(actionEvent.getProject).isDefined)
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
       val editor = actionContext.editor
       val psiFile = actionContext.psiFile
@@ -37,13 +36,11 @@ class SendToConsoleAction extends AnAction {
         }
       }
 
-      for {
+      for
         text <- lookupText
         console <- HaskellConsoleViewMap.getConsole(actionContext.project)
-      } yield {
+      yield {
         console.executeCommand(text)
       }
     })
-  }
 
-}

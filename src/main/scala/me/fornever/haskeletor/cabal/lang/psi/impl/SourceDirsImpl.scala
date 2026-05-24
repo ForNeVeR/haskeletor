@@ -12,10 +12,8 @@ import com.intellij.psi.PsiElement
 import me.fornever.haskeletor.cabal.lang.psi.CabalTypes
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
-trait SourceDirsImpl extends PsiElement {
+trait SourceDirsImpl extends PsiElement:
 
   /** Retrieves the source dir paths as strings. */
-  def getValue: Array[String] = {
+  def getValue: Array[String] =
     HaskellPsiUtil.getChildNodes(this, CabalTypes.SOURCE_DIR).map(_.getText)
-  }
-}

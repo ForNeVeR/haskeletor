@@ -12,9 +12,7 @@ import com.intellij.psi.PsiElement
 import me.fornever.haskeletor.cabal.lang.psi
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
-object CabalPsiUtil {
+object CabalPsiUtil:
 
-  def getFieldContext(el: PsiElement): Option[psi.CabalFieldElement] = {
+  def getFieldContext(el: PsiElement): Option[psi.CabalFieldElement] =
     HaskellPsiUtil.collectFirstParent(el) { case el: psi.CabalFieldElement => el }
-  }
-}

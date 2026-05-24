@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Nullable
 /**
   * @author ice1000
   */
-class HaskellStringLiteralManipulator extends AbstractElementManipulator[HaskellStringLiteralElementImpl] {
+class HaskellStringLiteralManipulator extends AbstractElementManipulator[HaskellStringLiteralElementImpl]:
   @Nullable
   @throws[IncorrectOperationException]
   override def handleContentChange(psi: HaskellStringLiteralElementImpl,
                                    range: TextRange,
-                                   newContent: String): HaskellStringLiteralElementImpl = {
+                                   newContent: String): HaskellStringLiteralElementImpl =
     val oldText = psi.getText
     val newText = oldText.substring(0, range.getStartOffset) + newContent + oldText.substring(range.getEndOffset)
     val newElement = PsiFileFactory
@@ -31,10 +31,7 @@ class HaskellStringLiteralManipulator extends AbstractElementManipulator[Haskell
       .getLastChild
       .getLastChild
     psi.replace(newElement).asInstanceOf[HaskellStringLiteralElementImpl]
-  }
 
-  override def getRangeInElement(element: HaskellStringLiteralElementImpl): TextRange = {
+  override def getRangeInElement(element: HaskellStringLiteralElementImpl): TextRange =
     new TextRange(1, element.getTextLength - 1)
-  }
-}
 

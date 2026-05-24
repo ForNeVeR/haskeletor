@@ -8,14 +8,14 @@
 
 package me.fornever.haskeletor.external.component
 
-import me.fornever.haskeletor.external.component.HLintRefactoringsParser._
+import me.fornever.haskeletor.external.component.HLintRefactoringsParser.*
 import org.junit.runner.RunWith
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class HLintRefactoringsParserSpec extends AnyFlatSpec with Matchers {
+class HLintRefactoringsParserSpec extends AnyFlatSpec with Matchers:
 
   val delete = "[Delete {rtype = Import, pos = SrcSpan {startLine = 5, startCol = 1, endLine = 5, endCol = 14}}]"
   val pos = "pos = SrcSpan {startLine = 5, startCol = 1, endLine = 5, endCol = 14}"
@@ -37,51 +37,36 @@ class HLintRefactoringsParserSpec extends AnyFlatSpec with Matchers {
 
   behavior of "HLint refactor parser"
 
-  "pos parser" should "pass" in {
+  "pos parser" should "pass" in:
     parsePos(pos).get.value shouldEqual SrcSpan(5, 1, 5, 14)
-  }
 
-  "delete parser" should "pass" in {
-    parseRefactoring(delete) should matchPattern {
+  "delete parser" should "pass" in:
+    parseRefactoring(delete) should matchPattern:
       case Right(Delete(Import, SrcSpan(5, 1, 5, 14))) =>
-    }
-  }
 
-  "subts parser" should "pass" in {
+  "subts parser" should "pass" in:
     parseSubts(subts).get.value shouldEqual List(("f", SrcSpan(1, 32, 1, 33)), ("x", SrcSpan(1, 36, 1, 45)))
-  }
 
-  "replace parser" should "pass" in {
-    parseRefactoring(replace) should matchPattern {
+  "replace parser" should "pass" in:
+    parseRefactoring(replace) should matchPattern:
       case Right(Replace(Expr, SrcSpan(1, 19, 1, 45), List(("f", SrcSpan(1, 32, 1, 33)), ("x", SrcSpan(1, 36, 1, 45))), "concatMap f . x", Seq())) =>
-    }
-  }
 
-  "replace delete parser" should "pass" in {
-    parseRefactoring(replaceDelete) should matchPattern {
+  "replace delete parser" should "pass" in:
+    parseRefactoring(replaceDelete) should matchPattern:
       case Right(
       Replace(Stmt, SrcSpan(1, 10, 1, 18), List(("x", SrcSpan(1, 15, 1, 18))), "join x",
       Seq(Delete(Stmt, SrcSpan(1, 20, 1, 21)))
       )
       ) =>
-    }
-  }
 
-  "modify comment parser" should "pass" in {
-    parseRefactoring(modifyComment) should matchPattern {
+  "modify comment parser" should "pass" in:
+    parseRefactoring(modifyComment) should matchPattern:
       case Right(ModifyComment(SrcSpan(1, 1, 1, 19), "{-# INLINE[~k] f #-}")) =>
-    }
-  }
 
-  "insert comment parser" should "pas" in {
-    parseRefactoring(insertComment) should matchPattern {
+  "insert comment parser" should "pas" in:
+    parseRefactoring(insertComment) should matchPattern:
       case Right(InsertComment(SrcSpan(1, 1, 1, 40), "{-# NOINLINE slaves #-}")) =>
-    }
-  }
 
-  "remove as keyword parser" should "pass" in {
-    parseRefactoring(removeAsKeyword) should matchPattern {
+  "remove as keyword parser" should "pass" in:
+    parseRefactoring(removeAsKeyword) should matchPattern:
       case Right(RemoveAsKeyword(SrcSpan(1, 1, 1, 24))) =>
-    }
-  }
-}

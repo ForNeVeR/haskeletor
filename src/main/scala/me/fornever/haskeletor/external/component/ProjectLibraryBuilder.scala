@@ -21,22 +21,19 @@ import me.fornever.haskeletor.stack.StackBuilder
 import me.fornever.haskeletor.util.{HaskellFileUtil, HaskellProjectUtil}
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object ProjectLibraryBuilder {
+object ProjectLibraryBuilder:
 
   private val buildStatus = new ConcurrentHashMap[Project, BuildStatus].asScala
 
-  def isBuilding(project: Project): Boolean = {
-    buildStatus.get(project).exists {
+  def isBuilding(project: Project): Boolean =
+    buildStatus.get(project).exists:
       case Building(_) => true
       case _ => false
-    }
-  }
 
-  def resetBuildStatus(project: Project): Option[BuildStatus] = {
+  def resetBuildStatus(project: Project): Option[BuildStatus] =
     buildStatus.remove(project)
-  }
 
   sealed trait BuildStatus
 
@@ -44,27 +41,22 @@ object ProjectLibraryBuilder {
 
   case class Build(stackComponentInfos: Set[ComponentTarget]) extends BuildStatus
 
-  def addBuild(project: Project, componentTargets: Set[ComponentTarget]): Option[BuildStatus] = synchronized {
-    buildStatus.get(project) match {
+  def addBuild(project: Project, componentTargets: Set[ComponentTarget]): Option[BuildStatus] = synchronized:
+    buildStatus.get(project) match
       case Some(Building(_)) => buildStatus.put(project, Build(componentTargets))
       case Some(Build(targets)) => buildStatus.put(project, Build(targets ++ componentTargets))
       case None => buildStatus.put(project, Build(componentTargets))
-    }
-  }
 
-  def checkLibraryBuild(project: Project, currentTargets: ProjectReplTargets): Unit = synchronized {
-    if (!StackProjectManager.isInitializing(project) && !StackProjectManager.isHaddockBuilding(project) && !project.isDisposed) {
+  def checkLibraryBuild(project: Project, currentTargets: ProjectReplTargets): Unit = synchronized:
+    if !StackProjectManager.isInitializing(project) && !StackProjectManager.isHaddockBuilding(project) && !project.isDisposed then
       val libTargetsName = StackReplsManager.getReplsManager(project).flatMap(_.libTargetsName)
-      (buildStatus.get(project), libTargetsName) match {
+      (buildStatus.get(project), libTargetsName) match
         case (Some(Build(targets)), Some(libTargetsName)) if currentTargets.stanzaType != LibType && !isBuilding(project) => build(project, targets, libTargetsName)
         case _ => ()
-      }
-    }
-  }
 
-  private def build(project: Project, componentLibTargets: Set[ComponentTarget], libTargetsName: String): Unit = {
+  private def build(project: Project, componentLibTargets: Set[ComponentTarget], libTargetsName: String): Unit =
     buildStatus.put(project, Building(componentLibTargets))
-    try {
+    try
       StackBuilder.getInstance(project)
         .buildTargetBlocking(
           HaskeletorBundle.message("build.project.title"),
@@ -73,7 +65,7 @@ object ProjectLibraryBuilder {
           // targets will not start anymore:
           Seq("--ghc-options", "-Wwarn").asJava,
           buildResult => {
-            if (buildResult) {
+            if buildResult then {
               val openFiles = FileEditorManager.getInstance(project).getOpenFiles.filter(HaskellFileUtil.isHaskellFile)
               val openProjectFiles = openFiles.filter(vf => HaskellProjectUtil.isSourceFile(project, vf))
               val openNonLibFiles = openProjectFiles.flatMap(file =>
@@ -90,7 +82,7 @@ object ProjectLibraryBuilder {
               // When project is opened and has build errors some REPLs could not have been started
               StackReplsManager.getReplsManager(project).foreach(_.projectReplTargets.filter(_.stanzaType == LibType).foreach { info =>
                 StackReplsManager.getProjectRepl(project, info).foreach { repl =>
-                  if (!repl.available && !repl.starting) {
+                  if !repl.available && !repl.starting then {
                     repl.start()
                   }
                 }
@@ -109,8 +101,5 @@ object ProjectLibraryBuilder {
             }
           }
         )
-    } finally {
+    finally
       buildStatus.remove(project)
-    }
-  }
-}

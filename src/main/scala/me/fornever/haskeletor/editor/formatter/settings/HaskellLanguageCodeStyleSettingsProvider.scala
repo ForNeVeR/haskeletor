@@ -15,26 +15,22 @@ import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, LanguageCodeStyleSet
 import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
-class HaskellLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
+class HaskellLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider:
 
   @NotNull
-  override def getLanguage: Language = {
+  override def getLanguage: Language =
     HaskellLanguage.Instance
-  }
 
-  override def customizeDefaults(commonSettings: CommonCodeStyleSettings, indentOptions: CommonCodeStyleSettings.IndentOptions): Unit = {
+  override def customizeDefaults(commonSettings: CommonCodeStyleSettings, indentOptions: CommonCodeStyleSettings.IndentOptions): Unit =
     indentOptions.INDENT_SIZE = 2
     indentOptions.CONTINUATION_INDENT_SIZE = 4
     indentOptions.TAB_SIZE = 2
     indentOptions.USE_TAB_CHARACTER = false
-  }
 
-  override def getIndentOptionsEditor: SmartIndentOptionsEditor = {
+  override def getIndentOptionsEditor: SmartIndentOptionsEditor =
     new SmartIndentOptionsEditor(this)
-  }
 
   override def getCodeSample(settingsType: SettingsType): String =
     """-- Reformatting is done externally by Ormolu.
       |-- Setting code style options here has no effect.
     """.stripMargin
-}

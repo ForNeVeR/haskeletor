@@ -14,27 +14,22 @@ import com.intellij.psi.PsiFile
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.concurrent
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object HaskellConsoleViewMap {
+object HaskellConsoleViewMap:
   private val consoleViews = new ConcurrentHashMap[Editor, HaskellConsoleView]().asScala
 
-  def addConsole(console: HaskellConsoleView): Unit = {
+  def addConsole(console: HaskellConsoleView): Unit =
     consoleViews.put(console.getConsoleEditor, console)
-  }
 
-  def delConsole(console: HaskellConsoleView): Unit = {
+  def delConsole(console: HaskellConsoleView): Unit =
     consoleViews.remove(console.getConsoleEditor)
-  }
 
-  def getConsole(editor: Editor): Option[HaskellConsoleView] = {
+  def getConsole(editor: Editor): Option[HaskellConsoleView] =
     consoleViews.get(editor)
-  }
 
-  def getConsole(editor: Project): Option[HaskellConsoleView] = {
+  def getConsole(editor: Project): Option[HaskellConsoleView] =
     consoleViews.values.find(console => console.project == editor && console.isShowing)
-  }
 
   // File is project file and not file which represents console
   val projectFileByConfigName: concurrent.Map[String, PsiFile] = new ConcurrentHashMap[String, PsiFile]().asScala
-}

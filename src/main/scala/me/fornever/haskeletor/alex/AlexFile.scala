@@ -15,13 +15,10 @@ import com.intellij.psi.FileViewProvider
 /**
   * @author ice1000
   */
-class AlexFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, AlexLanguage.Instance) {
+class AlexFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, AlexLanguage.Instance):
 
-  def getFileType: FileType = {
+  def getFileType: FileType =
     new AlexFileType(AlexLanguage.Instance)
-  }
 
-  override def toString: String = {
+  override def toString: String =
     " Alex file"
-  }
-}

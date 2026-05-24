@@ -18,16 +18,16 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import me.fornever.haskeletor.HaskellFile
 import me.fornever.haskeletor.psi.HaskellTypes
 
-class EnterInHaddockHandler extends EnterHandlerDelegateAdapter {
+class EnterInHaddockHandler extends EnterHandlerDelegateAdapter:
 
-  override def preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref[Integer], caretAdvance: Ref[Integer], dataContext: DataContext, originalHandler: EditorActionHandler): Result = {
-    if (!file.isInstanceOf[HaskellFile]) return Result.Continue
+  override def preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref[Integer], caretAdvance: Ref[Integer], dataContext: DataContext, originalHandler: EditorActionHandler): Result =
+    if !file.isInstanceOf[HaskellFile] then return Result.Continue
 
     val document = editor.getDocument
     PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
 
     val result = Option(caretOffset.get()).flatMap(offset => Option(file.findElementAt(offset)).map(element => {
-      if (element.getNode.getElementType == HaskellTypes.HS_HADDOCK) {
+      if element.getNode.getElementType == HaskellTypes.HS_HADDOCK then {
         document.insertString(offset, "-- ")
         caretAdvance.set(3)
         Result.Default
@@ -36,5 +36,3 @@ class EnterInHaddockHandler extends EnterHandlerDelegateAdapter {
       }
     }))
     result.getOrElse(Result.Continue)
-  }
-}

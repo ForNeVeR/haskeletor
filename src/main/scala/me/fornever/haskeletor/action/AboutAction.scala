@@ -25,25 +25,22 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.FutureConverters.CompletionStageOps
 
-class AboutAction extends AnAction {
+class AboutAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableExternalAction(actionEvent, !StackProjectManager.isInitializing(_))
-  }
 
-  private def boldToolName(name: String): String = {
-    if (SystemInfo.isMac) {
+  private def boldToolName(name: String): String =
+    if SystemInfo.isMac then
       s"<b>$name</b>"
-    } else {
+    else
       name
-    }
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     Option(actionEvent.getProject).foreach(project => {
       import scala.concurrent.ExecutionContext.Implicits.global
 
-      val futureResult = for {
+      val futureResult = for
         stack <- StackLocator.getInstance(project).locateStackAsFuture(ProjectScope.get(project)).asScala.map(Option(_))
         command = stack.map(stack => new StackCommand(
           stack,
@@ -52,7 +49,7 @@ class AboutAction extends AnAction {
           false
         ))
         versionOutput <- command.map(_.readOutputAsFuture(ProjectScope.get(project)).asScala.map(Some.apply)).getOrElse(Future.successful(None))
-      } yield versionOutput
+      yield versionOutput
 
       futureResult.foreach { versionOutput =>
         ApplicationManager.getApplication.invokeLater(() => {
@@ -67,12 +64,8 @@ class AboutAction extends AnAction {
         })
       }
     })
-  }
 
-  private def ormoluVersion(project: Project): String = {
-    StackProjectManager.isOrmoluAvailable(project) match {
+  private def ormoluVersion(project: Project): String =
+    StackProjectManager.isOrmoluAvailable(project) match
       case Some(ormoluPath) => CommandLine.run(project, Path.of(ormoluPath), Seq("--version")).getStdout
       case None => "-"
-    }
-  }
-}

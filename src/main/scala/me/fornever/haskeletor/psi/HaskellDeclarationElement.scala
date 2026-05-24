@@ -11,12 +11,10 @@ package me.fornever.haskeletor.psi
 import com.intellij.navigation.NavigationItem
 import me.fornever.haskeletor.psi.impl.HaskellPsiImplUtil
 
-trait HaskellDeclarationElement extends HaskellCompositeElement with NavigationItem {
+trait HaskellDeclarationElement extends HaskellCompositeElement with NavigationItem:
 
   def getIdentifierElements: Iterable[HaskellNamedElement]
 
-  def getModuleName: Option[String] = this match {
+  def getModuleName: Option[String] = this match
     case md: HaskellModuleDeclaration => HaskellPsiImplUtil.getModuleName(md)
     case _ => HaskellPsiImplUtil.getModuleName(this)
-  }
-}

@@ -12,7 +12,7 @@ import fastparse.*
 import fastparse.Parsed.{Failure, Success}
 import fastparse.SingleLineWhitespace.*
 
-object HLintRefactoringsParser {
+object HLintRefactoringsParser:
 
   case class SrcSpan(startLine: Int, startCol: Int, endLine: Int, endCol: Int)
 
@@ -36,10 +36,9 @@ object HLintRefactoringsParser {
   case object Match extends RType
   case object Import extends RType
 
-  def parseRefactoring(hlintOutput: String): Either[String, Refactoring] = parse(hlintOutput, ctx => refactoringParser(using ctx), verboseFailures = true) match {
+  def parseRefactoring(hlintOutput: String): Either[String, Refactoring] = parse(hlintOutput, ctx => refactoringParser(using ctx), verboseFailures = true) match
     case Success(value, _) => Right(value)
     case Failure(label, i, _) => Left(s"Could not parse HLint output | HLintOutput: $hlintOutput | Label: $label | Index: $i")
-  }
 
   @annotation.nowarn
   private inline def refactoringParser(using ctx: P[?]): P[Refactoring] = P("[" ~ (deleteParser | replaceParser | modifyCommentParser | insertCommentParser | removeAsKeywordParser) ~ "]")
@@ -69,7 +68,7 @@ object HLintRefactoringsParser {
 
   private def subtParser(using ctx: P[?]) = P("(" ~ string ~ commaParser ~ srcSpanParser ~ ")")
 
-  private def rtypeParser(using ctx: P[?]): P[RType] = {
+  private def rtypeParser(using ctx: P[?]): P[RType] =
     P(IgnoreCase("Expr")).map(_ => Expr) |
       P(IgnoreCase("Decl")).map(_ => Decl) |
       P(IgnoreCase("Type")).map(_ => Type) |
@@ -79,7 +78,6 @@ object HLintRefactoringsParser {
       P(IgnoreCase("Bind")).map(_ => Bind) |
       P(IgnoreCase("Match")).map(_ => Match) |
       P(IgnoreCase("Import")).map(_ => Import)
-  }
 
   private def stringChars(c: Char) = c != '\"' && c != '\\'
 
@@ -114,4 +112,3 @@ object HLintRefactoringsParser {
       keyDigitsParser("endLine") ~ commaParser ~
       keyDigitsParser("endCol") ~
       "}").map { case (sl, sc, el, ec) => SrcSpan(sl, sc, el, ec) }
-}

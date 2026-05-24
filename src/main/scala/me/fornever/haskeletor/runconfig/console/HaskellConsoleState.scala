@@ -23,45 +23,40 @@ import me.fornever.haskeletor.util.HaskellFileUtil
 
 import java.io.File
 
-class HaskellConsoleState(val configuration: HaskellConsoleConfiguration, val environment: ExecutionEnvironment) extends CommandLineState(environment) {
+class HaskellConsoleState(val configuration: HaskellConsoleConfiguration, val environment: ExecutionEnvironment) extends CommandLineState(environment):
 
-  val consoleBuilder: TextConsoleBuilderImpl = new TextConsoleBuilderImpl(configuration.getProject) {
-    override def getConsole: ConsoleView = {
+  val consoleBuilder: TextConsoleBuilderImpl = new TextConsoleBuilderImpl(configuration.getProject):
+    override def getConsole: ConsoleView =
       new HaskellConsoleView(configuration.getProject, configuration)
-    }
-  }
   setConsoleBuilder(consoleBuilder)
 
-  protected def startProcess: ProcessHandler = {
+  protected def startProcess: ProcessHandler =
     val project = configuration.getProject
 
-    Option(StackLocator.getInstance(project).locateStackBlocking()) match {
+    Option(StackLocator.getInstance(project).locateStackBlocking()) match
       case Some(stackPath) =>
         val stackTarget = configuration.getStackTarget
         val ghcVersion = HaskellComponentsManager.getGhcVersion(project)
         val ghc821Compatible = ghcVersion.exists(_ >= GhcVersion(8, 2, 1))
-        val ghciScriptName = if (ghc821Compatible) "8.2.1.ghci" else "default.ghci"
+        val ghciScriptName = if ghc821Compatible then "8.2.1.ghci" else "default.ghci"
         val ghciScript = new File(GlobalInfo.getHaskeletorDirectory, ghciScriptName)
 
-        if (!ghciScript.exists()) {
+        if !ghciScript.exists() then
           HaskellFileUtil.copyStreamToFile(getClass.getResourceAsStream(s"/ghci/$ghciScriptName"), ghciScript)
           ghciScript.setWritable(true, true)
           FileSystemUtil.removeGroupWritePermission(ghciScript)
-        }
 
         val commandLine = new GeneralCommandLine(stackPath.toString)
           .withParameters(configuration.replCommand, "--ghci-options", s"-ghci-script ${ghciScript.getAbsolutePath}")
           .withWorkDirectory(project.getBasePath)
           .withEnvironment(GlobalInfo.pathVariables)
 
-        if (stackTarget.nonEmpty) {
+        if stackTarget.nonEmpty then
           commandLine.addParameter(stackTarget)
-        }
 
         // Enable color output for GHC versions that support it.
-        if (ghc821Compatible) {
+        if ghc821Compatible then
           commandLine.addParameters("--ghc-options", "-fdiagnostics-color=always")
-        }
 
         commandLine.setRedirectErrorStream(true)
 
@@ -69,6 +64,3 @@ class HaskellConsoleState(val configuration: HaskellConsoleConfiguration, val en
         ProcessTerminatedListener.attach(handler)
         handler
       case None => throw new CantRunException("Invalid Haskell Stack SDK")
-    }
-  }
-}

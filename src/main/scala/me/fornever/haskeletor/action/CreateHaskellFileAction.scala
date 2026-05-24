@@ -25,13 +25,12 @@ import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
 import java.text.ParseException
 import java.util.Properties
 
-object CreateHaskellFileAction {
+object CreateHaskellFileAction:
   private final val HaskellModule = "Haskell Module"
-}
 
-class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskellFileAction.HaskellModule, "", HaskellIcons.HaskellFileLogo) with DumbAware {
+class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskellFileAction.HaskellModule, "", HaskellIcons.HaskellFileLogo) with DumbAware:
 
-  override def buildDialog(project: Project, directory: PsiDirectory, builder: Builder): Unit = {
+  override def buildDialog(project: Project, directory: PsiDirectory, builder: Builder): Unit =
     builder.setTitle(CreateHaskellFileAction.HaskellModule).addKind("Empty module", HaskellIcons.HaskellFileLogo, "Haskell Module").setValidator(new InputValidatorEx {
 
       override def checkInput(inputString: String): Boolean = {
@@ -43,39 +42,37 @@ class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskell
       }
 
       def getErrorText(inputString: String): String = {
-        val checkString = if (inputString.contains(".")) {
+        val checkString = if inputString.contains(".") then {
           inputString.trim.split("\\.").last
         } else {
           inputString
         }
 
-        if (!StringUtil.isCapitalized(checkString)) {
+        if !StringUtil.isCapitalized(checkString) then {
           s"'$inputString' is not a valid Haskell module name"
         } else {
           null
         }
       }
     })
-  }
 
-  override def createFileFromTemplate(fileName: String, template: FileTemplate, fileDir: PsiDirectory): PsiFile = {
+  override def createFileFromTemplate(fileName: String, template: FileTemplate, fileDir: PsiDirectory): PsiFile =
     createFileFromTemplate(fileName, template, fileDir, new Properties())
-  }
 
-  def createFileFromTemplate(fileName: String, template: FileTemplate, fileDir: PsiDirectory, additionalProps: Properties): PsiFile = {
+  def createFileFromTemplate(fileName: String, template: FileTemplate, fileDir: PsiDirectory, additionalProps: Properties): PsiFile =
     val path = HaskellFileUtil.getAbsolutePath(fileDir.getVirtualFile)
     val pathItems = ProjectRootManager.getInstance(fileDir.getProject)
       .getContentSourceRoots
       .map(HaskellFileUtil.getAbsolutePath)
       .find(path.startsWith)
-      .map(s => if (s != path) {
+      .map(s => if s != path then {
         // See https://github.com/rikvdkleij/intellij-haskell/issues/339
         path.replace(s + "/", "").split("/").toList
       } else {
         List()
       })
 
-    val createFileResult = if (fileName.contains(".")) {
+    val createFileResult = if fileName.contains(".") then
       var targetDir = fileDir
       val names = fileName.trim().split("\\.").toList
       val moduleName = names.last
@@ -86,20 +83,17 @@ class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskell
       })
 
       createFileFromTemplate(pathItems.map(_ ++ prefixes), moduleName, template, targetDir, additionalProps)
-    } else {
+    else
       createFileFromTemplate(pathItems, fileName, template, fileDir, additionalProps)
-    }
 
-    createFileResult match {
+    createFileResult match
       case None => null
       case Some((psiFile, moduleName)) =>
         HaskellModuleNameIndex.invalidateModuleName(psiFile.getProject, moduleName)
         psiFile
-    }
-  }
 
-  private def createFileFromTemplate(pathItems: Option[List[String]], fileName: String, template: FileTemplate, fileDir: PsiDirectory, additionalProps: Properties): Option[(PsiFile, String)] = {
-    pathItems match {
+  private def createFileFromTemplate(pathItems: Option[List[String]], fileName: String, template: FileTemplate, fileDir: PsiDirectory, additionalProps: Properties): Option[(PsiFile, String)] =
+    pathItems match
       case None => None
       case Some(items) =>
         // Adapted from super definition.
@@ -108,11 +102,10 @@ class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskell
         val dir = mkdirs.directory
         val project = dir.getProject
 
-        val nameWithmodulePrefix = if (invalidPathItems(items) || items.isEmpty) {
+        val nameWithmodulePrefix = if invalidPathItems(items) || items.isEmpty then
           name
-        } else {
+        else
           items.mkString(".") + "." + name
-        }
 
         // Patch props with custom property.
         val props = FileTemplateManager.getInstance(project).getDefaultProperties()
@@ -122,7 +115,7 @@ class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskell
         val element = FileTemplateUtil.createFromTemplate(template, name, props, dir)
         val psiFile = element.getContainingFile.getOriginalFile
 
-        try {
+        try
           val virtualFile = HaskellFileUtil.findVirtualFile(psiFile)
           virtualFile.foreach(vFile => {
             FileEditorManager.getInstance(project).openFile(vFile, true)
@@ -130,23 +123,17 @@ class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskell
               PropertiesComponent.getInstance(project).setValue(defaultTemplateProperty, template.getName)
             })
           })
-        } catch {
+        catch
           case e: ParseException => Messages.showErrorDialog(project, "Error parsing Haskell Module template: " + e.getMessage, "Create File from Template");
-        }
 
         Some(psiFile, nameWithmodulePrefix)
-    }
-  }
 
   /**
    * Returns true if any directory name starts with a lower case letter.
    */
-  private def invalidPathItems(pathItems: List[String]): Boolean = {
+  private def invalidPathItems(pathItems: List[String]): Boolean =
     pathItems.exists(s => s.isEmpty || !StringUtil.isCapitalized(s.substring(0, 1)))
-  }
 
-  protected def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
+  protected def getActionName(directory: PsiDirectory, newName: String, templateName: String): String =
     CreateHaskellFileAction.HaskellModule
-  }
 
-}

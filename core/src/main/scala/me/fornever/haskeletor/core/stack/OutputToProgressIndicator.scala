@@ -18,7 +18,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 
 class OutputToProgressIndicator(@Nls title: String,
                                 progressIndicator: ProgressIndicator)
-  extends CapturingProcessAdapter() {
+  extends CapturingProcessAdapter():
 
   private val parser = new StackOutputParser()
   parser.event.advise(Lifetime.Companion.getEternal, event => {
@@ -43,15 +43,11 @@ class OutputToProgressIndicator(@Nls title: String,
     kotlin.Unit.INSTANCE
   })
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
-    if (ProcessOutputType.isStderr(outputType)) {
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =
+    if ProcessOutputType.isStderr(outputType) then
       parser.addText(event.getText)
-    }
     super.onTextAvailable(event, outputType)
-  }
 
-  override def processTerminated(event: ProcessEvent): Unit = {
+  override def processTerminated(event: ProcessEvent): Unit =
     parser.finishProcess()
     super.processTerminated(event)
-  }
-}

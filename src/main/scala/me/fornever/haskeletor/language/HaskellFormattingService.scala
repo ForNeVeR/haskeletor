@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import scala.io.Source
 
-final class HaskellFormattingService extends AsyncDocumentFormattingService {
+final class HaskellFormattingService extends AsyncDocumentFormattingService:
 
   override def getFeatures: util.Set[FormattingService.Feature] = util.Collections.emptySet()
 
@@ -36,20 +36,20 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
   override def getName: String = "Ormolu"
 
   override protected def createFormattingTask(formattingRequest: AsyncFormattingRequest): AsyncDocumentFormattingService.FormattingTask =
-    new AsyncDocumentFormattingService.FormattingTask {
+    new AsyncDocumentFormattingService.FormattingTask:
       private val runningFuture = new AtomicReference[CompletableFuture[String]]()
 
-      override def run(): Unit = {
-        val maybeFuture = for {
+      override def run(): Unit =
+        val maybeFuture = for
           ioFile <- Option(formattingRequest.getIOFile)
           future <- reformatFile(formattingRequest.getContext.getProject, ioFile.toPath, formattingRequest)
-        } yield future
+        yield future
 
-        maybeFuture match {
+        maybeFuture match
           case Some(future) =>
             runningFuture.set(future)
             future.whenComplete((formattedText, throwable) => {
-              if (future.isCancelled) {
+              if future.isCancelled then {
                 // Suppress error notification on user-initiated cancellation
                 () // No-op
               } else {
@@ -70,15 +70,12 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
             })
           case None =>
             formattingRequest.onTextReady(null)
-        }
-      }
 
       override def cancel(): Boolean = Option(runningFuture.get()).exists(_.cancel(true))
 
       override def isRunUnderProgress: Boolean = true
-    }
 
-  private def reformatFile(project: Project, file: Path, formattingRequest: AsyncFormattingRequest): Option[CompletableFuture[String]] = {
+  private def reformatFile(project: Project, file: Path, formattingRequest: AsyncFormattingRequest): Option[CompletableFuture[String]] =
     StackProjectManager.isOrmoluAvailable(project).map { ormoluPath =>
       val commandLine = new GeneralCommandLine(
         ormoluPath,
@@ -93,30 +90,26 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
       val processRef = new AtomicReference[Process]()
       val cancelled = new AtomicBoolean(false)
 
-      val future = new CompletableFuture[String]() {
-        override def cancel(mayInterruptIfRunning: Boolean): Boolean = {
+      val future = new CompletableFuture[String]():
+        override def cancel(mayInterruptIfRunning: Boolean): Boolean =
           val wasCancelled = super.cancel(mayInterruptIfRunning)
-          if (wasCancelled) {
+          if wasCancelled then
             cancelled.set(true)
             Option(processRef.get()).foreach { process =>
               process.destroy()
-              if (process.isAlive) {
+              if process.isAlive then
                 process.destroyForcibly()
-              }
             }
-          }
           wasCancelled
-        }
-      }
 
       ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.runnable {
         try {
           val process = commandLine.createProcess()
           processRef.set(process)
 
-          if (future.isCancelled || cancelled.get()) {
+          if future.isCancelled || cancelled.get() then {
             process.destroy()
-            if (process.isAlive) {
+            if process.isAlive then {
               process.destroyForcibly()
             }
           } else {
@@ -131,7 +124,7 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
             val stdout = stdoutFuture.get()
             val stderr = stderrFuture.get()
 
-            if (exitCode == 0) {
+            if exitCode == 0 then {
               future.complete(stdout)
             } else {
               logger.error(
@@ -147,7 +140,7 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
           }
         } catch {
           case e: Throwable =>
-            if (!future.isCancelled && !cancelled.get()) {
+            if !future.isCancelled && !cancelled.get() then {
               future.completeExceptionally(e)
             }
         }
@@ -155,11 +148,10 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
 
       future
     }
-  }
 
   private val logger = Logger.getInstance(getClass)
 
-  private def readStream(stream: InputStream, formattingRequest: AsyncFormattingRequest): String = {
+  private def readStream(stream: InputStream, formattingRequest: AsyncFormattingRequest): String =
     val charset = Option(formattingRequest.getIOFile)
       .flatMap(f => HaskellFileUtil.findVirtualFile(formattingRequest.getContext.getProject, f.getAbsolutePath))
       .flatMap(vf => Option(vf.getCharset))
@@ -167,5 +159,3 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService {
     val source = Source.fromInputStream(stream, charset.name())
     try source.mkString
     finally source.close()
-  }
-}

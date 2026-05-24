@@ -11,10 +11,10 @@ package me.fornever.haskeletor.highlighter
 import com.intellij.lang.{BracePair, PairedBraceMatcher}
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IElementType
-import me.fornever.haskeletor.HaskellParserDefinition._
-import me.fornever.haskeletor.psi.HaskellTypes._
+import me.fornever.haskeletor.HaskellParserDefinition.*
+import me.fornever.haskeletor.psi.HaskellTypes.*
 
-object HaskellBraceMatcher {
+object HaskellBraceMatcher:
 
 
   private final val PAIRS = Array(
@@ -23,16 +23,12 @@ object HaskellBraceMatcher {
     new BracePair(HS_LEFT_BRACE, HS_RIGHT_BRACE, true),
     new BracePair(HS_LEFT_BRACKET, HS_RIGHT_BRACKET, true)
   )
-}
 
-class HaskellBraceMatcher extends PairedBraceMatcher {
+class HaskellBraceMatcher extends PairedBraceMatcher:
   def getPairs: Array[BracePair] = HaskellBraceMatcher.PAIRS
 
-  def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType): Boolean = {
+  def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType): Boolean =
     !Ids.contains(contextType) && !Literals.contains(contextType) && contextType != HS_LEFT_PAREN && contextType != HS_LEFT_BRACE && contextType != HS_LEFT_BRACKET
-  }
 
-  def getCodeConstructStart(file: PsiFile, openingBraceOffset: Int): Int = {
+  def getCodeConstructStart(file: PsiFile, openingBraceOffset: Int): Int =
     openingBraceOffset
-  }
-}

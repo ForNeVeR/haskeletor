@@ -15,30 +15,24 @@ import me.fornever.haskeletor.util.HaskellEditorUtil
 
 import java.util
 import scala.collection.mutable.ListBuffer
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-class HaskellTargetElementUtil extends TargetElementUtil {
+class HaskellTargetElementUtil extends TargetElementUtil:
 
-  override def getTargetCandidates(reference: PsiReference): util.Collection[PsiElement] = {
-    reference match {
+  override def getTargetCandidates(reference: PsiReference): util.Collection[PsiElement] =
+    reference match
       case reference: HaskellReference =>
         val resolveResults = reference.multiResolve(false)
         val navigatableResults = ListBuffer[PsiElement]()
 
-        for (r <- resolveResults) {
-          r match {
+        for r <- resolveResults do
+          r match
             case NoResolveResult(noInfo) =>
-              noInfo match {
+              noInfo match
                 case NoInfoAvailable(_, _, _) => ()
                 case ni => HaskellEditorUtil.showStatusBarMessage(reference.getElement.getProject, s"Navigation is not available at this moment: ${ni.message}")
-              }
             case _ =>
               val element = r.getElement
-              if (isNavigatableSource(element)) navigatableResults.append(element)
-          }
-        }
+              if isNavigatableSource(element) then navigatableResults.append(element)
         navigatableResults.asJava
       case _ => super.getTargetCandidates(reference)
-    }
-  }
-}

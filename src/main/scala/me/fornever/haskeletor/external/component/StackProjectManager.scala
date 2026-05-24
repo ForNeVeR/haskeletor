@@ -27,100 +27,83 @@ import me.fornever.haskeletor.external.repl.StackRepl.LibType
 import me.fornever.haskeletor.external.repl.StackReplsManager
 import me.fornever.haskeletor.notification.ConfigFileWatcher
 import me.fornever.haskeletor.projectmodel.{HaskellProjectInitializer, HaskellProjectManager}
-import me.fornever.haskeletor.psi.HaskellPsiExtensions._
+import me.fornever.haskeletor.psi.HaskellPsiExtensions.*
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.psi.stubs.types.HaskellFileElementType
 import me.fornever.haskeletor.settings.HTool.{Hlint, Hoogle, Ormolu}
 import me.fornever.haskeletor.settings.{GlobalInfo, HTool, HaskellSettingsState}
 import me.fornever.haskeletor.stack.{HaskellToolInstaller, StackBuilder}
 import me.fornever.haskeletor.stackyaml.StackYamlComponent
-import me.fornever.haskeletor.util._
+import me.fornever.haskeletor.util.*
 import me.fornever.haskeletor.util.index.{HaskellFileIndex, HaskellModuleNameIndex}
 
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
-object StackProjectManager {
+object StackProjectManager:
 
   def getInstance(project: Project): StackProjectManager =
     project.getService(classOf[HaskellProjectInitializer]).asInstanceOf[StackProjectManager]
 
-  import me.fornever.haskeletor.util.ScalaUtil._
+  import me.fornever.haskeletor.util.ScalaUtil.*
 
-  def isInitializing(project: Project): Boolean = {
+  def isInitializing(project: Project): Boolean =
     getStackProjectManager(project).exists(_.initializing)
-  }
 
-  def isHoogleAvailable(project: Project): Option[String] = {
+  def isHoogleAvailable(project: Project): Option[String] =
     getStackProjectManager(project).flatMap(_.hoogleAvailable)
-  }
 
-  def isHlintAvailable(project: Project): Option[String] = {
+  def isHlintAvailable(project: Project): Option[String] =
     getStackProjectManager(project).flatMap(_.hlintAvailable)
-  }
 
-  def isOrmoluAvailable(project: Project): Option[String] = {
+  def isOrmoluAvailable(project: Project): Option[String] =
     getStackProjectManager(project).flatMap(_.ormoluAvailable)
-  }
 
-  def isInstallingHaskellTools(project: Project): Boolean = {
+  def isInstallingHaskellTools(project: Project): Boolean =
     getStackProjectManager(project).exists(_.installingHaskellTools)
-  }
 
-  def isHaddockBuilding(project: Project): Boolean = {
+  def isHaddockBuilding(project: Project): Boolean =
     getStackProjectManager(project).exists(_.haddockBuilding)
-  }
 
-  def setHaddockBuilding(project: Project, state: Boolean): Unit = {
+  def setHaddockBuilding(project: Project, state: Boolean): Unit =
     getStackProjectManager(project).foreach(_.haddockBuilding = state)
-  }
 
-  def isPreloadingAllLibraryIdentifiers(project: Project): Boolean = {
+  def isPreloadingAllLibraryIdentifiers(project: Project): Boolean =
     getStackProjectManager(project).exists(_.preloadingAllLibraryIdentifiers)
-  }
 
-  private def start(project: Project, workingDirectory: Path, lifetime: Lifetime): Unit = {
+  private def start(project: Project, workingDirectory: Path, lifetime: Lifetime): Unit =
     init(project, workingDirectory, lifetime)
-  }
 
-  private def restart(project: Project, lifetime: Lifetime): Unit = {
+  private def restart(project: Project, lifetime: Lifetime): Unit =
     HaskellFileUtil.saveFiles(project)
 
     val workingDirectory = findWorkingDirectory(project)
-    if (workingDirectory.isEmpty) {
+    if workingDirectory.isEmpty then
       logger.error("Stack working directory cannot be determined for project " + project.getName)
       return
-    }
     init(project, workingDirectory.get, lifetime, restart = true)
-  }
 
-  def getStackProjectManager(project: Project): Option[StackProjectManager] = {
+  def getStackProjectManager(project: Project): Option[StackProjectManager] =
     project.isDisposed.optionNot(getInstance(project))
-  }
 
-  def launchInstallHaskellTools(project: Project, update: Boolean): Unit = {
+  def launchInstallHaskellTools(project: Project, update: Boolean): Unit =
     getStackProjectManager(project).foreach(_.installingHaskellTools = true)
 
-    def isToolAvailable(tool: HTool) = {
-      if (HaskellSettingsState.useCustomTools) {
-        tool match {
+    def isToolAvailable(tool: HTool) =
+      if HaskellSettingsState.useCustomTools then
+        tool match
           case Hlint => HaskellSettingsState.hlintPath
           case Hoogle => HaskellSettingsState.hooglePath
           case Ormolu => HaskellSettingsState.ormoluPath
-        }
-      } else {
-        if (GlobalInfo.toolPath(tool).exists()) {
+      else
+        if GlobalInfo.toolPath(tool).exists() then
           Some(GlobalInfo.toolPath(tool).getAbsolutePath)
-        } else {
+        else
           None
-        }
-      }
-    }
 
-    def isHLintInstalled: Boolean = {
+    def isHLintInstalled: Boolean =
       GlobalInfo.toolPath(HTool.Hlint).exists()
-    }
 
     val forceMakeChanges = update || !isHLintInstalled
     val useSystemGhc = !StackYamlComponent.isNixEnabled(project) && HaskellSettingsState.useSystemGhc
@@ -139,35 +122,30 @@ object StackProjectManager {
         },
         () => getStackProjectManager(project).foreach(_.installingHaskellTools = false)
       )
-  }
 
-  private def ghcOptions(project: Project) = {
-    if (HaskellProjectUtil.setNoDiagnosticsShowCaretFlag(project)) {
+  private def ghcOptions(project: Project) =
+    if HaskellProjectUtil.setNoDiagnosticsShowCaretFlag(project) then
       Seq("--ghc-options", "-fno-diagnostics-show-caret")
-    } else {
+    else
       Seq()
-    }
-  }
 
-  private def init(project: Project, workingDirectory: Path, lifetime: Lifetime, restart: Boolean = false): Unit = {
+  private def init(project: Project, workingDirectory: Path, lifetime: Lifetime, restart: Boolean = false): Unit =
     val haskellProjectManager = HaskellProjectManager.getInstance(project)
-    if (haskellProjectManager.isHaskellProject.getValueOrNull == true) {
-      if (isInitializing(project)) {
+    if haskellProjectManager.isHaskellProject.getValueOrNull == true then
+      if isInitializing(project) then
         HaskellNotificationGroup.logWarningBalloonEvent(project, "Action not possible whilst project is initializing")
-      } else {
+      else
         getStackProjectManager(project).foreach(_.initializing = true)
-        if (restart) {
+        if restart then
           HaskellNotificationGroup.logInfoEvent(project, "Restarting Haskell project")
-        } else {
+        else
           HaskellNotificationGroup.logInfoEvent(project, "Initializing Haskell project")
-        }
 
-        if (getStackProjectManager(project).exists(_.installingHaskellTools == false)) {
+        if getStackProjectManager(project).exists(_.installingHaskellTools == false) then
           getStackProjectManager(project).foreach(_.hlintAvailable = None)
           getStackProjectManager(project).foreach(_.hoogleAvailable = None)
           getStackProjectManager(project).foreach(_.ormoluAvailable = None)
           launchInstallHaskellTools(project, update = false)
-        }
 
         StackBuilder.getInstance(project).launchBuildWorkflow(
           workingDirectory,
@@ -178,7 +156,7 @@ object StackProjectManager {
           () => ghcOptions(project).asJava,
           (progressIndicator: ProgressIndicator) => {
             try {
-              if (restart) {
+              if restart then {
                 val projectRepls = StackReplsManager.getRunningProjectRepls(project)
                 progressIndicator.setText("Busy stopping REPLs")
                 StackReplsManager.getGlobalRepl(project).foreach(_.exit())
@@ -204,7 +182,7 @@ object StackProjectManager {
                 })
 
                 val projectFiles = ApplicationUtil.runReadActionWithFileAccess(project,
-                  if (project.isDisposed) {
+                  if project.isDisposed then {
                     Iterable()
                   } else {
                     HaskellFileIndex.findProjectHaskellFiles(project)
@@ -249,19 +227,19 @@ object StackProjectManager {
 
               progressIndicator.setText("Busy preloading library identifiers")
               val preloadLibraryIdentifiersCacheFuture = ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.runnable {
-                if (!project.isDisposed) {
+                if !project.isDisposed then {
                   HaskellComponentsManager.preloadLibraryIdentifiersCaches(project)
                 }
               })
 
               progressIndicator.setText("Busy preloading all library identifiers")
               ApplicationManager.getApplication.executeOnPooledThread(ScalaUtil.runnable {
-                if (!project.isDisposed) {
+                if !project.isDisposed then {
                   getStackProjectManager(project).foreach(_.preloadingAllLibraryIdentifiers = true)
                   try {
                     HaskellComponentsManager.preloadAllLibraryIdentifiersCaches(project)
 
-                    if (!project.isDisposed) {
+                    if !project.isDisposed then {
                       HaskellNotificationGroup.logInfoEvent(project, "Restarting global REPL to release memory")
                       StackReplsManager.getGlobalRepl(project).foreach(_.restart())
                     }
@@ -271,7 +249,7 @@ object StackProjectManager {
                 }
               })
 
-              if (!project.isDisposed) {
+              if !project.isDisposed then {
                 val messageBus = project.getMessageBus
                 val notifications = EditorNotifications.getInstance(project)
                 messageBus.connect().subscribe(VirtualFileManager.VFS_CHANGES, new ConfigFileWatcher(project, notifications))
@@ -291,9 +269,9 @@ object StackProjectManager {
               PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter {
 
                 private def invalidateInfo(event: PsiTreeChangeEvent): Unit = {
-                  if (Option(event.getParent).flatMap(p => Option(p.getNode)).exists(_.getElementType != HaskellFileElementType.Instance) || Option(event.getNewChild).isDefined) {
+                  if Option(event.getParent).flatMap(p => Option(p.getNode)).exists(_.getElementType != HaskellFileElementType.Instance) || Option(event.getNewChild).isDefined then {
                     Option(event.getFile).foreach(f => {
-                      if (Option(event.getNewChild).orElse(Option(event.getParent)).flatMap(HaskellPsiUtil.findImportDeclarations).isDefined) {
+                      if Option(event.getNewChild).orElse(Option(event.getParent)).flatMap(HaskellPsiUtil.findImportDeclarations).isDefined then {
                         // Have to refresh because import declarations can be changed
                         FileModuleIdentifiers.refresh(f)
                       }
@@ -318,7 +296,7 @@ object StackProjectManager {
               ))
 
               progressIndicator.setText("Busy preloading caches")
-              if (!preloadStackComponentInfoCache.isDone || !preloadLibraryIdentifiersCacheFuture.isDone || !replsLoad.isDone) {
+              if !preloadStackComponentInfoCache.isDone || !preloadLibraryIdentifiersCacheFuture.isDone || !replsLoad.isDone then {
                 FutureUtil.waitForValue(project, preloadStackComponentInfoCache, "preloading project cache", 600)
                 FutureUtil.waitForValue(project, preloadLibraryIdentifiersCacheFuture, "preloading library identifiers caches", 600)
                 FutureUtil.waitForValue(project, replsLoad, "starting and loading REPLs", 600)
@@ -334,13 +312,13 @@ object StackProjectManager {
               HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
             }
 
-            if (!HoogleComponent.doesHoogleDatabaseExist(project)) {
+            if !HoogleComponent.doesHoogleDatabaseExist(project) then {
               HoogleComponent.showHoogleDatabaseDoesNotExistNotification(project)
             }
 
             StackReplsManager.getReplsManager(project).foreach(_.modulePackageInfos.foreach { case (cabalInfo) =>
               val intersection = cabalInfo.sourceRoots.toSeq.intersect(cabalInfo.testSourceRoots.toSeq)
-              if (intersection.nonEmpty) {
+              if intersection.nonEmpty then {
                 intersection.foreach(p => {
                   HaskellNotificationGroup.logWarningBalloonEvent(project, s"Source folder `$p` is defined both as Source and Test Source")
                 })
@@ -349,17 +327,14 @@ object StackProjectManager {
             HaskellNotificationGroup.logInfoEvent(project, "Finished initializing Haskell project")
           }
         )
-      }
-    }
-  }
 
-  def findWorkingDirectory(project: Project): Option[Path] = {
+  def findWorkingDirectory(project: Project): Option[Path] =
     val stackFiles = HaskellProjectManager.getInstance(project).findStackFiles().asScala
     val workingDirectories = stackFiles
       .flatMap(it => Option(it.getParent))
       .distinct
       .toIndexedSeq
-    workingDirectories.size match {
+    workingDirectories.size match
       case 0 =>
         StackProjectManager.logger.warn("Stack working directory cannot be determined for project " + project.getName)
         None
@@ -370,13 +345,10 @@ object StackProjectManager {
             s" ${workingDirectories.mkString(", ")}"
         )
         Some(workingDirectories.head)
-    }
-  }
 
   private val logger = Logger.getInstance(this.getClass)
-}
 
-final class StackProjectManager(project: Project) extends HaskellProjectInitializer with Disposable {
+final class StackProjectManager(project: Project) extends HaskellProjectInitializer with Disposable:
 
   @volatile
   private var initializing = false
@@ -408,19 +380,17 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
   private def lifetime = lifetimeDefinition.getLifetime
   private val currentSessionLifetime = new SequentialLifetimes(lifetime)
 
-  def getStackReplsManager: Option[StackReplsManager] = {
+  def getStackReplsManager: Option[StackReplsManager] =
     replsManager
-  }
 
-  private def initStackReplsManager(workingDirectory: Path): Unit = {
+  private def initStackReplsManager(workingDirectory: Path): Unit =
     replsManager = Option(new StackReplsManager(project, workingDirectory))
-  }
 
   private val initialized = new AtomicBoolean()
 
-  override def projectOpened(): Unit = {
+  override def projectOpened(): Unit =
     HaskellProjectManager.getInstance(project).isHaskellProject.advise(lifetime, isHaskellProject => {
-      if (isHaskellProject && initialized.compareAndSet(false, true)) {
+      if isHaskellProject && initialized.compareAndSet(false, true) then {
         ApplicationManager.getApplication.invokeLater(() => {
           initializeOnce()
         })
@@ -428,37 +398,29 @@ final class StackProjectManager(project: Project) extends HaskellProjectInitiali
 
       kotlin.Unit.INSTANCE
     })
-  }
 
-  def restart(): Unit = {
+  def restart(): Unit =
     StackProjectManager.restart(project, currentSessionLifetime.next().getLifetime)
-  }
 
-  private def initializeOnce(): Unit = {
-    StackProjectManager.findWorkingDirectory(project) match {
+  private def initializeOnce(): Unit =
+    StackProjectManager.findWorkingDirectory(project) match
       case Some(workingDirectory) =>
         initStackReplsManager(workingDirectory)
-        if (replsManager.exists(_.componentTargets.isEmpty)) {
+        if replsManager.exists(_.componentTargets.isEmpty) then
           Messages.showErrorDialog(
             project,
             s"Can't start project as no Cabal file was found (or could not be read)",
             "Can't start project"
           )
-        } else {
+        else
           StackProjectManager.start(project, workingDirectory, currentSessionLifetime.next().getLifetime)
-        }
       case None =>
-    }
-  }
 
-  override def dispose(): Unit = {
+  override def dispose(): Unit =
     lifetimeDefinition.terminate(true)
-    if (initialized.get()) {
+    if initialized.get() then
       replsManager.foreach(_.getGlobalRepl.exit())
       replsManager.foreach(_.getGlobalRepl2.exit())
       replsManager.foreach(_.getRunningProjectRepls.foreach(_.exit()))
       HaskellComponentsManager.invalidateGlobalCaches(project)
-    }
-  }
 
-}

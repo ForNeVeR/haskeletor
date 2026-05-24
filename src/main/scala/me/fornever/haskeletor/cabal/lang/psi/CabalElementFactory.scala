@@ -9,10 +9,10 @@
 package me.fornever.haskeletor.cabal.lang.psi
 
 import com.intellij.lang.ASTNode
-import me.fornever.haskeletor.cabal.lang.psi.CabalTypes._
+import me.fornever.haskeletor.cabal.lang.psi.CabalTypes.*
 
-object CabalElementFactory {
-  def createElement(node: ASTNode): CabalCompositeElement = node.getElementType match {
+object CabalElementFactory:
+  def createElement(node: ASTNode): CabalCompositeElement = node.getElementType match
     case INVALID_FIELD => new InvalidField(node)
     case UNKNOWN_FIELD => new UnknownField(node)
     case CUSTOM_FIELD => new CustomField(node)
@@ -123,5 +123,3 @@ object CabalElementFactory {
     case BOOL_LIT => new BoolValue(node)
 
     case other => throw new AssertionError("Unexpected element type: " + other)
-  }
-}

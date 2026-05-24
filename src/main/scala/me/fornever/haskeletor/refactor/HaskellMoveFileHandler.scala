@@ -18,24 +18,20 @@ import me.fornever.haskeletor.psi.HaskellPsiUtil
 
 import java.util
 
-class HaskellMoveFileHandler extends MoveFileHandler {
+class HaskellMoveFileHandler extends MoveFileHandler:
   override def prepareMovedFile(file: PsiFile, moveDestination: PsiDirectory, oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {}
 
   override def retargetUsages(usageInfos: util.List[? <: UsageInfo], oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {}
 
-  override def canProcessElement(psiFile: PsiFile): Boolean = {
+  override def canProcessElement(psiFile: PsiFile): Boolean =
     psiFile.isInstanceOf[HaskellFile]
-  }
 
-  override def findUsages(psiFile: PsiFile, newParent: PsiDirectory, searchInComments: Boolean, searchInNonJavaFiles: Boolean): util.List[UsageInfo] = {
+  override def findUsages(psiFile: PsiFile, newParent: PsiDirectory, searchInComments: Boolean, searchInNonJavaFiles: Boolean): util.List[UsageInfo] =
     java.util.Collections.emptyList()
-  }
 
-  override def updateMovedFile(psiFile: PsiFile): Unit = {
+  override def updateMovedFile(psiFile: PsiFile): Unit =
     HaskellPsiUtil.invalidateModuleName(psiFile)
     HaskellComponentsManager.clearLoadedModule(psiFile)
     HaskellComponentsManager.invalidateFileInfos(psiFile)
     HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
-  }
 
-}

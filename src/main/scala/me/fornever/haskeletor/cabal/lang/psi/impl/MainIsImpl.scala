@@ -12,9 +12,7 @@ import com.intellij.psi.PsiElement
 import me.fornever.haskeletor.cabal.lang.psi.CabalTypes
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 
-trait MainIsImpl extends PsiElement {
+trait MainIsImpl extends PsiElement:
 
-  def getValue: Option[String] = {
+  def getValue: Option[String] =
     HaskellPsiUtil.getChildNodes(this, CabalTypes.FREEFORM).headOption.map(_.getText)
-  }
-}

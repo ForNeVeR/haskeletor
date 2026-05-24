@@ -12,13 +12,10 @@ import com.intellij.psi.tree.IElementType
 import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.{NonNls, NotNull}
 
-class HaskellTokenType(@NotNull @NonNls debugName: String) extends IElementType(debugName, HaskellLanguage.Instance) {
+class HaskellTokenType(@NotNull @NonNls debugName: String) extends IElementType(debugName, HaskellLanguage.Instance):
 
-  override def toString: String = {
+  override def toString: String =
     "HaskellTokenType." + super.toString
-  }
 
-  def getName: String = {
+  def getName: String =
     super.toString.toLowerCase
-  }
-}

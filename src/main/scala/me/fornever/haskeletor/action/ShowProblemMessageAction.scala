@@ -12,15 +12,14 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class ShowProblemMessageAction extends AnAction {
+class ShowProblemMessageAction extends AnAction:
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableAction(onlyForSourceFile = true, actionEvent)
-  }
 
-  override def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  override def actionPerformed(actionEvent: AnActionEvent): Unit =
     ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
       val project = actionContext.project
       val editor = actionContext.editor
@@ -29,5 +28,3 @@ class ShowProblemMessageAction extends AnAction {
         HaskellEditorUtil.showHint(editor, info)
       })
     })
-  }
-}

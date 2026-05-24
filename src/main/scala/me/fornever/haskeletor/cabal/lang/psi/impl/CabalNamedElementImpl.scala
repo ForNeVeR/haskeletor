@@ -11,13 +11,11 @@ package me.fornever.haskeletor.cabal.lang.psi.impl
 import com.intellij.psi.{PsiElement, PsiReference}
 import me.fornever.haskeletor.cabal.lang.psi.{CabalNamedElement, CabalReference}
 
-trait CabalNamedElementImpl extends CabalNamedElement {
+trait CabalNamedElementImpl extends CabalNamedElement:
 
   def getVariants: Array[AnyRef]
 
   def resolve(): Option[PsiElement]
 
-  override def getReference: PsiReference = {
+  override def getReference: PsiReference =
     new CabalReference(this, getTextRange)
-  }
-}

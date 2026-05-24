@@ -15,16 +15,12 @@ import me.fornever.haskeletor.psi.HaskellStringLiteralElement
 abstract class HaskellStringLiteralElementImpl private[impl](node: ASTNode)
   extends HaskellCompositeElementImpl(node)
     with HaskellStringLiteralElement
-    with PsiLanguageInjectionHost {
-  override def isValidHost: Boolean = {
+    with PsiLanguageInjectionHost:
+  override def isValidHost: Boolean =
     true
-  }
 
-  override def updateText(text: String): HaskellStringLiteralElementImpl = {
+  override def updateText(text: String): HaskellStringLiteralElementImpl =
     ElementManipulators.handleContentChange(this, text)
-  }
 
-  override def createLiteralTextEscaper(): LiteralTextEscaper[HaskellStringLiteralElementImpl] = {
+  override def createLiteralTextEscaper(): LiteralTextEscaper[HaskellStringLiteralElementImpl] =
     new HaskellStringEscaper(this)
-  }
-}

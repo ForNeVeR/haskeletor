@@ -22,48 +22,41 @@ import com.intellij.util.ui.UIUtil.FontSize
 import me.fornever.haskeletor.HaskellFile
 
 import java.awt.event.{MouseEvent, MouseMotionAdapter}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object HaskellEditorUtil {
+object HaskellEditorUtil:
 
   final val HaskellSupportIsNotAvailableWhileInitializingText = "Haskell support is not available while project is initializing"
 
-  def enableExternalAction(actionEvent: AnActionEvent, enableCondition: Project => Boolean): Unit = {
-    Option(actionEvent.getProject) match {
+  def enableExternalAction(actionEvent: AnActionEvent, enableCondition: Project => Boolean): Unit =
+    Option(actionEvent.getProject) match
       case Some(project) if HaskellProjectUtil.isHaskellProject(project) =>
         actionEvent.getPresentation.setVisible(true)
         actionEvent.getPresentation.setEnabled(HaskellProjectUtil.isHaskellProject(project) && enableCondition(project))
       case _ => actionEvent.getPresentation.setEnabledAndVisible(false)
-    }
-  }
 
-  def enableAction(onlyForSourceFile: Boolean, actionEvent: AnActionEvent): Unit = {
+  def enableAction(onlyForSourceFile: Boolean, actionEvent: AnActionEvent): Unit =
     val presentation = actionEvent.getPresentation
 
-    def enable(): Unit = {
+    def enable(): Unit =
       presentation.setEnabled(true)
       presentation.setVisible(true)
-    }
 
-    def disable(): Unit = {
+    def disable(): Unit =
       presentation.setEnabled(false)
       presentation.setVisible(false)
-    }
 
     val dataContext = actionEvent.getDataContext
     val psiFile = Option(CommonDataKeys.PSI_FILE.getData(dataContext))
-    psiFile match {
+    psiFile match
       case Some(psiFile: HaskellFile) if HaskellProjectUtil.isHaskellProject(psiFile.getProject) =>
-        if (!onlyForSourceFile || HaskellProjectUtil.isSourceFile(psiFile)) {
+        if !onlyForSourceFile || HaskellProjectUtil.isSourceFile(psiFile) then
           enable()
-        } else {
+        else
           disable()
-        }
       case _ => disable()
-    }
-  }
 
-  def showHint(editor: Editor, @HintText text: String, sticky: Boolean = false): Unit = {
+  def showHint(editor: Editor, @HintText text: String, sticky: Boolean = false): Unit =
     val label = HintUtil.createInformationLabel(text)
     label.setFont(UIUtil.getLabelFont(FontSize.NORMAL))
 
@@ -80,16 +73,14 @@ object HaskellEditorUtil {
     val point = HintManagerImpl.getHintPosition(hint, editor, position, HintManager.ABOVE)
     val hintHint = HintManagerImpl.createHintHint(editor, point, hint, HintManager.ABOVE).setExplicitClose(sticky)
 
-    val hideFlags = if (sticky) {
+    val hideFlags = if sticky then
       HintManager.HIDE_BY_ESCAPE
-    } else {
+    else
       HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING
-    }
 
     hintManager.showEditorHint(hint, editor, point, hideFlags, 0, false, hintHint)
-  }
 
-  def showList(messages: Seq[String], editor: Editor): Unit = {
+  def showList(messages: Seq[String], editor: Editor): Unit =
     UIUtil.invokeLaterIfNeeded(() => {
       val listPopupStep: BaseListPopupStep[String] = new BaseListPopupStep[String]("info", messages.asJava) {
         override def isSpeedSearchEnabled: Boolean = true
@@ -97,16 +88,12 @@ object HaskellEditorUtil {
       val listPopup = JBPopupFactory.getInstance().createListPopup(listPopupStep)
       listPopup.showInBestPositionFor(editor)
     })
-  }
 
-  def showStatusBarMessage(project: Project, message: String): Unit = {
-    for {
+  def showStatusBarMessage(project: Project, message: String): Unit =
+    for
       wm <- Option(WindowManager.getInstance())
       sb <- Option(wm.getStatusBar(project))
-    } yield sb.setInfo(message)
-  }
+    yield sb.setInfo(message)
 
-  def showHaskellSupportIsNotAvailableWhileInitializing(project: Project): Unit = {
+  def showHaskellSupportIsNotAvailableWhileInitializing(project: Project): Unit =
     HaskellEditorUtil.showStatusBarMessage(project, HaskellSupportIsNotAvailableWhileInitializingText)
-  }
-}

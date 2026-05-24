@@ -26,17 +26,15 @@ import scala.jdk.CollectionConverters.*
 /**
   * Notice that Haskell modules in libraries can be found which are not exposed
   */
-object HaskellModuleNameIndex {
+object HaskellModuleNameIndex:
   private val HaskellModuleNameIndex: ID[String, Unit] = ID.create("HaskellModuleNameIndex")
   private val IndexVersion = 2
   private val KeyDescriptor = new EnumeratorStringDescriptor
 
-  private val HaskellFileFilter = new FileBasedIndex.InputFilter() {
+  private val HaskellFileFilter = new FileBasedIndex.InputFilter():
 
-    override def acceptInput(file: VirtualFile): Boolean = {
+    override def acceptInput(file: VirtualFile): Boolean =
       file.getFileType == HaskellFileType.INSTANCE
-    }
-  }
 
   private case class Key(project: Project, moduleName: String)
 
@@ -44,26 +42,22 @@ object HaskellModuleNameIndex {
 
   private final val Cache: LoadingCache[Key, Result] = Scaffeine().build((k: Key) => find(k))
 
-  private def find(key: Key): Either[NoInfo, Seq[(PsiFile, Boolean)]] = {
+  private def find(key: Key): Either[NoInfo, Seq[(PsiFile, Boolean)]] =
     val project = key.project
-    findFiles(project, key.moduleName) match {
+    findFiles(project, key.moduleName) match
       case Right(virtualFiles) =>
-        if (ApplicationUtil.isBlockingReadAccessAllowed) {
+        if ApplicationUtil.isBlockingReadAccessAllowed then
           Right(virtualFiles.flatMap { case (vf, isPf) => PsiFileUtil.convertToHaskellFileDispatchThread(project, vf).map((_, isPf)).toSeq })
-        } else {
+        else
           val psiFiles = virtualFiles.map { case (vf, isPf) => (HaskellFileUtil.convertToHaskellFileInReadAction(project, vf), isPf) }
-          if (psiFiles.exists(_._1.isLeft)) {
+          if psiFiles.exists(_._1.isLeft) then
             Left(ReadActionTimeout("Read action timeout while converting virtual files to psi files"))
-          } else {
+          else
             Right(psiFiles.flatMap { case (pf, isPf) => pf.toSeq.map((_, isPf)) })
-          }
-        }
       case Left(noInfo) =>
         Left(noInfo)
-    }
-  }
 
-  def fillCache(project: Project, moduleNames: Iterable[String]): Unit = {
+  def fillCache(project: Project, moduleNames: Iterable[String]): Unit =
     moduleNames.foreach(mn => {
       val key = Key(project, mn)
       find(key) match {
@@ -71,11 +65,9 @@ object HaskellModuleNameIndex {
         case _ => ()
       }
     })
-  }
 
-  def findFilesByModuleName(project: Project, moduleName: String): Either[NoInfo, Seq[PsiFile]] = {
+  def findFilesByModuleName(project: Project, moduleName: String): Either[NoInfo, Seq[PsiFile]] =
     findFilesByModuleName2(project, moduleName).map(_.map(_._1))
-  }
 
   type isProjectFile = Boolean
 
@@ -83,42 +75,36 @@ object HaskellModuleNameIndex {
   // This makes the UI unresponsive if the module can not be found while user is still typing the module name.
   // So it seems to be not the right solution to do the searching in UI thread because cache can not set before new request comes in.
   // So using Cache is solution because Cache.get blocks next request for same key while busy.
-  def findFilesByModuleName2(project: Project, moduleName: String): Either[NoInfo, Seq[(PsiFile, isProjectFile)]] = {
+  def findFilesByModuleName2(project: Project, moduleName: String): Either[NoInfo, Seq[(PsiFile, isProjectFile)]] =
     val key = Key(project, moduleName)
     val result = Cache.get(key)
-    result match {
+    result match
       case Right(_) => result
       case Left(_) =>
         // No invalidate here to prevent UI becomes unresponsive after many calls for same module name which module does not exists
         // In LoadComponent the "not found" entries will be invalidated eventually
         result
-    }
-  }
 
-  def invalidateNotFoundEntries(project: Project): Unit = {
+  def invalidateNotFoundEntries(project: Project): Unit =
     val keys = Cache.asMap().filter { case (k, v) => k.project == project && (v.isLeft || v.exists(_.isEmpty)) }.keys
     Cache.invalidateAll(keys)
-  }
 
-  def invalidate(project: Project): Unit = {
+  def invalidate(project: Project): Unit =
     val keys = Cache.asMap().keys.filter(_.project == project)
     keys.foreach(Cache.invalidate)
-  }
 
-  def invalidateModuleName(project: Project, moduleName: String): Unit = {
+  def invalidateModuleName(project: Project, moduleName: String): Unit =
     Cache.invalidate(Key(project, moduleName))
-  }
 
-  private def findFiles(project: Project, moduleName: String): Either[NoInfo, Seq[(VirtualFile, Boolean)]] = {
-    if (moduleName == HaskellProjectUtil.Prelude) {
+  private def findFiles(project: Project, moduleName: String): Either[NoInfo, Seq[(VirtualFile, Boolean)]] =
+    if moduleName == HaskellProjectUtil.Prelude then
       Right(Seq())
-    } else {
-      val adaptedModuleName = if (moduleName == "System.FilePath") {
+    else
+      val adaptedModuleName = if moduleName == "System.FilePath" then
         // Workaround for "include" construction in module System.FilePath
         "System.FilePath.MODULE_NAME"
-      } else {
+      else
         moduleName
-      }
 
       val files = ApplicationUtil.runReadActionWithFileAccess(
         project, {
@@ -131,18 +117,14 @@ object HaskellModuleNameIndex {
         s"finding file for module $adaptedModuleName by index"
       )
 
-      files match {
+      files match
         case Left(noInfo) => Left(noInfo)
         case Right(Some(vfs)) =>
           Right(vfs.map(f => (f, HaskellProjectUtil.isSourceFile(project, f))).sortBy(!_._2))
         case Right(None) => Left(IndexNotReady)
-      }
 
-    }
-  }
-}
 
-class HaskellModuleNameIndex extends ScalaScalarIndexExtension[String] {
+class HaskellModuleNameIndex extends ScalaScalarIndexExtension[String]:
 
   private val haskellModuleNameIndexer = new HaskellModuleNameIndexer
 
@@ -158,15 +140,11 @@ class HaskellModuleNameIndex extends ScalaScalarIndexExtension[String] {
 
   override def getVersion: Int = HaskellModuleNameIndex.IndexVersion
 
-  class HaskellModuleNameIndexer extends DataIndexer[String, Unit, FileContent] {
+  class HaskellModuleNameIndexer extends DataIndexer[String, Unit, FileContent]:
 
-    override def map(inputData: FileContent): java.util.Map[String, Unit] = {
+    override def map(inputData: FileContent): java.util.Map[String, Unit] =
       val psiFile = inputData.getPsiFile
-      HaskellPsiUtil.findModuleNameInPsiTree(psiFile) match {
+      HaskellPsiUtil.findModuleNameInPsiTree(psiFile) match
         case Some(n) => Collections.singletonMap(n, ())
         case _ => Collections.emptyMap()
-      }
-    }
-  }
 
-}

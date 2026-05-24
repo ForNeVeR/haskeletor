@@ -17,45 +17,40 @@ import me.fornever.haskeletor.util.ScalaUtil
 
 import java.io.File
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-object GlobalProjectInfoComponent {
+object GlobalProjectInfoComponent:
 
   private case class Key(project: Project)
 
   private final val Cache: LoadingCache[Key, Option[GlobalProjectInfo]] = Scaffeine().build((k: Key) => createGlobalProjectInfo(k))
 
-  def findGlobalProjectInfo(project: Project): Option[GlobalProjectInfo] = {
+  def findGlobalProjectInfo(project: Project): Option[GlobalProjectInfo] =
     val key = Key(project)
-    Cache.get(key) match {
+    Cache.get(key) match
       case result@Some(_) => result
       case _ =>
         Cache.invalidate(key)
         None
-    }
-  }
 
-  def getSupportedLanguageExtensions(project: Project, ghcPath: Path): Seq[String] = {
+  def getSupportedLanguageExtensions(project: Project, ghcPath: Path): Seq[String] =
     CommandLine.run(
       project,
       ghcPath,
       Seq("--supported-languages"),
       notifyBalloonError = true
     ).getStdoutLines.asScala.toSeq
-  }
 
-  def getAvailableStackagesPackages(project: Project): Iterable[String] = {
+  def getAvailableStackagesPackages(project: Project): Iterable[String] =
     CabalConfigComponent.getAvailablePackageNames(project)
-  }
 
-  def invalidate(project: Project): Unit = {
+  def invalidate(project: Project): Unit =
     val keys = Cache.asMap().keys.filter(_.project == project)
     keys.foreach(Cache.invalidate)
-  }
 
-  private def createGlobalProjectInfo(key: Key): Option[GlobalProjectInfo] = {
+  private def createGlobalProjectInfo(key: Key): Option[GlobalProjectInfo] =
     val project = key.project
-    for {
+    for
       pathLines <- findPathLines(project)
       pathInfoMap = ScalaUtil.linesToMap(pathLines)
       binPaths <- findBinPaths(pathInfoMap)
@@ -67,10 +62,9 @@ object GlobalProjectInfoComponent {
       ghcVersion = findGhcVersion(project, ghcPath)
       localDocRoot <- pathInfoMap.get("local-doc-root")
       snapshotDocRoot <- pathInfoMap.get("snapshot-doc-root")
-    } yield GlobalProjectInfo(ghcVersion, ghcPath.toString, ghcPkgPath, localDocRoot, snapshotDocRoot, packageDbPaths, binPaths, extensions, stackagePackageNames)
-  }
+    yield GlobalProjectInfo(ghcVersion, ghcPath.toString, ghcPkgPath, localDocRoot, snapshotDocRoot, packageDbPaths, binPaths, extensions, stackagePackageNames)
 
-  private def findPathLines(project: Project): Option[Seq[String]] = {
+  private def findPathLines(project: Project): Option[Seq[String]] =
     Option(StackLocator.getInstance(project).locateStackBlocking())
       .map(stack =>
         new StackCommand(
@@ -81,25 +75,20 @@ object GlobalProjectInfoComponent {
         ).readOutputBlocking()
           .getStdoutLines.asScala.toSeq
       )
-  }
 
-  private def findGhcVersion(project: Project, ghcPath: Path): GhcVersion = {
+  private def findGhcVersion(project: Project, ghcPath: Path): GhcVersion =
     val output = CommandLine.run(project, ghcPath, Seq("--numeric-version"))
     GhcVersion.parse(output.getStdout.trim)
-  }
 
-  private def findBinPaths(pathInfoMap: Map[String, String]): Option[ProjectBinPaths] = {
-    for {
+  private def findBinPaths(pathInfoMap: Map[String, String]): Option[ProjectBinPaths] =
+    for
       compilerBinPath <- pathInfoMap.get("compiler-bin")
       localBinPath <- pathInfoMap.get("local-install-root").map(p => new File(p, "bin").getPath)
-    } yield ProjectBinPaths(compilerBinPath, localBinPath)
-  }
+    yield ProjectBinPaths(compilerBinPath, localBinPath)
 
-  private def findPackageDbPaths(pathInfoMap: Map[String, String]): Option[PackageDbPaths] = {
-    for {
+  private def findPackageDbPaths(pathInfoMap: Map[String, String]): Option[PackageDbPaths] =
+    for
       globalPackageDbPath <- pathInfoMap.get("global-pkg-db")
       snapshotPackageDbPath <- pathInfoMap.get("snapshot-pkg-db")
       localPackageDbPath <- pathInfoMap.get("local-pkg-db")
-    } yield PackageDbPaths(globalPackageDbPath, snapshotPackageDbPath, localPackageDbPath)
-  }
-}
+    yield PackageDbPaths(globalPackageDbPath, snapshotPackageDbPath, localPackageDbPath)

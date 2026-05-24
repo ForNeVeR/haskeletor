@@ -15,6 +15,5 @@ import me.fornever.haskeletor.core.cabal.CabalLanguage
 /**
   * Provide spellchecker support for Cabal sources.
   */
-class CabalSpellcheckingStrategy extends SpellcheckingStrategy {
+class CabalSpellcheckingStrategy extends SpellcheckingStrategy:
   override def isMyContext(element: PsiElement): Boolean = CabalLanguage.Instance.is(element.getLanguage)
-}

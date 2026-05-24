@@ -10,6 +10,5 @@ package me.fornever.haskeletor.psi
 
 import me.fornever.haskeletor.psi.impl.HaskellPsiImplUtil
 
-trait HaskellDataConstructorDeclarationElement extends HaskellDeclarationElement {
+trait HaskellDataConstructorDeclarationElement extends HaskellDeclarationElement:
   def getDataTypeConstructor: HaskellNamedElement = HaskellPsiImplUtil.getDataTypeConstructor(this)
-}

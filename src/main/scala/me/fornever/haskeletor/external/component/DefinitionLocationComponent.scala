@@ -20,7 +20,7 @@ import me.fornever.haskeletor.util.index.HaskellModuleNameIndex.*
 
 import scala.concurrent.TimeoutException
 
-private[component] object DefinitionLocationComponent {
+private[component] object DefinitionLocationComponent:
   private final val LocAtPattern = """(.+):\(([\d]+),([\d]+)\)-\(([\d]+),([\d]+)\)""".r
   private final val PackageModulePattern = """([\w\-\d.]+)(?:-.*)?:([\w.\-]+)""".r
 
@@ -31,73 +31,59 @@ private[component] object DefinitionLocationComponent {
 
   private final val Cache: LoadingCache[Key, DefinitionLocationResult] = Scaffeine().build((k: Key) => findDefinitionLocationResult(k))
 
-  def findDefinitionLocation(psiFile: PsiFile, qualifiedNameElement: HaskellQualifiedNameElement, importQualifier: Option[String]): DefinitionLocationResult = {
+  def findDefinitionLocation(psiFile: PsiFile, qualifiedNameElement: HaskellQualifiedNameElement, importQualifier: Option[String]): DefinitionLocationResult =
     val key = Key(psiFile, qualifiedNameElement, importQualifier)
 
-    try {
+    try
       val result = Cache.get(key)
-      result match {
+      result match
         case Right(_) => result
         case Left(ReadActionTimeout(_)) | Left(IndexNotReady) | Left(ModuleNotAvailable(_)) | Left(ReplNotAvailable) =>
           Cache.invalidate(key)
           result
         case _ => result
-      }
-    } catch {
+    catch
       case e: TimeoutException => Left(ReadActionTimeout(e.getMessage))
-    }
-  }
 
-  def findReferringToLocationsCache(qualifiedNameElement: HaskellQualifiedNameElement) = {
+  def findReferringToLocationsCache(qualifiedNameElement: HaskellQualifiedNameElement) =
     Cache.asMap().filter { case (_, v) => v.toOption.exists(_.namedElement == qualifiedNameElement.getIdentifierElement) }.map(e => (e._1.psiFile, e._1.qualifiedNameElement)).toSeq
-  }
 
-  def invalidateNotFound(project: Project): Unit = {
+  def invalidateNotFound(project: Project): Unit =
     Cache.asMap().filter { case (k, v) => k.psiFile.getProject == project && v.isLeft && HaskellProjectUtil.isSourceFile(k.psiFile) }.keys.foreach(Cache.invalidate)
-  }
 
-  def invalidateAll(project: Project): Unit = {
+  def invalidateAll(project: Project): Unit =
     val synchronousCache = Cache
     synchronousCache.asMap().filter(_._1.psiFile.getProject == project).keys.foreach(synchronousCache.invalidate)
-  }
 
-  def invalidate(project: Project): Unit = {
+  def invalidate(project: Project): Unit =
     val keys = Cache.asMap().collect { case (k, v) if k.psiFile.getProject == project =>
-      if (checkValidKey(k)) {
-        v.toOption match {
+      if checkValidKey(k) then
+        v.toOption match
           case Some(definitionLocation) if checkValidLocation(definitionLocation) && checkValidKey(k) && checkValidName(k, definitionLocation) => None
           case _ => Some(k)
-        }
-      } else {
+      else
         Some(k)
-      }
     }.flatten
     Cache.invalidateAll(keys)
-  }
 
-  private def ignoreException(action: => Boolean): Boolean = {
-    try {
+  private def ignoreException(action: => Boolean): Boolean =
+    try
       action
-    } catch {
+    catch
       case _: Throwable => false
-    }
-  }
 
-  private def checkValidKey(key: Key): Boolean = {
+  private def checkValidKey(key: Key): Boolean =
     ApplicationUtil.runReadAction(ignoreException(key.qualifiedNameElement.isValid)) && ApplicationUtil.runReadAction(ignoreException(key.qualifiedNameElement.getIdentifierElement.isValid))
-  }
 
-  private def checkValidLocation(definitionLocation: DefinitionLocation): Boolean = {
+  private def checkValidLocation(definitionLocation: DefinitionLocation): Boolean =
     ApplicationUtil.runReadAction(ignoreException(definitionLocation.namedElement.isValid))
-  }
 
-  private def checkValidName(key: Key, definitionLocation: DefinitionLocation): Boolean = {
+  private def checkValidName(key: Key, definitionLocation: DefinitionLocation): Boolean =
     val keyName = ApplicationUtil.runReadAction(Option(key.qualifiedNameElement.getIdentifierElement.getName))
     keyName == ApplicationUtil.runReadAction(Option(definitionLocation.namedElement.getName)) &&
       keyName.contains(definitionLocation.originalName)
-  }
 
-  private def findDefinitionLocationResult(key: Key): DefinitionLocationResult = {
+  private def findDefinitionLocationResult(key: Key): DefinitionLocationResult =
     val psiFile = key.psiFile
     val project = psiFile.getProject
     val qualifiedNameElement = key.qualifiedNameElement
@@ -112,60 +98,52 @@ private[component] object DefinitionLocationComponent {
 
     // GHCi :loc-at does not always give right location for qualified identifiers. It depends on the order of import declarations...
     // So in case of qualified identifiers :info is used to find definition location as second solution.
-    if (isLibraryFile || importQualifier.isDefined || qualifiedNameElement.getQualifierName.isDefined) {
+    if isLibraryFile || importQualifier.isDefined || qualifiedNameElement.getQualifierName.isDefined then
       ProgressManager.checkCanceled()
       findLocationByImportedIdentifiers(project, psiFile, importQualifier, qualifiedNameElement).orElse(findLocationByNameInfo(project, psiFile, qualifiedNameElement, identifierElement))
-    } else if (elementType == HaskellTypes.HS_CONID || elementType == HaskellTypes.HS_CONSYM) {
+    else if elementType == HaskellTypes.HS_CONID || elementType == HaskellTypes.HS_CONSYM then
       // GHCi :loc-at does not always give the right location so using :info in the case is workaround
       ProgressManager.checkCanceled()
       findLocationByNameInfo(project, psiFile, qualifiedNameElement, identifierElement).orElse(findLocationByImportedIdentifiers(project, psiFile, importQualifier, qualifiedNameElement))
-    } else {
+    else
       ProgressManager.checkCanceled()
       findLocationByRepl(project, psiFile, moduleName, qualifiedNameElement).orElse(findLocationByImportedIdentifiers(project, psiFile, importQualifier, qualifiedNameElement))
-    }
-  }
 
-  private def findLocationByNameInfo(project: Project, psiFile: PsiFile, qualifiedNameElement: HaskellQualifiedNameElement, identifierElement: HaskellNamedElement): Either[NoInfo, PackageModuleLocation] = {
+  private def findLocationByNameInfo(project: Project, psiFile: PsiFile, qualifiedNameElement: HaskellQualifiedNameElement, identifierElement: HaskellNamedElement): Either[NoInfo, PackageModuleLocation] =
     val name = identifierElement.getName
-    HaskellComponentsManager.findNameInfo(qualifiedNameElement) match {
-      case Right(infos) => infos.headOption match {
+    HaskellComponentsManager.findNameInfo(qualifiedNameElement) match
+      case Right(infos) => infos.headOption match
         case Some(info) =>
           ProgressManager.checkCanceled()
 
-          HaskellReference.findIdentifiersByNameInfo(info, identifierElement, project) match {
+          HaskellReference.findIdentifiersByNameInfo(info, identifierElement, project) match
             case Right((mn, ne, pn)) => Right(PackageModuleLocation(mn.getOrElse("-"), ne, name, pn))
             case Left(noInfo) =>
               HaskellReference.findIdentifierInFileByName(psiFile, name, prioIdInExpression = true).
                 map(ne => Right(PackageModuleLocation(findModuleName(ne), ne, name, None))).getOrElse(Left(noInfo))
-          }
         case None => Left(NoInfoAvailable(name, psiFile.getName))
-      }
       case Left(noInfo) => Left(noInfo)
-    }
-  }
 
-  private def findModuleName(namedElement: HaskellNamedElement) = {
+  private def findModuleName(namedElement: HaskellNamedElement) =
     Option(namedElement.getContainingFile).flatMap(HaskellPsiUtil.findModuleName).getOrElse("-")
-  }
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  private def findLocationByImportedIdentifiers(project: Project, psiFile: PsiFile, importQualifier: Option[String], qualifiedNameElement: HaskellQualifiedNameElement): Either[NoInfo, PackageModuleLocation] = {
+  private def findLocationByImportedIdentifiers(project: Project, psiFile: PsiFile, importQualifier: Option[String], qualifiedNameElement: HaskellQualifiedNameElement): Either[NoInfo, PackageModuleLocation] =
     ProgressManager.checkCanceled()
 
     val qName = qualifiedNameElement.getName
     val name = qualifiedNameElement.getIdentifierElement.getName
 
     // Explicitly add module name of identifier
-    val qualifiedName = importQualifier match {
+    val qualifiedName = importQualifier match
       case None => qName
       case Some(q) => q + "." + name
-    }
 
     val moduleIdentifiers = {
-      if (HaskellProjectUtil.isSourceFile(psiFile)) {
+      if HaskellProjectUtil.isSourceFile(psiFile) then
         FileModuleIdentifiers.findAvailableModuleIdentifiers(psiFile)
-      } else {
+      else {
         HaskellPsiUtil.findModuleName(psiFile).map(moduleName =>
           LibraryPackageInfoComponent.findLibraryModuleName(moduleName) match {
             case Some(true) =>
@@ -182,100 +160,81 @@ private[component] object DefinitionLocationComponent {
 
     ProgressManager.checkCanceled()
 
-    val moduleNames = moduleIdentifiers.map(mi => if (mi.moduleName == HaskellProjectUtil.Prelude) mi.preludeBaseModuleName.getOrElse(HaskellProjectUtil.Prelude) else mi.moduleName).toSeq
+    val moduleNames = moduleIdentifiers.map(mi => if mi.moduleName == HaskellProjectUtil.Prelude then mi.preludeBaseModuleName.getOrElse(HaskellProjectUtil.Prelude) else mi.moduleName).toSeq
 
-    HaskellReference.findIdentifiersByModulesAndName(project, moduleNames.filterNot(_ == HaskellProjectUtil.Prelude), name) match {
+    HaskellReference.findIdentifiersByModulesAndName(project, moduleNames.filterNot(_ == HaskellProjectUtil.Prelude), name) match
       case Right((mn, ne)) => Right(PackageModuleLocation(mn, ne, name, None))
       case Left(noInfo) => Left(noInfo)
-    }
-  }
 
-  private def findLocationByRepl(project: Project, psiFile: PsiFile, moduleName: Option[String], qualifiedNameElement: HaskellQualifiedNameElement): DefinitionLocationResult = {
+  private def findLocationByRepl(project: Project, psiFile: PsiFile, moduleName: Option[String], qualifiedNameElement: HaskellQualifiedNameElement): DefinitionLocationResult =
     ProgressManager.checkCanceled()
 
     val name = qualifiedNameElement.getIdentifierElement.getName
 
-    val findLocationInfo = for {
+    val findLocationInfo = for
       vf <- HaskellFileUtil.findVirtualFile(psiFile)
       sp <- LineColumnPosition.fromOffset(vf, qualifiedNameElement.getTextRange.getStartOffset)
       ep <- LineColumnPosition.fromOffset(vf, qualifiedNameElement.getTextRange.getEndOffset)
-    } yield {
+    yield
       (repl: ProjectStackRepl) => repl.findLocationInfo(moduleName, psiFile, sp.lineNr, sp.columnNr, ep.lineNr, ep.columnNr, name)
-    }
 
     ProgressManager.checkCanceled()
 
-    val locationInfo = findLocationInfo match {
+    val locationInfo = findLocationInfo match
       case None => Left(NoInfoAvailable(name, psiFile.getContainingFile.getName))
       case Some(f) =>
-        StackReplsManager.getProjectRepl(psiFile) match {
+        StackReplsManager.getProjectRepl(psiFile) match
           case Some(repl) =>
-            if (!repl.available) {
+            if !repl.available then
               Left(ReplNotAvailable)
-            } else {
-              f(repl) match {
+            else
+              f(repl) match
                 case Some(o) if o.stderrLines.isEmpty && o.stdoutLines.nonEmpty => Right(o.stdoutLines)
                 case Some(o) if o.stderrLines.mkString.contains("No matching export in any local modules.") => Left(NoMatchingExport)
                 case Some(o) if o.stdoutLines.isEmpty && o.stderrLines.nonEmpty => Right(o.stderrLines) // For some unknown reason REPL write sometimes correct output to stderr
                 case None => Left(ReplNotAvailable)
                 case _ => Left(NoInfoAvailable(name, psiFile.getName))
-              }
-            }
           case None => Left(ReplNotAvailable)
-        }
-    }
 
-    locationInfo match {
-      case Right(o) => o.headOption.map(l => createLocationByReplResult(project, psiFile, l, name)) match {
+    locationInfo match
+      case Right(o) => o.headOption.map(l => createLocationByReplResult(project, psiFile, l, name)) match
         case Some(r) => r
         case None => Left(NoInfoAvailable(name, psiFile.getName))
-      }
-      case Left(NoMatchingExport) => HaskellReference.findIdentifierInFileByName(psiFile, name, prioIdInExpression = true) match {
+      case Left(NoMatchingExport) => HaskellReference.findIdentifierInFileByName(psiFile, name, prioIdInExpression = true) match
         case Some(ne) => Right(LocalModuleLocation(psiFile, ne, name))
         case None => Left(NoInfoAvailable(name, psiFile.getName))
-      }
       case Left(noInfo) => Left(noInfo)
-    }
-  }
 
-  private def createLocationByReplResult(project: Project, psiFile: PsiFile, output: String, name: String): DefinitionLocationResult = {
+  private def createLocationByReplResult(project: Project, psiFile: PsiFile, output: String, name: String): DefinitionLocationResult =
     ProgressManager.checkCanceled()
 
-    output match {
+    output match
       case LocAtPattern(filePath, startLineNr, startColumnNr, _, _) =>
         // Calling here findFile ProgressIndicatorUtils.scheduleWithWriteActionPriority blocks the UI
-        HaskellFileUtil.findFile(project, filePath) match {
+        HaskellFileUtil.findFile(project, filePath) match
           case (Some(vf), Some(pf)) =>
             ProgressManager.checkCanceled()
 
-            HaskellReference.findIdentifierByLocation(project, vf, pf, startLineNr.toInt, startColumnNr.toInt, name) match {
+            HaskellReference.findIdentifierByLocation(project, vf, pf, startLineNr.toInt, startColumnNr.toInt, name) match
               case Some(e) => Right(LocalModuleLocation(pf, e, name))
               case None => Left(NoInfoAvailable(name, psiFile.getName))
-            }
           case (_, _) => Left(NoInfoAvailable(name, psiFile.getName))
-        }
       case PackageModulePattern(pn, mn) =>
-        findFilesByModuleName(project, mn) match {
+        findFilesByModuleName(project, mn) match
           case Right(files) =>
             ProgressManager.checkCanceled()
 
-            files.headOption.flatMap(HaskellReference.findIdentifierInFileByName(_, name, prioIdInExpression = true)) match {
+            files.headOption.flatMap(HaskellReference.findIdentifierInFileByName(_, name, prioIdInExpression = true)) match
               case Some(e) => Right(PackageModuleLocation(mn, e, name, Some(pn)))
               case None => Left(NoInfoAvailable(name, psiFile.getName))
-            }
           case Left(noInfo) => Left(noInfo)
-        }
       case _ => Left(NoInfoAvailable(name, psiFile.getName))
-    }
-  }
 
-}
 
-sealed trait DefinitionLocation {
+sealed trait DefinitionLocation:
   def namedElement: HaskellNamedElement
 
   def originalName: String
-}
 
 case class PackageModuleLocation(moduleName: String, namedElement: HaskellNamedElement, originalName: String, packageName: Option[String]) extends DefinitionLocation
 

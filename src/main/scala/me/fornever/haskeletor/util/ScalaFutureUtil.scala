@@ -14,39 +14,31 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.WaitFor
 import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, TimeoutException}
 
-object ScalaFutureUtil {
+object ScalaFutureUtil:
 
-  def waitForValue[T](project: Project, future: Future[T], actionDescription: String, timeout: FiniteDuration = 5.seconds): Option[T] = {
-    if (ApplicationManager.getApplication.isReadAccessAllowed) {
-      try {
-        new WaitFor(timeout.toMillis.toInt, 1) {
-          override def condition(): Boolean = {
+  def waitForValue[T](project: Project, future: Future[T], actionDescription: String, timeout: FiniteDuration = 5.seconds): Option[T] =
+    if ApplicationManager.getApplication.isReadAccessAllowed then
+      try
+        new WaitFor(timeout.toMillis.toInt, 1):
+          override def condition(): Boolean =
             ProgressManager.checkCanceled()
             future.isCompleted || project.isDisposed
-          }
-        }
 
-        if (project.isDisposed) {
+        if project.isDisposed then
           None
-        } else {
+        else
           Option(Await.result(future, 1.milli))
-        }
-      } catch {
+      catch
         case _: TimeoutException =>
           HaskellNotificationGroup.logInfoEvent(project, s"Timeout in waitForValue during read action while $actionDescription")
           None
-      }
-    } else {
-      try {
+    else
+      try
         Option(Await.result(future, 10.second))
-      } catch {
+      catch
         case _: TimeoutException =>
           HaskellNotificationGroup.logInfoEvent(project, s"Timeout in waitForValue while $actionDescription")
           None
-      }
-    }
-  }
-}

@@ -20,58 +20,50 @@ import me.fornever.haskeletor.{HaskellFile, HaskellLexer, HaskellParserDefinitio
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
-class HaskellFindUsagesProvider extends FindUsagesProvider {
+class HaskellFindUsagesProvider extends FindUsagesProvider:
 
-  override def getWordsScanner: WordsScanner = {
+  override def getWordsScanner: WordsScanner =
     (fileText: CharSequence, processor: Processor[? >: WordOccurrence]) => {
       val lexer = new HaskellLexer
       lexer.start(fileText)
       processTokens(lexer, fileText, processor, ListBuffer.empty)
     }
-  }
 
   @tailrec
-  private def processTokens(lexer: HaskellLexer, fileText: CharSequence, processor: Processor[? >: WordOccurrence], prevDots: ListBuffer[IElementType]): Unit = {
+  private def processTokens(lexer: HaskellLexer, fileText: CharSequence, processor: Processor[? >: WordOccurrence], prevDots: ListBuffer[IElementType]): Unit =
     val tokenType = lexer.getTokenType
-    if (tokenType != null) {
-      if (HaskellParserDefinition.Ids.contains(tokenType) || tokenType == HS_DOT) {
-        if (tokenType == HS_DOT) {
+    if tokenType != null then
+      if HaskellParserDefinition.Ids.contains(tokenType) || tokenType == HS_DOT then
+        if tokenType == HS_DOT then
           prevDots.+=(tokenType)
           lexer.advance()
           processTokens(lexer, fileText, processor, prevDots)
-        } else {
-          val text = if (tokenType == HS_VARSYM_ID || tokenType == HS_CONSYM_ID) {
+        else
+          val text = if tokenType == HS_VARSYM_ID || tokenType == HS_CONSYM_ID then
             fileText.subSequence(lexer.getTokenStart - prevDots.length, lexer.getTokenEnd).toString
-          } else {
+          else
             fileText.subSequence(lexer.getTokenStart, lexer.getTokenEnd).toString
-          }
 
           // A workaround to get Find usages working for identifiers which contain single quotes
-          val text1 = if (text.contains("'")) {
+          val text1 = if text.contains("'") then
             text.replaceAll("'", "")
-          } else {
+          else
             text
-          }
 
           val wo = new WordOccurrence(text1, 0, text1.length, WordOccurrence.Kind.CODE)
           processor.process(wo)
           lexer.advance()
           processTokens(lexer, fileText, processor, ListBuffer.empty)
-        }
-      } else {
-        if (prevDots.nonEmpty) {
+      else
+        if prevDots.nonEmpty then
           val wo = new WordOccurrence("." * prevDots.length, 0, prevDots.length, WordOccurrence.Kind.CODE)
           processor.process(wo)
-        }
 
         lexer.advance()
         processTokens(lexer, fileText, processor, ListBuffer.empty)
-      }
-    }
-  }
 
-  override def getType(psiElement: PsiElement): String = {
-    psiElement.getNode.getElementType match {
+  override def getType(psiElement: PsiElement): String =
+    psiElement.getNode.getElementType match
       case HS_VARID => "variable"
       case HS_CONID => "constructor"
       case HS_VARSYM => "variable operator"
@@ -79,30 +71,21 @@ class HaskellFindUsagesProvider extends FindUsagesProvider {
       case HS_QUALIFIER => "qualifier"
       case HS_MODID => "module"
       case _ => psiElement.getText
-    }
-  }
 
-  override def getDescriptiveName(psiElement: PsiElement): String = {
-    psiElement match {
+  override def getDescriptiveName(psiElement: PsiElement): String =
+    psiElement match
       case ne: HaskellNamedElement => ne.getName
       case f: HaskellFile => f.getName
       case _ => psiElement.getText
-    }
-  }
 
   override def getHelpId(psiElement: PsiElement): String = null
 
-  override def canFindUsagesFor(psiElement: PsiElement): Boolean = {
-    psiElement match {
+  override def canFindUsagesFor(psiElement: PsiElement): Boolean =
+    psiElement match
       case _: HaskellNamedElement => true
       case _ => false
-    }
-  }
 
-  override def getNodeText(psiElement: PsiElement, useFullName: Boolean): String = {
-    psiElement match {
+  override def getNodeText(psiElement: PsiElement, useFullName: Boolean): String =
+    psiElement match
       case ne: HaskellNamedElement => ne.getName
       case _ => psiElement.getText
-    }
-  }
-}

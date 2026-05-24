@@ -8,21 +8,16 @@
 
 package me.fornever.haskeletor.settings
 
-sealed abstract class HTool extends Product with Serializable {
+sealed abstract class HTool extends Product with Serializable:
   def name: String
-}
 
-object HTool {
+object HTool:
 
-  case object Hlint extends HTool {
+  case object Hlint extends HTool:
     def name: String = "hlint"
-  }
 
-  case object Hoogle extends HTool {
+  case object Hoogle extends HTool:
     def name: String = "hoogle"
-  }
 
-  case object Ormolu extends HTool {
+  case object Ormolu extends HTool:
     def name: String = "ormolu"
-  }
-}

@@ -13,12 +13,12 @@ import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorDescripto
 import me.fornever.haskeletor.icons.HaskellIcons
 
 import java.util
-import javax.swing._
+import javax.swing.*
 
 /**
   * @author ice1000
   */
-object AlexColorSettingsPage {
+object AlexColorSettingsPage:
   private val DESCRIPTORS = Array[AttributesDescriptor](
     new AttributesDescriptor("Strings", AlexSyntaxHighlighter.STRINGS),
     new AttributesDescriptor("Rules", AlexSyntaxHighlighter.RULES),
@@ -28,21 +28,18 @@ object AlexColorSettingsPage {
     new AttributesDescriptor("Braces", AlexSyntaxHighlighter.BRACES),
     new AttributesDescriptor("Parenthesis", AlexSyntaxHighlighter.PARENTHESIS)
   )
-}
 
 /**
   * @author ice1000
   */
-class AlexColorSettingsPage extends ColorSettingsPage {
-  override def getIcon: Icon = {
+class AlexColorSettingsPage extends ColorSettingsPage:
+  override def getIcon: Icon =
     HaskellIcons.AlexLogo
-  }
 
-  override def getHighlighter = {
+  override def getHighlighter =
     new AlexSyntaxHighlighter
-  }
 
-  override def getDemoText: String = {
+  override def getDemoText: String =
     """{
       | a piece of haskell code here
       |}
@@ -63,19 +60,14 @@ class AlexColorSettingsPage extends ColorSettingsPage {
       |haskell code
       |}
       |""".stripMargin.replaceAll("\r\n", "\n")
-  }
 
   override def getAdditionalHighlightingTagToDescriptorMap: util.Map[String, TextAttributesKey] = null
 
-  override def getAttributeDescriptors: Array[AttributesDescriptor] = {
+  override def getAttributeDescriptors: Array[AttributesDescriptor] =
     AlexColorSettingsPage.DESCRIPTORS
-  }
 
-  override def getColorDescriptors: Array[ColorDescriptor] = {
+  override def getColorDescriptors: Array[ColorDescriptor] =
     ColorDescriptor.EMPTY_ARRAY
-  }
 
-  override def getDisplayName = {
+  override def getDisplayName =
     "Alex"
-  }
-}

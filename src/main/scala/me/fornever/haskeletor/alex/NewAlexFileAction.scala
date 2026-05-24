@@ -20,25 +20,22 @@ import me.fornever.haskeletor.icons.HaskellIcons
 /**
   * @author ice1000
   */
-object NewAlexFileAction {
+object NewAlexFileAction:
   final val NAME = "Alex Source File"
-}
 
 /**
   * @author ice1000
   */
-class NewAlexFileAction extends CreateFileFromTemplateAction(NewAlexFileAction.NAME, "Create Alex source file", HaskellIcons.AlexLogo) {
-  override def buildDialog(project: Project, dir: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder): Unit = {
+class NewAlexFileAction extends CreateFileFromTemplateAction(NewAlexFileAction.NAME, "Create Alex source file", HaskellIcons.AlexLogo):
+  override def buildDialog(project: Project, dir: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder): Unit =
     builder
       .setTitle("Create " + NewAlexFileAction.NAME)
       .addKind("Alex file", HaskellIcons.AlexLogo, "Alex Source")
-  }
 
-  override def getActionName(psiDirectory: PsiDirectory, s: String, s1: String): String = {
+  override def getActionName(psiDirectory: PsiDirectory, s: String, s1: String): String =
     NewAlexFileAction.NAME
-  }
 
-  override def createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory): PsiFile = try {
+  override def createFileFromTemplate(name: String, template: FileTemplate, dir: PsiDirectory): PsiFile = try
     val className = FileUtilRt.getNameWithoutExtension(name)
     val project = dir.getProject
     val properties = FileTemplateManager.getInstance(project).getDefaultProperties
@@ -46,8 +43,6 @@ class NewAlexFileAction extends CreateFileFromTemplateAction(NewAlexFileAction.N
     new CreateFromTemplateDialog(project, dir, template, new AttributesDefaults(className).withFixedName(true), properties)
       .create()
       .getContainingFile
-  } catch {
+  catch
     case _: Throwable => null
-  }
 
-}

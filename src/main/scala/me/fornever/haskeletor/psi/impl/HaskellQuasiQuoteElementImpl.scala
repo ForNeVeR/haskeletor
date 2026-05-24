@@ -15,16 +15,12 @@ import me.fornever.haskeletor.psi.HaskellQuasiQuoteElement
 abstract class HaskellQuasiQuoteElementImpl private[impl](node: ASTNode)
   extends HaskellCompositeElementImpl(node)
     with HaskellQuasiQuoteElement
-    with PsiLanguageInjectionHost {
-  override def isValidHost: Boolean = {
+    with PsiLanguageInjectionHost:
+  override def isValidHost: Boolean =
     true
-  }
 
-  override def updateText(text: String): HaskellQuasiQuoteElementImpl = {
+  override def updateText(text: String): HaskellQuasiQuoteElementImpl =
     ElementManipulators.handleContentChange(this, text)
-  }
 
-  override def createLiteralTextEscaper(): LiteralTextEscaper[HaskellQuasiQuoteElementImpl] = {
+  override def createLiteralTextEscaper(): LiteralTextEscaper[HaskellQuasiQuoteElementImpl] =
     LiteralTextEscaper.createSimple(this)
-  }
-}

@@ -10,7 +10,7 @@ package me.fornever.haskeletor.cabal
 
 import com.intellij.lang.Commenter
 
-class CabalCommenter extends Commenter {
+class CabalCommenter extends Commenter:
   override def getCommentedBlockCommentPrefix: String = null
 
   override def getBlockCommentSuffix: String = null
@@ -20,4 +20,3 @@ class CabalCommenter extends Commenter {
   override def getLineCommentPrefix: String = "--"
 
   override def getCommentedBlockCommentSuffix: String = null
-}

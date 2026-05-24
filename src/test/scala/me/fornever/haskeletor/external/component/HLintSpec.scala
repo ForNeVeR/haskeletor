@@ -15,10 +15,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class HLintSpec extends AnyFunSpec with Matchers with GivenWhenThen {
+class HLintSpec extends AnyFunSpec with Matchers with GivenWhenThen:
 
-  describe("HLint component") {
-    it("should parse HLint output") {
+  describe("HLint component"):
+    it("should parse HLint output"):
       Given("output of HLint")
       val output =
         """
@@ -45,6 +45,3 @@ class HLintSpec extends AnyFunSpec with Matchers with GivenWhenThen {
       hlintInfo2.startLine shouldEqual 27
       hlintInfo2.endLine shouldEqual 27
       hlintInfo2.refactorings shouldEqual "[Replace {rtype = Expr, pos = SrcSpan {startLine = 27, startCol = 19, endLine = 27, endCol = 45}, subts = [(\"f\",SrcSpan {startLine = 27, startCol = 32, endLine = 27, endCol = 33}),(\"x\",SrcSpan {startLine = 27, startCol = 36, endLine = 27, endCol = 45})], orig = \"concatMap f . x\"}]"
-    }
-  }
-}

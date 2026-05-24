@@ -16,11 +16,11 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase
 import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
 import me.fornever.haskeletor.HaskellLexer
-import me.fornever.haskeletor.psi.HaskellTypes._
+import me.fornever.haskeletor.psi.HaskellTypes.*
 import org.jetbrains.annotations.NotNull
 
 //noinspection TypeAnnotation
-object HaskellSyntaxHighlighter {
+object HaskellSyntaxHighlighter:
   final val Illegal = createTextAttributesKey("HS_ILLEGAL", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE)
   final val Comment = createTextAttributesKey("HS_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
   final val BlockComment = createTextAttributesKey("HS_NCOMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
@@ -41,23 +41,21 @@ object HaskellSyntaxHighlighter {
   final val Pragma = createTextAttributesKey("HS_PRAGMA", DefaultLanguageHighlighterColors.METADATA)
   final val Quasiquote = createTextAttributesKey("HS_QUASI_QUOTES", DefaultLanguageHighlighterColors.METADATA)
   final val Default = createTextAttributesKey("HS_DEFAULT", DefaultLanguageHighlighterColors.LOCAL_VARIABLE)
-}
 
-class HaskellSyntaxHighlighter extends SyntaxHighlighterBase {
+class HaskellSyntaxHighlighter extends SyntaxHighlighterBase:
 
-  import com.intellij.openapi.fileTypes.SyntaxHighlighterBase._
-  import me.fornever.haskeletor.HaskellParserDefinition._
+  import com.intellij.openapi.fileTypes.SyntaxHighlighterBase.*
+  import me.fornever.haskeletor.HaskellParserDefinition.*
 
   @NotNull
-  def getHighlightingLexer: Lexer = {
+  def getHighlightingLexer: Lexer =
     new HaskellLexer
-  }
 
   @NotNull
-  def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] = {
-    import me.fornever.haskeletor.highlighter.HaskellSyntaxHighlighter._
+  def getTokenHighlights(elementType: IElementType): Array[TextAttributesKey] =
+    import me.fornever.haskeletor.highlighter.HaskellSyntaxHighlighter.*
 
-    elementType match {
+    elementType match
       case TokenType.BAD_CHARACTER => pack(Illegal)
       case et if PragmaStartEndIds.contains(et) => pack(Pragma)
       case et if et == HS_COMMENT => pack(Comment)
@@ -77,6 +75,3 @@ class HaskellSyntaxHighlighter extends SyntaxHighlighterBase {
       case et if et == HS_QUASIQUOTE => pack(Quasiquote)
       case et if WhiteSpaces.contains(et) | et == HS_NEWLINE => pack(null)
       case _ => pack(Default)
-    }
-  }
-}

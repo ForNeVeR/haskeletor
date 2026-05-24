@@ -12,17 +12,14 @@ import com.intellij.lang.refactoring.NamesValidator
 import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.{HaskellLexer, HaskellParserDefinition}
 
-class HaskellNamesValidator extends NamesValidator {
+class HaskellNamesValidator extends NamesValidator:
 
-  override def isKeyword(name: String, project: Project): Boolean = {
+  override def isKeyword(name: String, project: Project): Boolean =
     val lexer = new HaskellLexer
     lexer.start(name)
     HaskellParserDefinition.ReservedIdS.contains(lexer.getTokenType) ||
         HaskellParserDefinition.ReservedOperators.contains(lexer.getTokenType) ||
         HaskellParserDefinition.SymbolsResOp.contains(lexer.getTokenType)
-  }
 
-  override def isIdentifier(name: String, project: Project): Boolean = {
+  override def isIdentifier(name: String, project: Project): Boolean =
     !isKeyword(name, project) && !name.contains(' ')
-  }
-}

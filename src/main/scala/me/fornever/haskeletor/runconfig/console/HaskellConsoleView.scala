@@ -26,17 +26,15 @@ import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
 import java.io.{IOException, OutputStreamWriter}
 import scala.compiletime.uninitialized
 
-object HaskellConsoleView {
+object HaskellConsoleView:
   private val HaskellConsoleKey: Key[HaskellConsoleInfo] = Key.create("HASKELL CONSOLE KEY")
 
   def isConsoleFile(file: PsiFile): Boolean = file.getOriginalFile.getUserData(HaskellConsoleKey) != null
 
-  def findConsoleInfo(psiFile: PsiFile): Option[HaskellConsoleInfo] = {
+  def findConsoleInfo(psiFile: PsiFile): Option[HaskellConsoleInfo] =
     Option(psiFile.getOriginalFile.getUserData(HaskellConsoleKey))
-  }
-}
 
-class HaskellConsoleView(val project: Project, val configuration: HaskellConsoleConfiguration) extends LanguageConsoleImpl(project, "Haskell Stack REPL", HaskellFileType.INSTANCE.getLanguage) {
+class HaskellConsoleView(val project: Project, val configuration: HaskellConsoleConfiguration) extends LanguageConsoleImpl(project, "Haskell Stack REPL", HaskellFileType.INSTANCE.getLanguage):
 
   private val consoleRootType = new ConsoleRootType("haskell", "Haskell") {}
   private var historyController: ConsoleHistoryController = uninitialized
@@ -49,7 +47,7 @@ class HaskellConsoleView(val project: Project, val configuration: HaskellConsole
   val originalFile: PsiFile = getFile.getOriginalFile
   originalFile.putUserData(HaskellConsoleView.HaskellConsoleKey, HaskellConsoleInfo(configuration.getStackTarget, configuration.getName))
 
-  override def attachToProcess(processHandler: ProcessHandler): Unit = {
+  override def attachToProcess(processHandler: ProcessHandler): Unit =
     super.attachToProcess(processHandler)
     Option(processHandler.getProcessInput).foreach(processInput => {
       outputStreamWriter = new OutputStreamWriter(processInput)
@@ -57,24 +55,21 @@ class HaskellConsoleView(val project: Project, val configuration: HaskellConsole
       historyController.install()
       HaskellConsoleViewMap.addConsole(this)
     })
-  }
 
-  override def dispose(): Unit = {
+  override def dispose(): Unit =
     super.dispose()
     outputStreamWriter.close()
     HaskellConsoleViewMap.delConsole(this)
-  }
 
-  def append(text: String): Unit = {
+  def append(text: String): Unit =
     WriteCommandAction.runWriteCommandAction(getProject, new Runnable {
       override def run(): Unit = {
         val document = getCurrentEditor.getDocument
         document.insertString(document.getTextLength, text)
       }
     })
-  }
 
-  def execute(): Unit = {
+  def execute(): Unit =
     val consoleEditor = getConsoleEditor
     val editorDocument = consoleEditor.getDocument
     val text = editorDocument.getText
@@ -82,59 +77,49 @@ class HaskellConsoleView(val project: Project, val configuration: HaskellConsole
     DocumentUtil.writeInRunUndoTransparentAction(() => consoleEditor.getDocument.deleteString(0, text.length))
 
     executeCommand(text)
-  }
 
   private final val LoadPattern = """:l(?:oad)?\s+([\w\-\.]+)""".r
 
-  def executeCommand(commandText: String, addToHistory: Boolean = true): Unit = {
-    commandText.trim() match {
+  def executeCommand(commandText: String, addToHistory: Boolean = true): Unit =
+    commandText.trim() match
       case LoadPattern(moduleName) =>
         val psiFile = HaskellModuleNameIndex.findFilesByModuleName(project, moduleName).toOption.flatMap(_.headOption)
         psiFile.foreach(hf => HaskellConsoleViewMap.projectFileByConfigName.put(configuration.getName, hf))
       case _ => ()
-    }
 
-    for {
+    for
       processInputWriter <- Option(outputStreamWriter)
       historyController <- Option(historyController)
-    } yield {
-      if (addToHistory) {
+    yield
+      if addToHistory then
         lastCommand = Some(commandText.trim())
         historyController.addToHistory(commandText.trim())
-      }
 
-      val commandInputText = commandText.trim() match {
+      val commandInputText = commandText.trim() match
         // In order to execute multi-line commands in +m mode, 2 newlines are required.
         case s if s.contains('\n') => s + "\n\n"
         case s => s + "\n"
-      }
 
       print(s"$LambdaArrow$commandInputText", ConsoleViewContentType.SYSTEM_OUTPUT)
 
-      try {
+      try
         processInputWriter.write(commandInputText)
         processInputWriter.flush()
-      } catch {
+      catch
         case e: IOException => HaskellNotificationGroup.logErrorEvent(ProjectManager.getInstance().getDefaultProject, e.getMessage)
-      }
 
       scrollToEnd()
-    }
-  }
 
-  def executeLastCommand(): Unit = {
+  def executeLastCommand(): Unit =
     lastCommand.foreach { command =>
       executeCommand(command)
     }
-  }
 
-  private def createFileHyperLinkFilter(): PatternBasedFileHyperlinkFilter = {
+  private def createFileHyperLinkFilter(): PatternBasedFileHyperlinkFilter =
     val pattern = ".*?(?<file>(?:\\p{Alpha}\\:|/)[0-9 a-z_A-Z\\-\\\\./]+):(?<line>[0-9]+):(?<column>[0-9]+).*".r
     val format = new PatternHyperlinkFormat(pattern.pattern, false, false, PatternHyperlinkPart.PATH, PatternHyperlinkPart.LINE, PatternHyperlinkPart.COLUMN)
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(format))
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
-  }
 
-}
 
 final case class HaskellConsoleInfo(stackTarget: String, configurationName: String)

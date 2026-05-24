@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.util
 
-object HtmlElement {
+object HtmlElement:
   final val Quot = "&quot;"
   final val Lt = "&lt;"
   final val Gt = "&gt;"
@@ -22,4 +22,3 @@ object HtmlElement {
   final val HorizontalLine = "<hr>"
   final val PreStart = "<pre>"
   final val PreEnd = "</pre>"
-}

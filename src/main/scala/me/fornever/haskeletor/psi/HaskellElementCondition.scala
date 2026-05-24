@@ -11,42 +11,29 @@ package me.fornever.haskeletor.psi
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.PsiElement
 
-object HaskellElementCondition {
+object HaskellElementCondition:
 
-  final val QualifiedNameElementCondition = new Condition[PsiElement]() {
-    override def value(psiElement: PsiElement): Boolean = {
-      psiElement match {
+  final val QualifiedNameElementCondition = new Condition[PsiElement]():
+    override def value(psiElement: PsiElement): Boolean =
+      psiElement match
         case _: HaskellQualifiedNameElement => true
         case _ => false
-      }
-    }
-  }
 
-  final val DeclarationElementCondition = new Condition[PsiElement]() {
-    override def value(psiElement: PsiElement): Boolean = {
-      psiElement match {
+  final val DeclarationElementCondition = new Condition[PsiElement]():
+    override def value(psiElement: PsiElement): Boolean =
+      psiElement match
         case _: HaskellDeclarationElement => true
         case _ => false
-      }
-    }
-  }
 
-  final val HighestDeclarationElementCondition = new Condition[PsiElement]() {
-    override def value(psiElement: PsiElement): Boolean = {
-      psiElement match {
+  final val HighestDeclarationElementCondition = new Condition[PsiElement]():
+    override def value(psiElement: PsiElement): Boolean =
+      psiElement match
         case _: HaskellModuleDeclaration => true
         case e: HaskellDeclarationElement if e.getParent.getNode.getElementType == HaskellTypes.HS_TOP_DECLARATION => true
         case _ => false
-      }
-    }
-  }
 
-  final val NamedElementCondition = new Condition[PsiElement]() {
-    override def value(psiElement: PsiElement): Boolean = {
-      psiElement match {
+  final val NamedElementCondition = new Condition[PsiElement]():
+    override def value(psiElement: PsiElement): Boolean =
+      psiElement match
         case _: HaskellNamedElement => true
         case _ => false
-      }
-    }
-  }
-}

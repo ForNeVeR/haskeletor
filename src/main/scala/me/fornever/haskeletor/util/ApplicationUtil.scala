@@ -19,43 +19,35 @@ import me.fornever.haskeletor.external.component.{IndexNotReady, NoInfo, ReadAct
 import java.util.concurrent.TimeUnit
 import scala.concurrent.TimeoutException
 
-object ApplicationUtil {
+object ApplicationUtil:
 
-  def isBlockingReadAccessAllowed: Boolean = {
+  def isBlockingReadAccessAllowed: Boolean =
     ApplicationManager.getApplication.isReadAccessAllowed
-  }
 
-  def runReadAction[T](f: => T, project: Option[Project] = None): T = {
-    if (isBlockingReadAccessAllowed) {
+  def runReadAction[T](f: => T, project: Option[Project] = None): T =
+    if isBlockingReadAccessAllowed then
       f
-    } else {
+    else
       val progressIndicator = Option(ProgressIndicatorProvider.getGlobalProgressIndicator).getOrElse(new ProgressIndicatorBase(false, false))
       val readAction = ReadAction.nonBlocking(ScalaUtil.callable(f))
       readAction.wrapProgress(progressIndicator)
       project.foreach(readAction.expireWith)
       readAction.submit(AppExecutorUtil.getAppExecutorService).get(5, TimeUnit.SECONDS)
-    }
-  }
 
-  def runReadActionWithFileAccess[A](project: Project, f: => A, actionDescription: => String): Either[NoInfo, A] = {
-    if (isBlockingReadAccessAllowed) {
+  def runReadActionWithFileAccess[A](project: Project, f: => A, actionDescription: => String): Either[NoInfo, A] =
+    if isBlockingReadAccessAllowed then
       Right(f)
-    } else {
+    else
       val progressIndicator = Option(ProgressIndicatorProvider.getGlobalProgressIndicator)
       val readAction = ReadAction.nonBlocking(ScalaUtil.callable(f)).inSmartMode(project)
       progressIndicator.foreach(readAction.wrapProgress)
       readAction.expireWith(project)
-      try {
-        Option(readAction.submit(AppExecutorUtil.getAppExecutorService).get(5, TimeUnit.SECONDS)) match {
+      try
+        Option(readAction.submit(AppExecutorUtil.getAppExecutorService).get(5, TimeUnit.SECONDS)) match
           case Some(x) => Right(x)
           case None => Left(IndexNotReady)
-        }
-      } catch {
+      catch
         case _: TimeoutException =>
           HaskellNotificationGroup.logInfoEvent(project, s"Timeout in readActionWithFileAccess while $actionDescription")
           Left(ReadActionTimeout(actionDescription))
-      }
-    }
-  }
-}
 

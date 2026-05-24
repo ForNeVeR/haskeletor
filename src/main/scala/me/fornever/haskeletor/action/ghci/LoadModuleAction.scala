@@ -14,22 +14,17 @@ import me.fornever.haskeletor.core.notifications.HaskellNotificationGroup
 import me.fornever.haskeletor.runconfig.console.HaskellConsoleViewMap
 import me.fornever.haskeletor.util.HaskellFileUtil
 
-class LoadModuleAction extends AnAction {
+class LoadModuleAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     actionEvent.getPresentation.setEnabled(HaskellConsoleViewMap.getConsole(actionEvent.getProject).isDefined)
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
-    for {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
+    for
       actionContext <- ActionUtil.findActionContext(actionEvent)
       consoleView <- HaskellConsoleViewMap.getConsole(actionContext.project)
-    } yield {
-      HaskellFileUtil.getAbsolutePath(actionContext.psiFile) match {
+    yield
+      HaskellFileUtil.getAbsolutePath(actionContext.psiFile) match
         case Some(filePath) => consoleView.executeCommand(s":load $filePath", addToHistory = false)
         case None => HaskellNotificationGroup.logWarningBalloonEvent(actionContext.project, s"Can't load file in REPL because `${actionContext.psiFile.getName}` only exists in memory")
-      }
-    }
-  }
 
-}

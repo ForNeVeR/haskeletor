@@ -13,20 +13,18 @@ import com.intellij.lang.ASTNode
 import com.intellij.navigation.NavigationItem
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiElement, PsiNameIdentifierOwner}
-import me.fornever.haskeletor.cabal.lang.psi.impl._
+import me.fornever.haskeletor.cabal.lang.psi.impl.*
 
 sealed trait CabalCompositeElement extends PsiElement
 
-trait CabalNamedElement extends CabalCompositeElement with PsiNameIdentifierOwner with NavigationItem {
+trait CabalNamedElement extends CabalCompositeElement with PsiNameIdentifierOwner with NavigationItem:
   def getUseScope: SearchScope
-}
 
 sealed abstract class CabalCompositeElementImpl(node: ASTNode)
   extends ASTWrapperPsiElement(node)
-    with CabalCompositeElement {
+    with CabalCompositeElement:
 
   override def toString: String = getNode.getElementType.toString
-}
 
 sealed abstract class CabalFieldElement(node: ASTNode) extends CabalCompositeElementImpl(node)
 

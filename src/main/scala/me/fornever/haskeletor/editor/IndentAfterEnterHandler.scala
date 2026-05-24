@@ -18,21 +18,21 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, TokenType}
 import me.fornever.haskeletor.HaskellFile
 import me.fornever.haskeletor.psi.HaskellPsiUtil
-import me.fornever.haskeletor.psi.HaskellTypes._
+import me.fornever.haskeletor.psi.HaskellTypes.*
 
-class IndentAfterEnterHandler extends EnterHandlerDelegateAdapter {
+class IndentAfterEnterHandler extends EnterHandlerDelegateAdapter:
 
   private val IndentTokenSet = TokenSet.create(HS_WHERE, HS_OF, HS_EQUAL, HS_IN, HS_DO, HS_IF, HS_THEN, HS_ELSE)
 
-  override def preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref[Integer], caretAdvance: Ref[Integer], dataContext: DataContext, originalHandler: EditorActionHandler): Result = {
-    if (!file.isInstanceOf[HaskellFile] &&
-      Option(caretOffset.get()).flatMap(offset => Option(file.findElementAt(offset))).exists(e => HaskellPsiUtil.findExpression(e).isEmpty)) return Result.Continue
+  override def preprocessEnter(file: PsiFile, editor: Editor, caretOffset: Ref[Integer], caretAdvance: Ref[Integer], dataContext: DataContext, originalHandler: EditorActionHandler): Result =
+    if !file.isInstanceOf[HaskellFile] &&
+      Option(caretOffset.get()).flatMap(offset => Option(file.findElementAt(offset))).exists(e => HaskellPsiUtil.findExpression(e).isEmpty) then return Result.Continue
 
     val document = editor.getDocument
     PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
 
     val result = Option(caretOffset.get()).flatMap(offset => findNonWhiteSpaceElement(file, offset - 1).orElse(findNonWhiteSpaceElement(file, offset - 2)).map(element => {
-      if (IndentTokenSet.contains(element.getNode.getElementType)) {
+      if IndentTokenSet.contains(element.getNode.getElementType) then {
         document.insertString(offset, "  ")
         caretAdvance.set(2)
         Result.Default
@@ -42,10 +42,7 @@ class IndentAfterEnterHandler extends EnterHandlerDelegateAdapter {
     })
     )
     result.getOrElse(Result.Continue)
-  }
 
 
-  private def findNonWhiteSpaceElement(file: PsiFile, offset: Int): Option[PsiElement] = {
+  private def findNonWhiteSpaceElement(file: PsiFile, offset: Int): Option[PsiElement] =
     Option(file.findElementAt(offset - 1)).filterNot(_.getNode.getElementType == TokenType.WHITE_SPACE)
-  }
-}

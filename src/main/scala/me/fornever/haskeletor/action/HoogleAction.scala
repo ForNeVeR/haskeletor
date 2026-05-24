@@ -14,13 +14,12 @@ import com.intellij.openapi.util.text.StringUtil
 import me.fornever.haskeletor.external.component.{HoogleComponent, StackProjectManager}
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class HoogleAction extends AnAction {
+class HoogleAction extends AnAction:
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableExternalAction(actionEvent, (project: Project) => StackProjectManager.isHoogleAvailable(project).isDefined && HoogleComponent.doesHoogleDatabaseExist(project))
-  }
 
-  def actionPerformed(actionEvent: AnActionEvent): Unit = {
+  def actionPerformed(actionEvent: AnActionEvent): Unit =
     ActionUtil.findActionContext(actionEvent).foreach(actionContext => {
       val editor = actionContext.editor
       val psiFile = actionContext.psiFile
@@ -34,5 +33,3 @@ class HoogleAction extends AnAction {
         }
       })
     })
-  }
-}

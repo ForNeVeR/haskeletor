@@ -9,25 +9,21 @@
 package me.fornever.haskeletor
 
 import com.intellij.extapi.psi.PsiFileBase
-import com.intellij.openapi.fileTypes._
+import com.intellij.openapi.fileTypes.*
 import com.intellij.psi.FileViewProvider
 import me.fornever.haskeletor.core.HaskellLanguage
 import org.jetbrains.annotations.NotNull
 
-import javax.swing._
+import javax.swing.*
 
-class HaskellFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, HaskellLanguage.Instance) {
+class HaskellFile(viewProvider: FileViewProvider) extends PsiFileBase(viewProvider, HaskellLanguage.Instance):
 
   @NotNull
-  def getFileType: FileType = {
+  def getFileType: FileType =
     HaskellFileType.INSTANCE
-  }
 
-  override def toString: String = {
+  override def toString: String =
     "Haskell file"
-  }
 
-  override def getIcon(flags: Int): Icon = {
+  override def getIcon(flags: Int): Icon =
     super.getIcon(flags)
-  }
-}

@@ -9,7 +9,7 @@ package me.fornever.haskeletor.core.stack
 import com.jetbrains.rd.util.reactive.{ISource, Signal}
 
 /** Parses incremental Stack process output into structured events. */
-class StackOutputParser {
+class StackOutputParser:
   private val _signal = new Signal[StackOutputEvent]()
   private val buffer = new StringBuilder()
 
@@ -17,47 +17,37 @@ class StackOutputParser {
   val event: ISource[StackOutputEvent] = _signal
 
   /** Adds the next output chunk, which may contain partial lines or even a single character. */
-  def addText(text: String): Unit = {
-    text.foreach {
+  def addText(text: String): Unit =
+    text.foreach:
       case '\r' | '\n' | '\b' => flushBuffer()
       case character => buffer.append(character)
-    }
-  }
 
   /** Flushes the last buffered fragment after the process output has ended. */
   def finishProcess(): Unit = flushBuffer()
 
-  private def flushBuffer(): Unit = {
-    if (buffer.isEmpty) {
+  private def flushBuffer(): Unit =
+    if buffer.isEmpty then
       return
-    }
 
     val fragment = buffer.result()
     buffer.clear()
 
-    if (!fragment.forall(_.isWhitespace)) {
+    if !fragment.forall(_.isWhitespace) then
       _signal.fire(StackOutputParser.parse(fragment))
-    }
-  }
-}
 
-private object StackOutputParser {
+private object StackOutputParser:
   private val ProgressPattern = raw"^Progress (\d+)/(\d+)(?:: (.*))?$$".r
   private val PackageStatusPattern = raw"^(\S(?:.*\S)?)\s+>\s+(.+)$$".r
 
-  private def parse(fragment: String): StackOutputEvent = {
-    fragment.trim match {
+  private def parse(fragment: String): StackOutputEvent =
+    fragment.trim match
       case ProgressPattern(done, total, packages) =>
         Progress(done.toInt, total.toInt, Option(packages).map(parsePackages).getOrElse(IndexedSeq.empty))
       case PackageStatusPattern(packageName, status) => PackageStatus(packageName, status)
       case _ => TextOutput(fragment)
-    }
-  }
 
-  private def parsePackages(packages: String): IndexedSeq[String] = {
+  private def parsePackages(packages: String): IndexedSeq[String] =
     packages.split(",").iterator.map(_.trim).filter(_.nonEmpty).toIndexedSeq
-  }
-}
 
 /** A structured event parsed from Stack process output. */
 sealed trait StackOutputEvent

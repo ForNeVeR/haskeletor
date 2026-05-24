@@ -25,12 +25,12 @@ import java.util.Properties
 /**
   * Orchestrate the test module creation
   */
-class CreateHaskellTestAction extends PsiElementBaseIntentionAction {
+class CreateHaskellTestAction extends PsiElementBaseIntentionAction:
 
   /**
     * Build a decent default directory value (e.g. if source module is ./src/A/Bc/Defg.hs then a decent default test directory is ./test/A/Bc/DefgSpec.hs)
     */
-  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     PsiTreeUtil.findChildOfType(element.getContainingFile, classOf[HaskellModuleDeclaration])
       .getModuleName
       .foreach(moduleName => {
@@ -48,7 +48,7 @@ class CreateHaskellTestAction extends PsiElementBaseIntentionAction {
         val additionalProps = new Properties()
         additionalProps.setProperty("SUT_NAME", moduleName)
 
-        if (createTestDialog.showAndGet) {
+        if createTestDialog.showAndGet then {
           val testFileCreation: Runnable = () => createTestFileAction.createFileFromTemplate(createTestDialog.getModuleName, testTemplate, testRootDirectory, additionalProps)
           try {
             WriteCommandAction.runWriteCommandAction(project, testFileCreation)
@@ -57,9 +57,7 @@ class CreateHaskellTestAction extends PsiElementBaseIntentionAction {
           }
         }
       })
-  }
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = true
 
   override def getFamilyName: String = CodeInsightBundle.message("intention.create.test")
-}

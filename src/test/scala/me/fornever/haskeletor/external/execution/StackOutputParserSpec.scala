@@ -19,10 +19,10 @@ import java.nio.file.{Files, Path}
 import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JUnitRunner])
-class StackOutputParserSpec extends AnyFunSpec with Matchers with GivenWhenThen {
+class StackOutputParserSpec extends AnyFunSpec with Matchers with GivenWhenThen:
 
-  describe("StackOutputParser") {
-    it("should produce the same event sequence for all input chunking modes") {
+  describe("StackOutputParser"):
+    it("should produce the same event sequence for all input chunking modes"):
       Given("the recorded Stack stderr output")
       //noinspection UseOptimizedEelFunctions
       val text = Files.readString(
@@ -59,10 +59,8 @@ class StackOutputParserSpec extends AnyFunSpec with Matchers with GivenWhenThen 
       ))
       wholeTextEvents should contain(PackageStatus("hlint", "copy/register"))
       wholeTextEvents should contain(TextOutput("Completed 67 action(s)."))
-    }
-  }
 
-  private def parseOutput(chunks: Seq[String]): Seq[StackOutputEvent] = {
+  private def parseOutput(chunks: Seq[String]): Seq[StackOutputEvent] =
     val parser = new StackOutputParser
     val events = ArrayBuffer.empty[StackOutputEvent]
 
@@ -74,5 +72,3 @@ class StackOutputParserSpec extends AnyFunSpec with Matchers with GivenWhenThen 
     parser.finishProcess()
 
     events.toSeq
-  }
-}

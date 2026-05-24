@@ -10,32 +10,32 @@ package me.fornever.haskeletor.external.component
 
 import me.fornever.haskeletor.core.util.StringUtil
 
-object DeclarationUtil {
+object DeclarationUtil:
 
-  def getDeclarationInfo(declarationLine: String, containsQualifiedIds: Boolean): Option[DeclarationInfo] = {
+  def getDeclarationInfo(declarationLine: String, containsQualifiedIds: Boolean): Option[DeclarationInfo] =
     val declaration = StringUtil.removeCommentsAndWhiteSpaces(declarationLine)
     val allTokens = declaration.split("""\s+""")
-    (if (allTokens.isEmpty || allTokens(0) == "--") {
+    (if allTokens.isEmpty || allTokens(0) == "--" then {
       None
-    } else if (Seq("class", "instance").contains(allTokens(0))) {
+    } else if Seq("class", "instance").contains(allTokens(0)) then {
       declaration.split("""where|=\s|\s\.\.\.""").headOption.flatMap { d =>
         val tokens = d.trim.split("=>")
         val size = tokens.size
-        if (size == 1) {
+        if size == 1 then {
           Option(tokens(0).split("""\s+""")(1))
-        } else if (size > 1) {
+        } else if size > 1 then {
           Option(tokens.last.trim.split("""\s+""")(0))
         } else {
           None
         }
       }
-    } else if (allTokens(0) == "type" && allTokens(1) == "role") {
+    } else if allTokens(0) == "type" && allTokens(1) == "role" then {
       Option(allTokens(2))
-    } else if (Seq("data", "type", "newtype").contains(allTokens(0).trim)) {
+    } else if Seq("data", "type", "newtype").contains(allTokens(0).trim) then {
       Option(allTokens(1))
     } else {
       val tokens = declaration.split("::")
-      if (tokens.size > 1) {
+      if tokens.size > 1 then {
         val name = tokens(0).trim
         Option(name)
       } else {
@@ -43,20 +43,18 @@ object DeclarationUtil {
       }
     }).map(name => {
       val operator = StringUtil.isWithinParens(name)
-      val id = if (operator) {
+      val id = if operator then {
         StringUtil.removeOuterParens(name)
       } else {
         name
       }
-      if (containsQualifiedIds) {
+      if containsQualifiedIds then {
         DeclarationInfo(StringUtil.removePackageModuleQualifier(id), Some(id), StringUtil.removePackageModuleQualifier(declaration), operator)
       } else {
         DeclarationInfo(id, None, declaration, operator)
       }
     })
-  }
 
   case class DeclarationInfo(id: String, qualifiedId: Option[String], declarationLine: String, operator: Boolean)
 
-}
 

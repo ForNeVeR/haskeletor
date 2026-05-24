@@ -20,15 +20,14 @@ import me.fornever.haskeletor.external.component.{HoogleComponent, StackProjectM
 import me.fornever.haskeletor.navigation.{GotoByHoogleModel, HoogleByNameContributor}
 import me.fornever.haskeletor.util.HaskellEditorUtil
 
-class HoogleNavigationAction extends GotoActionBase {
+class HoogleNavigationAction extends GotoActionBase:
 
   private val contributors = Array[ChooseByNameContributor](new HoogleByNameContributor)
 
-  override def update(actionEvent: AnActionEvent): Unit = {
+  override def update(actionEvent: AnActionEvent): Unit =
     HaskellEditorUtil.enableExternalAction(actionEvent, (project: Project) => !StackProjectManager.isInitializing(project) && StackProjectManager.isHoogleAvailable(project).isDefined && HoogleComponent.doesHoogleDatabaseExist(project))
-  }
 
-  def gotoActionPerformed(actionEvent: AnActionEvent): Unit = {
+  def gotoActionPerformed(actionEvent: AnActionEvent): Unit =
     ActionUtil.findActionContext(actionEvent).foreach(context => {
 
       val project = context.project
@@ -46,5 +45,3 @@ class HoogleNavigationAction extends GotoActionBase {
         }
       }, "Hoogle for words or type signature", true)
     })
-  }
-}

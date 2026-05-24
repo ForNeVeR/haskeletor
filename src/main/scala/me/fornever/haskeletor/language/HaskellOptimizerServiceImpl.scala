@@ -10,6 +10,5 @@ import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.core.language.HaskellImportOptimizerService
 import me.fornever.haskeletor.editor.HaskellImportOptimizer
 
-final class HaskellImportOptimizerServiceImpl extends HaskellImportOptimizerService {
+final class HaskellImportOptimizerServiceImpl extends HaskellImportOptimizerService:
   def removeRedundantImports(psiFile: PsiFile): Boolean = HaskellImportOptimizer.removeRedundantImports(psiFile)
-}

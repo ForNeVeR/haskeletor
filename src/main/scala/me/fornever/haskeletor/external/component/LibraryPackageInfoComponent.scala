@@ -17,9 +17,9 @@ import me.fornever.haskeletor.external.execution.CommandLine
 import me.fornever.haskeletor.util.{HaskellProjectUtil, ScalaUtil}
 
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-private[component] object LibraryPackageInfoComponent {
+private[component] object LibraryPackageInfoComponent:
 
   private case class Key(project: Project, packageName: String)
 
@@ -31,14 +31,13 @@ private[component] object LibraryPackageInfoComponent {
 
   private final val Cache: LoadingCache[Key, Result] = Scaffeine().build((k: Key) => findPackageInfo(k))
 
-  private def splitLines(s: String, excludeEmptyLines: Boolean) = {
+  private def splitLines(s: String, excludeEmptyLines: Boolean) =
     val converted = StringUtil.convertLineSeparators(s)
     StringUtil.split(converted, "\n", true, excludeEmptyLines).asScala.toSeq
-  }
 
-  import scala.concurrent.duration._
+  import scala.concurrent.duration.*
 
-  def preloadLibraryPackageInfos(project: Project): Unit = {
+  def preloadLibraryPackageInfos(project: Project): Unit =
     val projectPackageNames = HaskellComponentsManager.findProjectModulePackageNames(project)
     val globalProjectInfo = HaskellComponentsManager.getGlobalProjectInfo(project)
 
@@ -58,64 +57,51 @@ private[component] object LibraryPackageInfoComponent {
       })
     }
 
-    result match {
-      case Some(r) => r.foreach {
-        case d@Some(packageInfo) => if (!projectPackageNames.contains(packageInfo.packageName) && packageInfo.packageName != "rts") Cache.put(Key(project, packageInfo.packageName), d)
+    result match
+      case Some(r) => r.foreach:
+        case d@Some(packageInfo) => if !projectPackageNames.contains(packageInfo.packageName) && packageInfo.packageName != "rts" then Cache.put(Key(project, packageInfo.packageName), d)
         case None => HaskellNotificationGroup.logInfoBalloonEvent(project, s"Could not retrieve all package information via `ghc-pkg dump`")
-      }
       case None => HaskellNotificationGroup.logErrorBalloonEvent(project, "Executing `ghc-pkg dump` failed")
-    }
-  }
 
-  def findLibraryModuleName(moduleName: String): Option[Boolean] = {
+  def findLibraryModuleName(moduleName: String): Option[Boolean] =
     AllCache.getIfPresent(moduleName)
-  }
 
-  def findLibraryPackageInfo(project: Project, packageName: String): Result = {
+  def findLibraryPackageInfo(project: Project, packageName: String): Result =
     val key = Key(project, packageName)
-    Cache.get(key) match {
+    Cache.get(key) match
       case result@Some(_) => result
       case _ => None
-    }
-  }
 
-  private def findPackageInfo(key: Key): Result = {
+  private def findPackageInfo(key: Key): Result =
     // Because preloadLibraryModuleNames should already have done all the work, something is wrong if this method is called
     HaskellNotificationGroup.logWarningEvent(key.project, s"Package ${key.packageName} is not in library module names cache")
     None
-  }
 
   private final val PackageNameVersionPattern = """([\w\-]+)-([\d\.]+)(?:\-.*)?""".r
 
-  def toPackageNameversion(depends: String): Option[PackageId] = {
-    depends match {
+  def toPackageNameversion(depends: String): Option[PackageId] =
+    depends match
       case PackageNameVersionPattern(name, version) => Some(PackageId(name, version))
       case _ => None
-    }
-  }
 
-  private def findPackageInfo(lines: Seq[String]): Option[LibraryPackageInfo] = {
+  private def findPackageInfo(lines: Seq[String]): Option[LibraryPackageInfo] =
     val packageInfoMap = ScalaUtil.linesToMap(lines)
 
-    for {
+    for
       name <- packageInfoMap.get("name")
       version <- packageInfoMap.get("version")
       id <- packageInfoMap.get("id")
       exposedModuleNames = packageInfoMap.get("exposed-modules").map(splitLine).getOrElse(Seq())
       hiddenModuleNames = packageInfoMap.get("hidden-modules").map(splitLine).getOrElse(Seq())
       dependsPackageNames = packageInfoMap.get("depends").map(splitLine).getOrElse(Seq()).flatMap(toPackageNameversion)
-    } yield LibraryPackageInfo(name, version, id, exposedModuleNames, hiddenModuleNames, dependsPackageNames)
-  }
+    yield LibraryPackageInfo(name, version, id, exposedModuleNames, hiddenModuleNames, dependsPackageNames)
 
-  private def splitLine(s: String): Seq[String] = {
+  private def splitLine(s: String): Seq[String] =
     s.replaceAll("""\s+""", ",").split(",").map(_.trim).filterNot(_ == "from").map(removePackageQualifier).toSeq
-  }
 
-  def invalidate(project: Project): Unit = {
+  def invalidate(project: Project): Unit =
     val keys = Cache.asMap().keys.filter(_.project == project)
     keys.foreach(Cache.invalidate)
-  }
-}
 
 
 case class LibraryPackageInfo(packageName: String, version: String, id: String, exposedModuleNames: Seq[String], hiddenModuleNames: Seq[String], dependsOnPackageIds: Seq[PackageId])

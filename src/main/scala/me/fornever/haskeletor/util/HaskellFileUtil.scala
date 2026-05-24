@@ -24,11 +24,11 @@ import java.io.{File, FileOutputStream, InputStream}
 import java.nio.charset.Charset
 import java.nio.file.Path
 
-object HaskellFileUtil {
+object HaskellFileUtil:
 
   private final val FileDocManager = FileDocumentManager.getInstance
 
-  def saveFiles(project: Project): Unit = {
+  def saveFiles(project: Project): Unit =
     val openFiles = FileEditorManager.getInstance(project).getOpenFiles.filter(HaskellFileUtil.isHaskellFile)
     val documentManager = PsiDocumentManager.getInstance(project)
     openFiles.flatMap(f => findDocument(f)).foreach(documentManager.doPostponedOperationsAndUnblockDocument)
@@ -37,93 +37,75 @@ object HaskellFileUtil {
         FileDocManager.saveAllDocuments()
       }
     )
-  }
 
-  def saveFileAsIsInDispatchThread(virtualFile: VirtualFile): Unit = {
+  def saveFileAsIsInDispatchThread(virtualFile: VirtualFile): Unit =
     findDocument(virtualFile).foreach(d => {
       WriteAction.runAndWait(() =>
         FileDocManager.saveDocumentAsIs(d)
       )
     })
-  }
 
-  def saveFile(psiFile: PsiFile): Unit = {
+  def saveFile(psiFile: PsiFile): Unit =
     findDocument(psiFile).foreach(d => {
       WriteAction.run(() =>
         FileDocManager.saveDocumentAsIs(d)
       )
     })
-  }
 
-  def isDocumentUnsaved(document: Document): Boolean = {
+  def isDocumentUnsaved(document: Document): Boolean =
     FileDocManager.isDocumentUnsaved(document)
-  }
 
-  def findFileInRead(project: Project, filePath: String): (Option[VirtualFile], Either[NoInfo, PsiFile]) = {
+  def findFileInRead(project: Project, filePath: String): (Option[VirtualFile], Either[NoInfo, PsiFile]) =
     val virtualFile = Option(LocalFileSystem.getInstance().findFileByPath(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
-    val psiFile = virtualFile.map(f => HaskellFileUtil.convertToHaskellFileInReadAction(project, f)) match {
+    val psiFile = virtualFile.map(f => HaskellFileUtil.convertToHaskellFileInReadAction(project, f)) match
       case Some(r) => r
       case None => Left(NoInfoAvailable(filePath, "-"))
-    }
     (virtualFile, psiFile)
-  }
 
-  def findFile(project: Project, filePath: String): (Option[VirtualFile], Option[PsiFile]) = {
+  def findFile(project: Project, filePath: String): (Option[VirtualFile], Option[PsiFile]) =
     val virtualFile = Option(LocalFileSystem.getInstance().findFileByPath(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
-    val psiFile = virtualFile.map(f => PsiFileUtil.convertToHaskellFileDispatchThread(project, f)) match {
+    val psiFile = virtualFile.map(f => PsiFileUtil.convertToHaskellFileDispatchThread(project, f)) match
       case Some(r) => r
       case None => None
-    }
     (virtualFile, psiFile)
-  }
 
-  def findVirtualFile(project: Project, filePath: Path): Option[VirtualFile] = {
+  def findVirtualFile(project: Project, filePath: Path): Option[VirtualFile] =
     Option(LocalFileSystem.getInstance().findFileByNioFile(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
-  }
 
-  def findVirtualFile(project: Project, filePath: String): Option[VirtualFile] = {
+  def findVirtualFile(project: Project, filePath: String): Option[VirtualFile] =
     Option(LocalFileSystem.getInstance().findFileByPath(HaskellFileUtil.makeFilePathAbsolute(filePath, project)))
-  }
 
-  def findVirtualFile(psiFile: PsiFile): Option[VirtualFile] = {
+  def findVirtualFile(psiFile: PsiFile): Option[VirtualFile] =
     Option(psiFile.getOriginalFile.getVirtualFile)
-  }
 
-  def findDocument(virtualFile: VirtualFile): Option[Document] = {
+  def findDocument(virtualFile: VirtualFile): Option[Document] =
     val fileDocumentManager = FileDocumentManager.getInstance()
     Option(fileDocumentManager.getCachedDocument(virtualFile))
-  }
 
-  def findDocument(psiFile: PsiFile): Option[Document] = {
-    for {
+  def findDocument(psiFile: PsiFile): Option[Document] =
+    for
       vf <- findVirtualFile(psiFile)
       d <- Option(FileDocManager.getCachedDocument(vf))
-    } yield d
-  }
+    yield d
 
-  def getAbsolutePath(psiFile: PsiFile): Option[String] = {
-    Option(psiFile.getOriginalFile.getVirtualFile) match {
+  def getAbsolutePath(psiFile: PsiFile): Option[String] =
+    Option(psiFile.getOriginalFile.getVirtualFile) match
       case Some(vf) => Some(getAbsolutePath(vf))
       case None => None
-    }
-  }
 
-  def getCharset(psiFile: PsiFile): Option[Charset] = {
+  def getCharset(psiFile: PsiFile): Option[Charset] =
     findVirtualFile(psiFile).map(_.getCharset)
-  }
 
-  def getAbsolutePath(virtualFile: VirtualFile): String = {
+  def getAbsolutePath(virtualFile: VirtualFile): String =
     new File(virtualFile.getPath).getAbsolutePath
-  }
 
-  def makeFilePathAbsolute(filePath: String, project: Project): String = {
+  def makeFilePathAbsolute(filePath: String, project: Project): String =
     makeFilePathAbsolute(filePath, project.getBasePath)
-  }
 
-  def makeFilePathAbsolute(filePath: Path, project: Project): Path = {
-    if (filePath.isAbsolute)
+  def makeFilePathAbsolute(filePath: Path, project: Project): Path =
+    if filePath.isAbsolute then
       filePath
-    else {
+    else
       val projectDir = Option(ProjectUtil.guessProjectDir(project))
       projectDir
         .map(p => Path.of(p.getPath, filePath.toString))
@@ -131,82 +113,64 @@ object HaskellFileUtil {
           logger.error(s"Could not find project directory for project ${project.getName}.")
           filePath
         })
-    }
-  }
 
-  def makeFilePathAbsolute(filePath: String, parentFilePath: String): String = {
+  def makeFilePathAbsolute(filePath: String, parentFilePath: String): String =
     val path = new File(filePath)
-    if (path.isAbsolute)
+    if path.isAbsolute then
       path.getCanonicalPath
     else
       new File(parentFilePath, filePath).getCanonicalPath
-  }
 
-  def convertToHaskellFiles(project: Project, virtualFiles: Iterable[VirtualFile]): Iterable[PsiFile] = {
+  def convertToHaskellFiles(project: Project, virtualFiles: Iterable[VirtualFile]): Iterable[PsiFile] =
     virtualFiles.flatMap(vf => PsiFileUtil.findCachedPsiFile(project, vf) match {
       case Some(pf) => Some(pf)
       case _ => None
     })
-  }
 
 
 
-  def convertToHaskellFileInReadAction(project: Project, virtualFile: VirtualFile): Either[NoInfo, PsiFile] = {
+  def convertToHaskellFileInReadAction(project: Project, virtualFile: VirtualFile): Either[NoInfo, PsiFile] =
     val actionMessage = s"Converting ${virtualFile.getName} to psi file"
-    ApplicationUtil.runReadActionWithFileAccess(project, PsiFileUtil.findCachedPsiFile(project, virtualFile), actionDescription = actionMessage) match {
+    ApplicationUtil.runReadActionWithFileAccess(project, PsiFileUtil.findCachedPsiFile(project, virtualFile), actionDescription = actionMessage) match
       case Right(Some(pf)) => Right(pf)
-      case _ => ApplicationUtil.runReadActionWithFileAccess(project, PsiFileUtil.findPsiFile(project, virtualFile), actionDescription = actionMessage) match {
+      case _ => ApplicationUtil.runReadActionWithFileAccess(project, PsiFileUtil.findPsiFile(project, virtualFile), actionDescription = actionMessage) match
         case Right(Some(pf)) => Right(pf)
         case Right(None) => Left(NoInfoAvailable(virtualFile.getName, "-"))
         case Left(noInfo) => Left(noInfo)
-      }
-    }
-  }
 
-  def copyStreamToFile(stream: InputStream, file: File): File = {
-    try {
+  def copyStreamToFile(stream: InputStream, file: File): File =
+    try
       val outputStream = new FileOutputStream(file)
-      try {
+      try
         FileUtil.copy(stream, outputStream)
-      } finally {
+      finally
         outputStream.close()
-      }
-    } finally {
+    finally
       stream.close()
-    }
     file
-  }
 
-  def isHaskellFile(psiFile: PsiFile): Boolean = {
+  def isHaskellFile(psiFile: PsiFile): Boolean =
     isHaskellFileName(psiFile.getName)
-  }
 
-  def isHaskellFile(virtualFile: VirtualFile): Boolean = {
+  def isHaskellFile(virtualFile: VirtualFile): Boolean =
     isHaskellFileName(virtualFile.getName)
-  }
 
   private final val HaskellFileSuffix = "." + HaskellFileType.INSTANCE.getDefaultExtension
 
-  private def isHaskellFileName(name: String) = {
+  private def isHaskellFileName(name: String) =
     name.endsWith(HaskellFileSuffix)
-  }
 
-  def removeFileExtension(fileName: String): String = {
+  def removeFileExtension(fileName: String): String =
     val index = fileName.lastIndexOf('.')
-    if (index < 0) fileName else fileName.substring(0, index)
-  }
+    if index < 0 then fileName else fileName.substring(0, index)
 
-  def findDirectory(dirPath: String, project: Project): Option[VirtualFile] = {
+  def findDirectory(dirPath: String, project: Project): Option[VirtualFile] =
     Option(LocalFileSystem.getInstance().findFileByPath(HaskellFileUtil.makeFilePathAbsolute(dirPath, project)))
-  }
 
-  def getUrlByPath(absolutePath: String): String = {
+  def getUrlByPath(absolutePath: String): String =
     VirtualFileManager.constructUrl(LocalFileSystem.getInstance.getProtocol, absolutePath)
-  }
 
-  def normalizeLineEndings(text: String): String = {
+  def normalizeLineEndings(text: String): String =
     text.replace("\r\n", "\n").replace("\r", "\n")
-  }
 
   private val logger = Logger.getInstance(getClass)
-}

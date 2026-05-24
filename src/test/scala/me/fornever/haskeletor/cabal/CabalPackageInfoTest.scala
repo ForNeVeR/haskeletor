@@ -9,10 +9,10 @@ package me.fornever.haskeletor.cabal
 import com.intellij.testFramework.ParsingTestCase
 import me.fornever.haskeletor.cabal.lang.parser.CabalParserDefinition
 
-class CabalPackageInfoTest extends ParsingTestCase("", "cabal", new CabalParserDefinition) {
+class CabalPackageInfoTest extends ParsingTestCase("", "cabal", new CabalParserDefinition):
   override def getTestDataPath: String = "src/test/testData/parsing-hs"
 
-  def testMainIsResolutionShouldNotCrashForTestSuiteStanza(): Unit = {
+  def testMainIsResolutionShouldNotCrashForTestSuiteStanza(): Unit =
     val cabalFileText =
       """name: sample
         |version: 0.1.0.0
@@ -28,5 +28,3 @@ class CabalPackageInfoTest extends ParsingTestCase("", "cabal", new CabalParserD
     val testSuites = packageInfo.testSuites.toSeq
     assert(testSuites.size == 1)
     assert(testSuites.head.mainIs.isEmpty)
-  }
-}

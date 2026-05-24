@@ -10,30 +10,24 @@ package me.fornever.haskeletor.psi.stubs.types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.stubs.{IndexSink, NamedStubBase, StubOutputStream}
-import me.fornever.haskeletor.psi._
+import me.fornever.haskeletor.psi.*
 import me.fornever.haskeletor.psi.stubs.index.HaskellAllNameIndex
 
-abstract class HaskellNamedStubElementType[S <: NamedStubBase[T], T <: HaskellNamedElement](debugName: String) extends HaskellStubElementType[S, T](debugName) {
+abstract class HaskellNamedStubElementType[S <: NamedStubBase[T], T <: HaskellNamedElement](debugName: String) extends HaskellStubElementType[S, T](debugName):
 
-  def indexStub(stub: S, sink: IndexSink): Unit = {
+  def indexStub(stub: S, sink: IndexSink): Unit =
     val name: String = stub.getName
-    if (name != null) {
+    if name != null then
       sink.occurrence(HaskellAllNameIndex.Key, name)
-    }
-  }
 
-  def serialize(stub: S, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: S, dataStream: StubOutputStream): Unit =
     dataStream.writeName(stub.getName)
-  }
 
-  override def shouldCreateStub(node: ASTNode): Boolean = {
-    node.getPsi match {
+  override def shouldCreateStub(node: ASTNode): Boolean =
+    node.getPsi match
       case _: HaskellVarid => true
       case _: HaskellVarsym => true
       case _: HaskellConid => true
       case _: HaskellConsym => true
       case _: HaskellModid => true
       case _ => false
-    }
-  }
-}

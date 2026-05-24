@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.inspection
 
-import com.intellij.codeInspection._
+import com.intellij.codeInspection.*
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -18,17 +18,17 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, TokenType}
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.external.component.HLintInfo
-import me.fornever.haskeletor.psi.HaskellTypes._
+import me.fornever.haskeletor.psi.HaskellTypes.*
 import me.fornever.haskeletor.psi.{HaskellElementFactory, HaskellTypes}
-import me.fornever.haskeletor.util._
+import me.fornever.haskeletor.util.*
 
 import scala.annotation.tailrec
 
-object ManualHLintQuickfix {
+object ManualHLintQuickfix:
   private val NotHaskellIdentifiers: Seq[IElementType] = Seq(HS_NEWLINE, HS_COMMENT, HS_NCOMMENT, TokenType.WHITE_SPACE, HS_HADDOCK, HS_NHADDOCK)
 
-  def registerProblem(psiFile: PsiFile, virtualFile: VirtualFile, hlintInfo: HLintInfo, problemsHolder: ProblemsHolder, problemType: ProblemHighlightType, isOnTheFly: Boolean): Option[Unit] = {
-    for {
+  def registerProblem(psiFile: PsiFile, virtualFile: VirtualFile, hlintInfo: HLintInfo, problemsHolder: ProblemsHolder, problemType: ProblemHighlightType, isOnTheFly: Boolean): Option[Unit] =
+    for
       se <- findStartHaskellElement(virtualFile, psiFile, hlintInfo)
       () = ProgressManager.checkCanceled()
       ee <- findEndHaskellElement(virtualFile, psiFile, hlintInfo)
@@ -36,84 +36,70 @@ object ManualHLintQuickfix {
       sl <- fromOffset(virtualFile, se)
       () = ProgressManager.checkCanceled()
       el <- fromOffset(virtualFile, ee)
-    } yield {
+    yield
       ProgressManager.checkCanceled()
 
-      hlintInfo.to match {
+      hlintInfo.to match
         case Some(to) if se.isValid && ee.isValid =>
           problemsHolder.registerProblem(new ProblemDescriptorBase(se, ee, hlintInfo.hint, Array(createQuickfix(hlintInfo, se, ee, sl, el, to)), problemType, false, null, true, isOnTheFly))
         case None =>
           problemsHolder.registerProblem(new ProblemDescriptorBase(se, ee, hlintInfo.hint, Array(), problemType, false, null, true, isOnTheFly))
         case _ => ()
-      }
-    }
-  }
 
-  private def createQuickfix(hLintInfo: HLintInfo, startElement: PsiElement, endElement: PsiElement, startLineNumber: Int, endLineNumber: Int, to: String) = {
+  private def createQuickfix(hLintInfo: HLintInfo, startElement: PsiElement, endElement: PsiElement, startLineNumber: Int, endLineNumber: Int, to: String) =
     new ManualHLintQuickfix(startElement, endElement, hLintInfo.startLine, hLintInfo.startColumn, removeLineBreaksAndExtraSpaces(startLineNumber, endLineNumber, to), hLintInfo.hint, hLintInfo.note)
-  }
 
-  private def fromOffset(virtualFile: VirtualFile, psiElement: PsiElement): Option[Int] = {
+  private def fromOffset(virtualFile: VirtualFile, psiElement: PsiElement): Option[Int] =
     LineColumnPosition.fromOffset(virtualFile, psiElement.getTextOffset).map(_.lineNr)
-  }
 
-  private def removeLineBreaksAndExtraSpaces(sl: Int, el: Int, s: String) = {
-    if (sl == el) {
+  private def removeLineBreaksAndExtraSpaces(sl: Int, el: Int, s: String) =
+    if sl == el then
       s.replaceAll("""\n""", " ").replaceAll("""\s+""", " ")
-    } else {
+    else
       s
-    }
-  }
 
-  private def findStartHaskellElement(virtualFile: VirtualFile, psiFile: PsiFile, hlintInfo: HLintInfo): Option[PsiElement] = {
+  private def findStartHaskellElement(virtualFile: VirtualFile, psiFile: PsiFile, hlintInfo: HLintInfo): Option[PsiElement] =
     val offset = LineColumnPosition.getOffset(virtualFile, LineColumnPosition(hlintInfo.startLine, hlintInfo.startColumn))
     val element = offset.flatMap(offset => Option(psiFile.findElementAt(offset)))
     element.filterNot(e => ManualHLintQuickfix.NotHaskellIdentifiers.contains(e.getNode.getElementType))
-  }
 
-  private def findEndHaskellElement(virtualFile: VirtualFile, psiFile: PsiFile, hlintInfo: HLintInfo): Option[PsiElement] = {
-    val endOffset = if (hlintInfo.endLine >= hlintInfo.startLine && hlintInfo.endColumn > hlintInfo.startColumn) {
+  private def findEndHaskellElement(virtualFile: VirtualFile, psiFile: PsiFile, hlintInfo: HLintInfo): Option[PsiElement] =
+    val endOffset = if hlintInfo.endLine >= hlintInfo.startLine && hlintInfo.endColumn > hlintInfo.startColumn then
       LineColumnPosition.getOffset(virtualFile, LineColumnPosition(hlintInfo.endLine, hlintInfo.endColumn - 1))
-    } else {
+    else
       LineColumnPosition.getOffset(virtualFile, LineColumnPosition(hlintInfo.endLine, hlintInfo.endColumn))
-    }
 
     endOffset.flatMap(offset => findHaskellIdentifier(psiFile, offset))
-  }
 
   @tailrec
-  private def findHaskellIdentifier(psiFile: PsiFile, offset: Int): Option[PsiElement] = {
-    Option(psiFile.findElementAt(offset)) match {
+  private def findHaskellIdentifier(psiFile: PsiFile, offset: Int): Option[PsiElement] =
+    Option(psiFile.findElementAt(offset)) match
       case None => findHaskellIdentifier(psiFile, offset - 1)
       case Some(e) if ManualHLintQuickfix.NotHaskellIdentifiers.contains(e.getNode.getElementType) => findHaskellIdentifier(psiFile, offset - 1)
       case e => e
-    }
-  }
-}
 
-class ManualHLintQuickfix(startElement: PsiElement, endElement: PsiElement, startLineNr: Int, startColumnNr: Int, toSuggestion: String, hint: String, note: Seq[String]) extends LocalQuickFixOnPsiElement(startElement, endElement) {
-  override def getText: String = {
-    if (toSuggestion.isEmpty) {
+class ManualHLintQuickfix(startElement: PsiElement, endElement: PsiElement, startLineNr: Int, startColumnNr: Int, toSuggestion: String, hint: String, note: Seq[String]) extends LocalQuickFixOnPsiElement(startElement, endElement):
+  override def getText: String =
+    if toSuggestion.isEmpty then
       "Remove"
-    } else {
+    else {
       s"$hint, change to `$toSuggestion`"
     } + noteText(note)
-  }
 
   override def getFamilyName: String = "Inspection by HLint"
 
-  override def invoke(project: Project, psiFile: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
+  override def invoke(project: Project, psiFile: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit =
     CommandProcessor.getInstance().executeCommand(project, () => {
-      if (startElement == endElement) {
+      if startElement == endElement then {
         applySuggestion(project, startElement)
       } else {
         val commonParent = PsiTreeUtil.findCommonParent(startElement, endElement)
-        for {
+        for
           se <- findDirectChildOfCommonParent(startElement, commonParent)
           ee <- findDirectChildOfCommonParent(endElement, commonParent)
-        } yield {
-          if (toSuggestion.isEmpty) {
-            if (Option(ee.getNextSibling).exists(e => e.getNode.getElementType == HaskellTypes.HS_NEWLINE)) {
+        yield {
+          if toSuggestion.isEmpty then {
+            if Option(ee.getNextSibling).exists(e => e.getNode.getElementType == HaskellTypes.HS_NEWLINE) then {
               commonParent.deleteChildRange(se, ee.getNextSibling)
             } else {
               commonParent.deleteChildRange(se, ee)
@@ -131,26 +117,19 @@ class ManualHLintQuickfix(startElement: PsiElement, endElement: PsiElement, star
       HaskellFileUtil.saveFile(psiFile)
       HaskellAnnotator.restartDaemonCodeAnalyzerForFile(psiFile)
     }, null, null)
-  }
 
-  private def applySuggestion(project: Project, startElement: PsiElement) = {
+  private def applySuggestion(project: Project, startElement: PsiElement) =
     HaskellElementFactory.createBody(project, toSuggestion.replaceAll("\n", "\n" + " " * (startColumnNr - 1))).foreach(startElement.replace)
-  }
 
   @tailrec
-  private def findDirectChildOfCommonParent(psiElement: PsiElement, parent: PsiElement): Option[PsiElement] = {
-    Option(psiElement.getParent) match {
+  private def findDirectChildOfCommonParent(psiElement: PsiElement, parent: PsiElement): Option[PsiElement] =
+    Option(psiElement.getParent) match
       case None => None
       case Some(p) if p == parent => Some(psiElement)
       case _ => findDirectChildOfCommonParent(psiElement.getParent, parent)
-    }
-  }
 
-  private def noteText(note: Seq[String]) = {
-    if (note.isEmpty) {
+  private def noteText(note: Seq[String]) =
+    if note.isEmpty then
       ""
-    } else {
+    else
       s" [Note: ${note.mkString("\n")}]"
-    }
-  }
-}

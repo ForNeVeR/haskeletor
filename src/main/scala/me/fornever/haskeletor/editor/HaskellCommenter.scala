@@ -13,53 +13,40 @@ import com.intellij.psi.PsiComment
 import com.intellij.psi.tree.IElementType
 import me.fornever.haskeletor.psi.HaskellTypes
 
-class HaskellCommenter extends CodeDocumentationAwareCommenter {
-  def getLineCommentPrefix: String = {
+class HaskellCommenter extends CodeDocumentationAwareCommenter:
+  def getLineCommentPrefix: String =
     "--"
-  }
 
-  def getBlockCommentPrefix: String = {
+  def getBlockCommentPrefix: String =
     "{-"
-  }
 
-  def getBlockCommentSuffix: String = {
+  def getBlockCommentSuffix: String =
     "-}"
-  }
 
-  def getCommentedBlockCommentPrefix: String = {
+  def getCommentedBlockCommentPrefix: String =
     "{-"
-  }
 
-  def getCommentedBlockCommentSuffix: String = {
+  def getCommentedBlockCommentSuffix: String =
     "-}"
-  }
 
-  def getLineCommentTokenType: IElementType = {
+  def getLineCommentTokenType: IElementType =
     HaskellTypes.HS_COMMENT
-  }
 
-  def getBlockCommentTokenType: IElementType = {
+  def getBlockCommentTokenType: IElementType =
     HaskellTypes.HS_NCOMMENT
-  }
 
   // Haskell documentation does not have similar syntax/structure as Javadoc so makes no sense to put some values here.
-  def getDocumentationCommentTokenType: IElementType = {
+  def getDocumentationCommentTokenType: IElementType =
     null
-  }
 
-  def getDocumentationCommentPrefix: String = {
+  def getDocumentationCommentPrefix: String =
     null
-  }
 
-  def getDocumentationCommentLinePrefix: String = {
+  def getDocumentationCommentLinePrefix: String =
     null
-  }
 
-  def getDocumentationCommentSuffix: String = {
+  def getDocumentationCommentSuffix: String =
     null
-  }
 
-  def isDocumentationComment(element: PsiComment): Boolean = {
+  def isDocumentationComment(element: PsiComment): Boolean =
     element.getText.startsWith("-- |") || element.getText.startsWith("{-|")
-  }
-}

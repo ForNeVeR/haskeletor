@@ -9,7 +9,7 @@
 package me.fornever.haskeletor.runconfig.console
 
 import com.intellij.execution.Executor
-import com.intellij.execution.configurations._
+import com.intellij.execution.configurations.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
 import me.fornever.haskeletor.external.component.HaskellComponentsManager
@@ -19,7 +19,7 @@ import java.lang
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
 class HaskellConsoleConfiguration(name: String, project: Project, configurationFactory: ConfigurationFactory)
-  extends HaskellStackConfigurationBase(name, project, configurationFactory) {
+  extends HaskellStackConfigurationBase(name, project, configurationFactory):
 
   private var stackTarget: String = ""
   val replCommand = "ghci"
@@ -28,15 +28,11 @@ class HaskellConsoleConfiguration(name: String, project: Project, configurationF
 
   override def getState(executor: Executor, environment: ExecutionEnvironment) = new HaskellConsoleState(this, environment)
 
-  def getStackTargetNames: lang.Iterable[String] = {
+  def getStackTargetNames: lang.Iterable[String] =
     HaskellComponentsManager.findCabalInfos(project).flatMap(_.cabalStanzas.map(_.targetName)).asJava
-  }
 
-  def setStackTarget(target: String): Unit = {
+  def setStackTarget(target: String): Unit =
     stackTarget = target
-  }
 
-  def getStackTarget: String = {
+  def getStackTarget: String =
     stackTarget
-  }
-}

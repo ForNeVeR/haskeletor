@@ -16,7 +16,7 @@ import me.fornever.haskeletor.runconfig.test.HaskellTestConfigurationFactory
 
 import javax.swing.Icon
 
-class HaskellStackConfigurationType extends ConfigurationType {
+class HaskellStackConfigurationType extends ConfigurationType:
   def getDisplayName: String = "Haskell Stack"
 
   def getConfigurationTypeDescription: String = "Haskell Stack configuration"
@@ -30,4 +30,3 @@ class HaskellStackConfigurationType extends ConfigurationType {
     new HaskellRunConfigurationFactory(this),
     new HaskellTestConfigurationFactory(this)
   )
-}

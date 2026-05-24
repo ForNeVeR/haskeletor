@@ -18,24 +18,18 @@ import java.io.{DataInput, DataOutput}
   * A specialization of FileBasedIndexExtension allowing to create a mapping [DataObject -> List of files containing this object]
   *
   */
-object ScalaScalarIndexExtension {
+object ScalaScalarIndexExtension:
   final val VoidDataExternalizer: DataExternalizer[Unit] = new ScalaScalarIndexExtension.UnitDataExternalizer
 
-  private class UnitDataExternalizer extends DataExternalizer[Unit] {
-    def save(out: DataOutput, value: Unit): Unit = {
+  private class UnitDataExternalizer extends DataExternalizer[Unit]:
+    def save(out: DataOutput, value: Unit): Unit =
       out.write(0)
-    }
 
-    def read(in: DataInput): Unit = {
+    def read(in: DataInput): Unit =
       in.readByte()
-    }
-  }
 
-}
 
-abstract class ScalaScalarIndexExtension[K] extends FileBasedIndexExtension[K, Unit] {
-  override def getValueExternalizer: DataExternalizer[Unit] = {
+abstract class ScalaScalarIndexExtension[K] extends FileBasedIndexExtension[K, Unit]:
+  override def getValueExternalizer: DataExternalizer[Unit] =
     ScalaScalarIndexExtension.VoidDataExternalizer
-  }
-}
 

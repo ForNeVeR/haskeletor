@@ -13,11 +13,10 @@ import me.fornever.haskeletor.psi.{HaskellNamedElement, HaskellQName, HaskellQua
 
 abstract class HaskellQualifiedNameElementImpl(node: ASTNode) extends HaskellCompositeElementImpl(node)
   with HaskellQualifiedNameElement
-  with HaskellQName {
+  with HaskellQName:
 
   override def getName: String = HaskellPsiImplUtil.getName(this)
 
   def getIdentifierElement: HaskellNamedElement = HaskellPsiImplUtil.getIdentifierElement(this)
 
   def getQualifierName: Option[String] = HaskellPsiImplUtil.getQualifierName(this)
-}

@@ -10,14 +10,14 @@ package me.fornever.haskeletor.psi.impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
-import me.fornever.haskeletor.psi._
+import me.fornever.haskeletor.psi.*
 
 import java.util.logging.Logger
 
 abstract class HaskellDeclarationElementImpl(node: ASTNode) extends HaskellCompositeElementImpl(node)
-  with HaskellDeclarationElement {
+  with HaskellDeclarationElement:
 
-  def getIdentifierElements: Iterable[HaskellNamedElement] = this match {
+  def getIdentifierElements: Iterable[HaskellNamedElement] = this match
     case e: HaskellTypeSignature => HaskellPsiImplUtil.getIdentifierElements(e)
     case e: HaskellTypeDeclaration => HaskellPsiImplUtil.getIdentifierElements(e)
     case e: HaskellClassDeclaration => HaskellPsiImplUtil.getIdentifierElements(e)
@@ -33,9 +33,7 @@ abstract class HaskellDeclarationElementImpl(node: ASTNode) extends HaskellCompo
     case _ =>
       Logger.getLogger(getClass.getName).warning(s"Unknown declaration element: $this")
       Seq.empty
-  }
 
   override def getName: String = HaskellPsiImplUtil.getName(this)
 
   override def getPresentation: ItemPresentation = HaskellPsiImplUtil.getPresentation(this)
-}

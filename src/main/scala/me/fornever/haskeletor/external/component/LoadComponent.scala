@@ -12,31 +12,30 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiFile
 import me.fornever.haskeletor.annotator.HaskellAnnotator
 import me.fornever.haskeletor.core.compiler.{CompilationResult, HaskellCompilationResultHelper}
+import me.fornever.haskeletor.external.repl.*
 import me.fornever.haskeletor.external.repl.ProjectStackRepl.Loaded
-import me.fornever.haskeletor.external.repl._
 import me.fornever.haskeletor.psi.HaskellPsiUtil
 import me.fornever.haskeletor.util.ScalaUtil
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex
 
-private[component] object LoadComponent {
+private[component] object LoadComponent:
 
-  def isModuleLoaded(moduleName: Option[String], psiFile: PsiFile): Boolean = {
+  def isModuleLoaded(moduleName: Option[String], psiFile: PsiFile): Boolean =
     isFileLoaded(psiFile) || {
-      for {
+      for
         mn <- moduleName
         repl <- StackReplsManager.getProjectRepl(psiFile)
-      } yield repl.isModuleLoaded(mn)
+      yield repl.isModuleLoaded(mn)
     }.contains(true)
-  }
 
-  def load(psiFile: PsiFile, fileModified: Boolean): Option[CompilationResult] = {
+  def load(psiFile: PsiFile, fileModified: Boolean): Option[CompilationResult] =
     val project = psiFile.getProject
 
     StackReplsManager.getProjectRepl(psiFile).flatMap(projectRepl => {
 
       // The REPL is not started if target which it's depends on has compile errors at the moment of start.
       synchronized {
-        if (!projectRepl.available && !projectRepl.starting) {
+        if !projectRepl.available && !projectRepl.starting then {
           projectRepl.start()
         }
       }
@@ -45,7 +44,7 @@ private[component] object LoadComponent {
       val moduleName = HaskellPsiUtil.findModuleName(psiFile)
 
       {
-        if (HaskellAnnotator.getNotLoadedFiles(project).contains(psiFile)) {
+        if HaskellAnnotator.getNotLoadedFiles(project).contains(psiFile) then {
           HaskellAnnotator.removeNotLoadedFile(psiFile)
           projectRepl.load(psiFile, fileModified, moduleName, forceNoReload = true)
         } else {
@@ -60,7 +59,7 @@ private[component] object LoadComponent {
             TypeInfoComponent.invalidateAll(project)
             NameInfoComponent.invalidateProjectInfo(project)
 
-            if (!loadFailed) {
+            if !loadFailed then {
               moduleName.foreach(mn => {
                 NameInfoComponent.invalidateNotFound(project)
                 DefinitionLocationComponent.invalidateNotFound(project)
@@ -74,10 +73,7 @@ private[component] object LoadComponent {
         case _ => None
       }
     })
-  }
 
-  private def isFileLoaded(psiFile: PsiFile): Boolean = {
+  private def isFileLoaded(psiFile: PsiFile): Boolean =
     val projectRepl = StackReplsManager.getProjectRepl(psiFile)
     projectRepl.map(_.isFileLoaded(psiFile)).contains(Loaded)
-  }
-}

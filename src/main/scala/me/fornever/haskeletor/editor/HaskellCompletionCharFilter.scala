@@ -12,15 +12,12 @@ import com.intellij.codeInsight.lookup.CharFilter.Result
 import com.intellij.codeInsight.lookup.{CharFilter, Lookup}
 import me.fornever.haskeletor.HaskellFile
 
-class HaskellCompletionCharFilter extends CharFilter {
-  def acceptChar(c: Char, prefixLength: Int, lookup: Lookup): CharFilter.Result = {
-    if (lookup == null || lookup.getPsiElement == null) return null
+class HaskellCompletionCharFilter extends CharFilter:
+  def acceptChar(c: Char, prefixLength: Int, lookup: Lookup): CharFilter.Result =
+    if lookup == null || lookup.getPsiElement == null then return null
     val file = lookup.getPsiFile
-    if (!file.isInstanceOf[HaskellFile]) return null
+    if !file.isInstanceOf[HaskellFile] then return null
 
-    c match {
+    c match
       case ' ' |',' | ';' | ':' | '(' | ')' | '[' | ']' | '{' | '}' => Result.SELECT_ITEM_AND_FINISH_LOOKUP
       case _ => Result.ADD_TO_PREFIX
-    }
-  }
-}
