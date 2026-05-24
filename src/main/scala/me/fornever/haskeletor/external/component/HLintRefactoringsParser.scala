@@ -8,9 +8,9 @@
 
 package me.fornever.haskeletor.external.component
 
+import fastparse.*
 import fastparse.Parsed.{Failure, Success}
-import fastparse.SingleLineWhitespace._
-import fastparse._
+import fastparse.SingleLineWhitespace.*
 
 object HLintRefactoringsParser {
 
@@ -42,34 +42,34 @@ object HLintRefactoringsParser {
   }
 
   @annotation.nowarn
-  private def refactoringParser[T: P]: P[Refactoring] = P("[" ~ (deleteParser | replaceParser | modifyCommentParser | insertCommentParser | removeAsKeywordParser) ~ "]")
+  private inline def refactoringParser(implicit ctx: P[_]): P[Refactoring] = P("[" ~ (deleteParser | replaceParser | modifyCommentParser | insertCommentParser | removeAsKeywordParser) ~ "]")
 
   private[component] def parseSubts(hlintOutput: String): Parsed[Subts] = parse(hlintOutput, subtsParser(_), verboseFailures = true)
 
   private[component] def parsePos(hlintOutput: String): Parsed[SrcSpan] = parse(hlintOutput, posParser(_), verboseFailures = true)
 
   @annotation.nowarn
-  private def deleteParser[T: P]: P[Delete] = P("Delete" ~ keyRtypePosParser(Pass)).map({ case (x, y, _) => Delete(x, y) })
+  private def deleteParser(implicit ctx: P[_]): P[Delete] = P("Delete" ~ keyRtypePosParser(Pass)).map({ case (x, y, _) => Delete(x, y) })
 
-  private def replaceParser[T: P]: P[Replace] = P("Replace" ~ keyRtypePosParser(commaParser ~ "subts =" ~ subtsParser ~ commaParser ~ keyValueParser("orig", string)) ~ (commaParser ~ deleteParser).rep)
+  private def replaceParser(implicit ctx: P[_]): P[Replace] = P("Replace" ~ keyRtypePosParser(commaParser ~ "subts =" ~ subtsParser ~ commaParser ~ keyValueParser("orig", string)) ~ (commaParser ~ deleteParser).rep)
     .map({ case (x, y, (w, z), q) => Replace(x, y, w, z, q) })
 
-  private def modifyCommentParser[T: P]: P[ModifyComment] = P("ModifyComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
+  private def modifyCommentParser(implicit ctx: P[_]): P[ModifyComment] = P("ModifyComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
     map({ case (x, y) => ModifyComment(x, y) })
 
-  private def insertCommentParser[T: P]: P[InsertComment] = P("InsertComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
+  private def insertCommentParser(implicit ctx: P[_]): P[InsertComment] = P("InsertComment" ~ "{" ~ posParser ~ commaParser ~ keyValueParser("newComment", string) ~ "}").
     map({ case (x, y) => InsertComment(x, y) })
 
-  private def removeAsKeywordParser[T: P]: P[RemoveAsKeyword] = P("RemoveAsKeyword" ~ "{" ~ posParser ~ "}").
+  private def removeAsKeywordParser(implicit ctx: P[_]): P[RemoveAsKeyword] = P("RemoveAsKeyword" ~ "{" ~ posParser ~ "}").
     map({ case (x) => RemoveAsKeyword(x) })
 
-  private def keyRtypePosParser[T: P, A](rest: => P[A]) = "{" ~ keyRtypeParser ~ commaParser ~ posParser ~ rest ~ "}"
+  private def keyRtypePosParser[A](rest: => P[A])(implicit ctx: P[_]) = "{" ~ keyRtypeParser ~ commaParser ~ posParser ~ rest ~ "}"
 
-  private def subtsParser[T: P] = P("[" ~ (subtParser ~ commaParser.?).rep ~ "]")
+  private inline def subtsParser(implicit ctx: P[_]) = P("[" ~ (subtParser ~ commaParser.?).rep ~ "]")
 
-  private def subtParser[T: P] = P("(" ~ string ~ commaParser ~ srcSpanParser ~ ")")
+  private def subtParser(implicit ctx: P[_]) = P("(" ~ string ~ commaParser ~ srcSpanParser ~ ")")
 
-  private def rtypeParser[T: P]: P[RType] = {
+  private def rtypeParser(implicit ctx: P[_]): P[RType] = {
     P(IgnoreCase("Expr")).map(_ => Expr) |
       P(IgnoreCase("Decl")).map(_ => Decl) |
       P(IgnoreCase("Type")).map(_ => Type) |
@@ -83,31 +83,31 @@ object HLintRefactoringsParser {
 
   private def stringChars(c: Char) = c != '\"' && c != '\\'
 
-  private def strChars[T: P] = P(CharsWhile(stringChars))
+  private def strChars(implicit ctx: P[_]) = P(CharsWhile(stringChars))
 
-  private def hexDigit[T: P] = P(CharIn("0-9a-fA-F"))
+  private def hexDigit(implicit ctx: P[_]) = P(CharIn("0-9a-fA-F"))
 
-  private def unicodeEscape[T: P] = P("u" ~ hexDigit ~ hexDigit ~ hexDigit ~ hexDigit)
+  private def unicodeEscape(implicit ctx: P[_]) = P("u" ~ hexDigit ~ hexDigit ~ hexDigit ~ hexDigit)
 
-  private def escape[T: P] = P("\\" ~ (CharIn("\"/\\\\bfnrt") | unicodeEscape))
+  private def escape(implicit ctx: P[_]) = P("\\" ~ (CharIn("\"/\\\\bfnrt") | unicodeEscape))
 
-  private def string[T: P] = P("\"" ~/ (strChars | escape).rep.! ~ "\"")
-
-  @annotation.nowarn
-  private def digits[T: P] = P(CharsWhileIn("0-9"))
+  private def string(implicit ctx: P[_]) = P("\"" ~/ (strChars | escape).rep.! ~ "\"")
 
   @annotation.nowarn
-  private def keyValueParser[T: P, A](keyName: String, valueParser: => P[A]) = s"$keyName" ~ "=" ~ valueParser
+  private def digits(implicit ctx: P[_]) = P(CharsWhileIn("0-9"))
 
-  private def keyDigitsParser[p: P](keyName: String) = keyValueParser[p, String](keyName, digits.!).map(_.toInt)
+  @annotation.nowarn
+  private def keyValueParser[A](keyName: String, valueParser: => P[A])(implicit ctx: P[_]) = s"$keyName" ~ "=" ~ valueParser
 
-  private def keyRtypeParser[T: P] = keyValueParser("rtype", rtypeParser)
+  private def keyDigitsParser(keyName: String)(implicit ctx: P[_]) = keyValueParser[String](keyName, digits.!).map(_.toInt)
 
-  private def commaParser[T: P] = ","
+  private def keyRtypeParser(implicit ctx: P[_]) = keyValueParser("rtype", rtypeParser)
 
-  private def posParser[T: P] = "pos" ~ "=" ~ srcSpanParser
+  private def commaParser(implicit ctx: P[_]) = ","
 
-  private def srcSpanParser[T: P] = "SrcSpan" ~
+  private inline def posParser(implicit ctx: P[_]) = "pos" ~ "=" ~ srcSpanParser
+
+  private def srcSpanParser(implicit ctx: P[_]) = "SrcSpan" ~
     ("{" ~
       keyDigitsParser("startLine") ~ commaParser ~
       keyDigitsParser("startCol") ~ commaParser ~
