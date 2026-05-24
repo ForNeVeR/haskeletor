@@ -9,7 +9,7 @@ Changelog
 
 The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the README file][docs.readme] for more details on how the project is versioned.
 
-## [Unreleased] (2.0.0)
+## [2.0.0] - 2026-05-24
 ### Removed
 - **Import Project** functionality (was tied too tightly to IntelliJ IDEA).
 - **Haskell Problems** view. The errors and warnings have been migrated to the main IntelliJ **Problems View**.
@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the REA
 
 ### Changed
 - All the UI forms and components used by the plugin have been adjusted to no more rely on the IntelliJ UI Designer.
+- A lot of internal changes (including update from Scala 2 to Scala 3, and implementation of certain async activities in Kotlin).
 
 ## [1.0.1] - 2026-04-18
 ### Fixed
@@ -54,4 +55,5 @@ Haskeletor is a fork of [intellij-haskell][] (by @rikvdkleij and contributors), 
 
 [1.0.0]: https://github.com/ForNeVeR/haskeletor/commits/v1.0.0
 [1.0.1]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.0...v1.0.1
-[Unreleased]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.1...HEAD
+[2.0.0]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.1...v2.0.0
+[Unreleased]: https://github.com/ForNeVeR/haskeletor/compare/v2.0.0...HEAD
