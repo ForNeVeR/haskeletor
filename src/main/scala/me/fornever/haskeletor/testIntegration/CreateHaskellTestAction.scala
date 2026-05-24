@@ -15,7 +15,7 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import me.fornever.haskeletor.action.CreateHaskellFileAction
 import me.fornever.haskeletor.psi.HaskellModuleDeclaration
@@ -48,13 +48,13 @@ class CreateHaskellTestAction extends PsiElementBaseIntentionAction {
         val additionalProps = new Properties()
         additionalProps.setProperty("SUT_NAME", moduleName)
 
-        // If the user left the dialog by any other mean than "OK" then abort everything
-        if (!createTestDialog.showAndGet) return
-        val testFileCreation: Runnable = () => createTestFileAction.createFileFromTemplate(createTestDialog.getModuleName, testTemplate, testRootDirectory, additionalProps)
-        try {
-          WriteCommandAction.runWriteCommandAction(project, testFileCreation)
-        } catch {
-          case e: Throwable => Messages.showErrorDialog(project, s"Error while creating test module: ${e.getMessage}", "Failed to create test module");
+        if (createTestDialog.showAndGet) {
+          val testFileCreation: Runnable = () => createTestFileAction.createFileFromTemplate(createTestDialog.getModuleName, testTemplate, testRootDirectory, additionalProps)
+          try {
+            WriteCommandAction.runWriteCommandAction(project, testFileCreation)
+          } catch {
+            case e: Throwable => Messages.showErrorDialog(project, s"Error while creating test module: ${e.getMessage}", "Failed to create test module");
+          }
         }
       })
   }

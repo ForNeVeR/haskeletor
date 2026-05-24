@@ -29,7 +29,7 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
         val problem = HaskellCompilationResultHelper.parseErrorLine(output)
 
         Then("it should return Some with correct data")
-        problem shouldBe a[Some[_]]
+        problem shouldBe a[Some[?]]
         val p = problem.get
         p.lineNr should equal(1)
         p.columnNr should equal(11)
@@ -79,7 +79,7 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
         val problem = HaskellCompilationResultHelper.parseErrorLine(output)
 
         Then("it should return Some with correct file path")
-        problem shouldBe a[Some[_]]
+        problem shouldBe a[Some[?]]
         val p = problem.get
         p.lineNr should equal(5)
         p.columnNr should equal(2)
@@ -94,7 +94,7 @@ class HaskellCompilationResultHelperSpec extends AnyFunSpec with Matchers with G
         val problem = HaskellCompilationResultHelper.parseErrorLine(output)
 
         Then("it should normalize the spaces")
-        problem shouldBe a[Some[_]]
+        problem shouldBe a[Some[?]]
         problem.get.plainMessage should equal("error with many spaces")
       }
     }

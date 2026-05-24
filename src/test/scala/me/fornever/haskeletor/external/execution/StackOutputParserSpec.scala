@@ -7,7 +7,7 @@
 package me.fornever.haskeletor.external.execution
 
 import com.jetbrains.rd.util.lifetime.Lifetime
-import me.fornever.haskeletor.core.stack._
+import me.fornever.haskeletor.core.stack.*
 import org.junit.runner.RunWith
 import org.scalatest.GivenWhenThen
 import org.scalatest.funspec.AnyFunSpec
@@ -66,7 +66,7 @@ class StackOutputParserSpec extends AnyFunSpec with Matchers with GivenWhenThen 
     val parser = new StackOutputParser
     val events = ArrayBuffer.empty[StackOutputEvent]
 
-    parser.event.advise(Lifetime.Companion.getEternal, { event: StackOutputEvent =>
+    parser.event.advise(Lifetime.Companion.getEternal, { (event: StackOutputEvent) =>
       events += event
       kotlin.Unit.INSTANCE
     })

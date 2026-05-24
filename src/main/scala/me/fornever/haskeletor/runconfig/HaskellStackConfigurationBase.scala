@@ -46,4 +46,7 @@ abstract class HaskellStackConfigurationBase(name: String, project: Project, con
   }
 
   def getStackArgs: String = stackArgs
+
+  override def clone(): HaskellStackConfigurationBase =
+    super.clone().asInstanceOf[HaskellStackConfigurationBase]
 }
