@@ -141,7 +141,10 @@ class HaskellProjectManager(private val project: Project) {
     }
 
     private fun processConfigFile(file: VirtualFile, exists: Boolean) {
-        if (!isConfigFile(file.toNioPath())) return
+        if (!file.isInLocalFileSystem) return
+
+        val path = file.toNioPath()
+        if (!isConfigFile(path)) return
 
         val projectFileIndex = ProjectFileIndex.getInstance(project)
         val shouldExist = exists && projectFileIndex.isInContent(file)
@@ -150,7 +153,7 @@ class HaskellProjectManager(private val project: Project) {
                 " Exists: $exists, isInContent: ${projectFileIndex.isInContent(file)}."
         }
 
-        modifyConfigFileMap(file.toNioPath(), shouldExist)
+        modifyConfigFileMap(path, shouldExist)
     }
 
     private fun replaceConfigFiles(paths: Set<Path>) {
