@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     steps:
     - name: Check out the sources
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Cache downloaded JDK
       uses: actions/cache@v5
       with:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Check out the sources
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Verify encoding
       shell: pwsh
       run: Install-Module VerifyEncoding -Repository PSGallery -RequiredVersion 2.3.0 -Force && Test-Encoding -ExcludeExtensions '.bat', '.DotSettings'
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Check out the sources
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: REUSE license check
       uses: fsfe/reuse-action@v6
   verify-workflows:
@@ -67,7 +67,7 @@ jobs:
       NUGET_PACKAGES: ${{ github.workspace }}/.github/nuget-packages
     steps:
     - name: Check out the sources
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v5
     - name: Verify workflows
