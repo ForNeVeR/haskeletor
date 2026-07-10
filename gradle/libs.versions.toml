@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [versions]
-intellij-gradle = "2.16.0"
+intellij-gradle = "2.18.1"
 intellij-platform = "2026.1"
 junit = "6.1.0"
 kotlin = "2.3.21"
