@@ -19,6 +19,7 @@ import me.fornever.haskeletor.util.*
 import me.fornever.haskeletor.util.index.HaskellModuleNameIndex.*
 
 import scala.concurrent.TimeoutException
+import scala.util.control.NonFatal
 
 private[component] object DefinitionLocationComponent:
   private final val LocAtPattern = """(.+):\(([\d]+),([\d]+)\)-\(([\d]+),([\d]+)\)""".r
@@ -70,7 +71,7 @@ private[component] object DefinitionLocationComponent:
     try
       action
     catch
-      case _: Throwable => false
+      case NonFatal(_) => false
 
   private def checkValidKey(key: Key): Boolean =
     ApplicationUtil.runReadAction(ignoreException(key.qualifiedNameElement.isValid)) && ApplicationUtil.runReadAction(ignoreException(key.qualifiedNameElement.getIdentifierElement.isValid))

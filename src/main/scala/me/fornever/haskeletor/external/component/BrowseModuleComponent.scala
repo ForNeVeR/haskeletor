@@ -122,7 +122,7 @@ private[component] object BrowseModuleComponent:
       case None => Left(ReplNotAvailable)
 
   // This kind of declarations are returned in case DuplicateRecordFields are enabled
-  private final val Module$SelPattern = """([\w.\-]+)\.\$sel:([^:]+)(?::[^:]+)?::(.*)""".r
+  private final val ModuleSelPattern = """([\w.\-]+)\.\$sel:([^:]+)(?::[^:]+)?::(.*)""".r
 
   def createLibraryModuleIdentifier(project: Project, declarationLine: String, moduleName: String): Option[ModuleIdentifier] =
     DeclarationUtil.getDeclarationInfo(declarationLine, containsQualifiedIds = true).map(declarationInfo => {
@@ -143,7 +143,7 @@ private[component] object BrowseModuleComponent:
 
   private def createProjectModuleIdentifier(project: Project, declarationLine: String, moduleName: String): Option[ModuleIdentifier] =
     declarationLine match
-      case Module$SelPattern(mn, id, fieldType) => Some(ModuleIdentifier(id, mn, s"$id :: $fieldType", StringUtil.isWithinParens(id)))
+      case ModuleSelPattern(mn, id, fieldType) => Some(ModuleIdentifier(id, mn, s"$id :: $fieldType", StringUtil.isWithinParens(id)))
       case _ => DeclarationUtil.getDeclarationInfo(declarationLine, containsQualifiedIds = true).
         map(declarationInfo => ModuleIdentifier(declarationInfo.id, moduleName, declarationInfo.declarationLine, declarationInfo.operator))
 

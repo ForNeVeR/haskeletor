@@ -21,6 +21,7 @@ import me.fornever.haskeletor.action.CreateHaskellFileAction
 import me.fornever.haskeletor.psi.HaskellModuleDeclaration
 
 import java.util.Properties
+import scala.util.control.NonFatal
 
 /**
   * Orchestrate the test module creation
@@ -53,7 +54,7 @@ class CreateHaskellTestAction extends PsiElementBaseIntentionAction:
           try {
             WriteCommandAction.runWriteCommandAction(project, testFileCreation)
           } catch {
-            case e: Throwable => Messages.showErrorDialog(project, s"Error while creating test module: ${e.getMessage}", "Failed to create test module");
+            case NonFatal(e) => Messages.showErrorDialog(project, s"Error while creating test module: ${e.getMessage}", "Failed to create test module");
           }
         }
       })
