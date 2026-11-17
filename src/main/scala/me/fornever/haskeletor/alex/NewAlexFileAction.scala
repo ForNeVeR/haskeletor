@@ -17,6 +17,8 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.{PsiDirectory, PsiFile}
 import me.fornever.haskeletor.icons.HaskellIcons
 
+import scala.util.control.NonFatal
+
 /**
   * @author ice1000
   */
@@ -44,5 +46,5 @@ class NewAlexFileAction extends CreateFileFromTemplateAction(NewAlexFileAction.N
       .create()
       .getContainingFile
   catch
-    case _: Throwable => null
+    case NonFatal(_) => null
 

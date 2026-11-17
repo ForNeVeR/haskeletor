@@ -75,6 +75,7 @@ final class HaskellFormattingService extends AsyncDocumentFormattingService:
 
       override def isRunUnderProgress: Boolean = true
 
+  @annotation.nowarn("msg=Catching Throwable") // we want to catch any errors here to pass into the future
   private def reformatFile(project: Project, file: Path, formattingRequest: AsyncFormattingRequest): Option[CompletableFuture[String]] =
     StackProjectManager.isOrmoluAvailable(project).map { ormoluPath =>
       val commandLine = new GeneralCommandLine(
