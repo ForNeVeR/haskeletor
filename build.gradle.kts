@@ -64,6 +64,7 @@ dependencies {
 
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
+        bundledModule("intellij.platform.buildView")
 
         pluginComposedModule(implementation(project(":core")))
         pluginComposedModule(implementation(project(":projectModel")))

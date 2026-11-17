@@ -10,7 +10,6 @@ package me.fornever.haskeletor.stack
 
 import com.intellij.build.BuildProgressListener
 import com.intellij.build.FilePosition
-import com.intellij.build.events.FileMessageEvent
 import com.intellij.build.events.MessageEvent
 import com.intellij.execution.process.AnsiEscapeDecoder
 import com.intellij.execution.process.ProcessEvent
@@ -130,11 +129,10 @@ class BuildViewProcessAdapter(private val buildListener: BuildProgressListener, 
     }
 
     private fun CompilationProblem.toFileMessageEvent(kind: MessageEvent.Kind) =
-        FileMessageEvent.builder(
-            plainMessage(),
-            kind,
-            FilePosition(filePath().toFile(), lineNr(), columnNr())
-        ).withParentId(buildId).build()
+        MessageEvent.builder(plainMessage(), kind)
+            .withFilePosition(FilePosition(filePath(), lineNr(), columnNr()))
+            .withParentId(buildId)
+            .build()
 
     private fun onFileWarning(problem: CompilationProblem) {
         buildListener.onEvent(

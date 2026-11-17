@@ -8,7 +8,7 @@
 
 package me.fornever.haskeletor.annotator
 
-import com.intellij.build.events.{FileMessageEvent, MessageEvent}
+import com.intellij.build.events.MessageEvent
 import com.intellij.build.{BuildViewManager, FilePosition}
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
@@ -39,7 +39,7 @@ import me.fornever.haskeletor.ui.EnterNameDialog
 import me.fornever.haskeletor.util.*
 import me.fornever.haskeletor.{HaskellFile, HaskellFileType}
 
-import java.io.File
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
@@ -79,12 +79,12 @@ class HaskellAnnotator extends ExternalAnnotator[PsiFile, CompilationResult]:
     val buildId = buildSession.getBuildId
 
     def injectProblem(problem: CompilationProblem, file: VirtualFile): Unit =
-      val ioFile = new File(file.getPath)
-      val fileMessageEvent = FileMessageEvent.builder(
+      val fileMessageEvent = MessageEvent.builder(
         problem.plainMessage,
-        if problem.isWarning then MessageEvent.Kind.WARNING else MessageEvent.Kind.ERROR,
-        new FilePosition(ioFile, problem.lineNr - 1, problem.columnNr - 1)
-      ).withParentId(buildId).build()
+        if problem.isWarning then MessageEvent.Kind.WARNING else MessageEvent.Kind.ERROR
+      ).withFilePosition(new FilePosition(Path.of(file.getPath), problem.lineNr - 1, problem.columnNr - 1))
+        .withParentId(buildId)
+        .build()
       buildViewManager.onEvent(buildId, fileMessageEvent)
 
     // Inject problems from this file into the build view

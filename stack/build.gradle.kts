@@ -21,6 +21,7 @@ repositories {
 dependencies {
     intellijPlatform {
         intellijIdea(libs.versions.intellij.platform)
+        bundledModule("intellij.platform.buildView")
 
         testFramework(TestFrameworkType.JUnit5)
         testFramework(TestFrameworkType.Platform)

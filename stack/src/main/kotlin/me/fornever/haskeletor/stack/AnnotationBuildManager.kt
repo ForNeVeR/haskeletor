@@ -48,8 +48,7 @@ internal class AnnotationBuildManager(private val project: Project) {
             "Annotation: $fileName",
             project.basePath ?: "",
             System.currentTimeMillis()
-        )
-        buildDescriptor.isNavigateToError = ThreeState.NO
+        ).withNavigateToError(ThreeState.NO)
 
         buildViewManager.onEvent(
             buildId,

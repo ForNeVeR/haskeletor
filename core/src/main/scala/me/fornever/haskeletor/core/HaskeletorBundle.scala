@@ -11,7 +11,7 @@ import org.jetbrains.annotations.{Nls, PropertyKey}
 
 object HaskeletorBundle:
   private final val BUNDLE = "messages.HaskeletorBundle"
-  private val instance = new HaskeletorBundle
+  private val instance = DynamicBundle(HaskeletorBundle.getClass, HaskeletorBundle.BUNDLE)
 
   @Nls
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String): String =
@@ -27,5 +27,3 @@ object HaskeletorBundle:
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): String =
     //noinspection ReferencePassedToNls
     instance.getMessage(key, params*)
-
-class HaskeletorBundle extends DynamicBundle(HaskeletorBundle.BUNDLE)

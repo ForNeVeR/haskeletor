@@ -12,7 +12,7 @@ import com.intellij.ide.actions.CreateFileFromTemplateDialog.Builder
 import com.intellij.ide.actions.{CreateFileAction, CreateFileFromTemplateAction}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.{InputValidatorEx, Messages}
@@ -118,7 +118,7 @@ class CreateHaskellFileAction extends CreateFileFromTemplateAction(CreateHaskell
         try
           val virtualFile = HaskellFileUtil.findVirtualFile(psiFile)
           virtualFile.foreach(vFile => {
-            FileEditorManager.getInstance(project).openFile(vFile, true)
+            FileEditorManager.getInstance(project).requestOpenFile(vFile, FileEditorOpenRequest.withFocus(true))
             Option(getDefaultTemplateProperty).foreach(defaultTemplateProperty => {
               PropertiesComponent.getInstance(project).setValue(defaultTemplateProperty, template.getName)
             })
