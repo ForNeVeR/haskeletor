@@ -9,7 +9,6 @@
 package me.fornever.haskeletor.navigation
 
 import com.intellij.BundleBase
-import com.intellij.ide.IdeBundle
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.ide.util.gotoByName.{CustomMatcherModel, FilteringGotoByModel, LanguageRef}
 import com.intellij.navigation.{ChooseByNameContributor, NavigationItem}
@@ -38,7 +37,7 @@ class GotoByHoogleModel(val project: Project, val contributors: Array[ChooseByNa
     HaskeletorBundle.message("action.goto.no-matches-found", project.getName)
 
   def getNotFoundMessage: String =
-    IdeBundle.message("label.no.matches.found")
+    HaskeletorBundle.message("action.goto.no-matches")
 
   def loadInitialCheckBoxState: Boolean =
     val propertiesComponent: PropertiesComponent = PropertiesComponent.getInstance(myProject)
