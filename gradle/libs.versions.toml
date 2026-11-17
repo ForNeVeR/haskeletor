@@ -4,9 +4,9 @@
 
 [versions]
 intellij-gradle = "2.16.0"
-intellij-platform = "2026.1"
+intellij-platform = "2026.3"
 junit = "6.1.0"
-kotlin = "2.3.21"
+kotlin = "2.4.21-RC"
 scala = "3.8.3"
 
 [libraries]
