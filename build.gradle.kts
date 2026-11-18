@@ -146,33 +146,33 @@ intellijPlatform {
 }
 
 tasks {
-    val generateAlexLexer by registering(GenerateLexerTask::class) {
+    val generateAlexLexer = register<GenerateLexerTask>("generateAlexLexer") {
         sourceFile = file("src/main/flex/_AlexLexer.flex")
         targetRootOutputDir = generatedAlexLexerSourceBase.map { it.dir("me/fornever/haskeletor/alex/lang/lexer") }
         purgeOldFiles = true
     }
-    val generateCabalParsingLexer by registering(GenerateLexerTask::class) {
+    val generateCabalParsingLexer = register<GenerateLexerTask>("generateCabalParsingLexer") {
         sourceFile = file("src/main/flex/_CabalParsingLexer.flex")
         targetRootOutputDir = generatedCabalParsingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/lang/lexer") }
         purgeOldFiles = true
     }
-    val generateCabalSyntaxHighlightingLexer by registering(GenerateLexerTask::class) {
+    val generateCabalSyntaxHighlightingLexer = register<GenerateLexerTask>("generateCabalSyntaxHighlightingLexer") {
         sourceFile = file("src/main/flex/_CabalSyntaxHighlightingLexer.flex")
         targetRootOutputDir = generatedCabalSyntaxHighlightingLexerSourceBase.map { it.dir("me/fornever/haskeletor/cabal/highlighting") }
         purgeOldFiles = true
     }
-    val generateHaskellLexer by registering(GenerateLexerTask::class) {
+    val generateHaskellLexer = register<GenerateLexerTask>("generateHaskellLexer") {
         sourceFile = file("src/main/flex/_HaskellLexer.flex")
         targetRootOutputDir = generatedHaskellLexerSourceBase.map { it.dir("me/fornever/haskeletor") }
         purgeOldFiles = true
     }
 
-    val generateAlexParser by registering(GenerateParserTask::class) {
+    val generateAlexParser = register<GenerateParserTask>("generateAlexParser") {
         sourceFile = file("src/main/bnf/Alex.bnf")
         targetRootOutputDir = generatedAlexParserSourceBase
         purgeOldFiles = true
     }
-    val generateHaskellParser by registering(GenerateParserTask::class) {
+    val generateHaskellParser = register<GenerateParserTask>("generateHaskellParser") {
         sourceFile = file("src/main/bnf/haskell.bnf")
         targetRootOutputDir = generatedHaskellParserSourceBase
         purgeOldFiles = true
@@ -194,8 +194,7 @@ tasks {
         }
     }
 
-    @Suppress("unused") // Used externally to test Rider
-    val runRider by intellijPlatformTesting.runIde.registering {
+    intellijPlatformTesting.runIde.register("runRider") {
         type = IntelliJPlatformType.Rider
         version = libs.versions.intellij.platform
         useInstaller = false
