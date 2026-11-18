@@ -36,6 +36,19 @@ object HLintRefactoringsParser:
   case object Match extends RType
   case object Import extends RType
 
+  // Same as fastparse.P, but builds the failure-stack entry without Predef.ArrowAssoc, which is deprecated since
+  // Scala 3.10.0. Remove once fastparse ships https://github.com/com-lihaoyi/fastparse/pull/340.
+  private inline def P[T](inline t: P[T])(using name: sourcecode.Name, ctx1: P[?]): P[T] =
+    val startIndex = ctx1.index
+    val instrument = ctx1.instrument != null
+    if instrument then ctx1.instrument.beforeParse(name.value, startIndex)
+    val ctx0 = t
+    if instrument then ctx1.instrument.afterParse(name.value, ctx0.index, ctx0.isSuccess)
+    if ctx0.verboseFailures then
+      ctx0.reportAggregateMsg(() => name.value, forceAggregate = startIndex < ctx0.traceIndex)
+      if !ctx0.isSuccess then ctx0.failureStack = (name.value, startIndex) :: ctx0.failureStack
+    ctx0
+
   def parseRefactoring(hlintOutput: String): Either[String, Refactoring] = parse(hlintOutput, ctx => refactoringParser(using ctx), verboseFailures = true) match
     case Success(value, _) => Right(value)
     case Failure(label, i, _) => Left(s"Could not parse HLint output | HLintOutput: $hlintOutput | Label: $label | Index: $i")
