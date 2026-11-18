@@ -187,12 +187,6 @@ tasks {
             generateHaskellLexer,
             generateHaskellParser
         )
-
-        // fastparse 3.1.1 inline macros expand to Predef.ArrowAssoc, deprecated since Scala 3.10.0.
-        // https://github.com/com-lihaoyi/fastparse/issues/339
-        scalaCompileOptions.additionalParameters = scalaCompileOptions.additionalParameters + listOf(
-            "-Wconf:cat=deprecation&msg=ArrowAssoc:s"
-        )
     }
     named<PrepareSandboxTask>("prepareSandbox") {
         from(listOf("README.md", "LICENSE.txt")) {
