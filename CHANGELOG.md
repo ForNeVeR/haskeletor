@@ -9,6 +9,12 @@ Changelog
 
 The format is based on [Keep a Changelog v1.1.0][keep-a-changelog]. See [the README file][docs.readme] for more details on how the project is versioned.
 
+## [2.1.0] - 2026-11-19
+### Changed
+- **(Requirement update)** The minimal supported IDE version is now IntelliJ Platform 2026.3.
+- Minor compatibility fixes.
+- Update the dependencies.
+
 ## [2.0.0] - 2026-05-24
 ### Removed
 - **Import Project** functionality (was tied too tightly to IntelliJ IDEA).
@@ -56,4 +62,5 @@ Haskeletor is a fork of [intellij-haskell][] (by @rikvdkleij and contributors), 
 [1.0.0]: https://github.com/ForNeVeR/haskeletor/commits/v1.0.0
 [1.0.1]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.0...v1.0.1
 [2.0.0]: https://github.com/ForNeVeR/haskeletor/compare/v1.0.1...v2.0.0
-[Unreleased]: https://github.com/ForNeVeR/haskeletor/compare/v2.0.0...HEAD
+[2.1.0]: https://github.com/ForNeVeR/haskeletor/compare/v2.0.0...v2.1.0
+[Unreleased]: https://github.com/ForNeVeR/haskeletor/compare/v2.1.0...HEAD
